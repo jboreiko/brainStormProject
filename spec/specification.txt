@@ -1,1 +1,62 @@
 This will hold the main specification for BrainStorming.  All other files within this folder will be referenced by this document.
+
+Visual Items:
+------------
+chat box (connectivity box) - information bar
+classic menu bot
+contextual suggest
+topic bar
+scroll bar (like google earth)
+mini view
+
+Features:
+--------
+File: save, open, export, new, preferences, print
+Edit: cut, copy, paste, undo, redo
+View: zoom in/out, fit to screen
+Format: compress, rearrange
+
+On Start Up:
+-----------
+Click to insert node
+
+Click Events:
+============
+
+Interacting with white space:
+----------------------------
+rightClick -> sub action menu (insert menu/node menu)
+	   option for multiple node insertion
+	   bubbles
+	   text box
+	   scribble box
+leftClick -> select
+	  (& hold) drag
+
+
+On Click Path:
+-------------
+single -> manipulate
+double -> write in text field
+
+On Click Node:
+-------------
+single -> focus
+double -> write in text field
+
+On Click Scribble:
+-----------------
+single -> focus (drags)
+double -> open drawing field
+
+Suggestion Box:
+==============
+Has text from node in box then allows you to highlight and run and get results
+
+Networking:
+==========
+Actions stored as objects (sent across network as serializable);
+
+Backend Storage:
+===============
+XML with grid layout

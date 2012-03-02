@@ -2,12 +2,12 @@ This will hold the main specification for BrainStorming.  All other files within
 
 Visual Items:
 ------------
-chat box (connectivity box) + search box - bottom left
-classic menu bar 
-contextual suggest
+chat box (connectivity box) + search box : bottom left
+classic menu bar (in macs on top, on Windows associated with window. handled by java)
+contextual suggest box (is in bottom left)
 topic bar - on top
 scroll bar (styled after google earth)
-mini view
+mini view - overview of your entire brainstorm project with a square showing the area you're looking at (like SublimeText)
 
 Features (these go in the 'classic menu bar'):
 --------
@@ -18,7 +18,7 @@ Format: compress, rearrange
 
 On Start Up:
 -----------
-Click to insert node and therefore start a project
+Blank brainstorming session. Click to insert node and therefore start a project
 
 Click Events:
 ============
@@ -35,7 +35,7 @@ leftClick -> select
 	  (& hold) drag
 
 
-On Click Path:
+On Click Path [connection between two nodes]:
 -------------
 single -> manipulate
 double -> write in text field

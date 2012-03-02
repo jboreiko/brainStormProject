@@ -2,14 +2,14 @@ This will hold the main specification for BrainStorming.  All other files within
 
 Visual Items:
 ------------
-chat box (connectivity box) - information bar
-classic menu bot
+chat box (connectivity box) + search box - bottom left
+classic menu bar 
 contextual suggest
-topic bar
-scroll bar (like google earth)
+topic bar - on top
+scroll bar (styled after google earth)
 mini view
 
-Features:
+Features (these go in the 'classic menu bar'):
 --------
 File: save, open, export, new, preferences, print
 Edit: cut, copy, paste, undo, redo
@@ -18,18 +18,19 @@ Format: compress, rearrange
 
 On Start Up:
 -----------
-Click to insert node
+Click to insert node and therefore start a project
 
 Click Events:
 ============
 
 Interacting with white space:
 ----------------------------
-rightClick -> sub action menu (insert menu/node menu)
-	   option for multiple node insertion
-	   bubbles
-	   text box
-	   scribble box
+rightClick -> sub action menu (insert node menu)
+	   option for multiple node insertion (which means left clicking several times keeps adding nodes)
+	   types of nodes:
+		bubbles
+	   	text box
+	   	scribble box
 leftClick -> select
 	  (& hold) drag
 

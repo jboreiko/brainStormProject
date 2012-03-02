@@ -57,6 +57,14 @@ Has text from node in box then allows you to highlight and run and get results
 Networking:
 ==========
 Actions stored as objects (sent across network as serializable);
+Collaboration:
+=============
+For use collab, we will have a chat box at the bottom left
+where user can chat with every other user editing brainstorm session.
+Any user action is global across all other users' brainstorm project
+i.e. there is no division of permission.
+Undo will (tentatively) control a *global* action stack, so that one user can hit udno to undo another user's activities.
+
 
 Backend Storage:
 ===============

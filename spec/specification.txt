@@ -2,12 +2,12 @@ This will hold the main specification for BrainStorming.  All other files within
 
 Visual Items:
 ------------
-chat box (connectivity box) + search box - bottom left
-classic menu bar 
-contextual suggest
+chat box (connectivity box) + search box : bottom left
+classic menu bar (in macs on top, on Windows associated with window. handled by java)
+contextual suggest box (is in bottom left)
 topic bar - on top
 scroll bar (styled after google earth)
-mini view
+mini view - overview of your entire brainstorm project with a square showing the area you're looking at (like SublimeText)
 
 Features (these go in the 'classic menu bar'):
 --------
@@ -18,7 +18,7 @@ Format: compress, rearrange
 
 On Start Up:
 -----------
-Click to insert node and therefore start a project
+Blank brainstorming session. Click to insert node and therefore start a project
 
 Click Events:
 ============
@@ -35,7 +35,7 @@ leftClick -> select
 	  (& hold) drag
 
 
-On Click Path:
+On Click Path [connection between two nodes]:
 -------------
 single -> manipulate
 double -> write in text field
@@ -57,6 +57,14 @@ Has text from node in box then allows you to highlight and run and get results
 Networking:
 ==========
 Actions stored as objects (sent across network as serializable);
+Collaboration:
+=============
+For use collab, we will have a chat box at the bottom left
+where user can chat with every other user editing brainstorm session.
+Any user action is global across all other users' brainstorm project
+i.e. there is no division of permission.
+Undo will (tentatively) control a *global* action stack, so that one user can hit udno to undo another user's activities.
+
 
 Backend Storage:
 ===============

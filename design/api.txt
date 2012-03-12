@@ -1,0 +1,54 @@
+Primary Desing 03/11/2012
+
+Major Elements and APIs:
+
+MainFrame:
+==========
+	save()
+	load()
+	undo()
+
+Whiteboard:
+===========
+	find(String)
+	addAction()
+	changeViewSize()
+	renderWhole()
+	renderView()
+	
+Whiteboard Element:
+-------------------
+	onClick()
+	onDoubleClick()
+	move()
+	render()
+	destroy()
+	getText()
+	copy()
+
+NodeElement:
+-----------
+	changeType() -> returns nodeElement
+
+PathElement:
+-----------
+	changeType()
+
+Suggest:
+========
+	populate() -> pass in wbe
+	render()
+
+Chat:
+=====
+	render()
+	Message()
+
+Networking:
+===========
+	getIp()
+	becomeHost()
+	becomeClient()
+	sendMessage()
+	sendAction()
+	update()

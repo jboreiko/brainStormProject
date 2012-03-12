@@ -1,0 +1,20 @@
+Responsibilities
+
+networking -> jboreiko
+	client/server
+	chat backend
+suggest/find frontend/chat frontend -> swilcoxo
+	gui for find/chat
+	suggest components
+gui -> bverch
+	api management
+	swing workings
+node functionality -> jfrantz
+        node design
+        word-processing
+	scribble
+	node ui
+backend -> aabeshou
+	data management
+	startup, optimization
+	

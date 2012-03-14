@@ -149,3 +149,12 @@ Binding(COMMAND+SHIFT+T,
 
 !ENTRY org.eclipse.core.net 1 0 2012-03-14 01:10:22.005
 !MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+!SESSION 2012-03-14 01:33:00.341 -----------------------------------------------
+eclipse.buildId=M20100211-1343
+java.version=1.6.0_26
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86
+
+!ENTRY org.eclipse.jdt.launching 1 0 2012-03-14 01:33:37.226
+!MESSAGE Installed JRE 'JVM Contents (MacOS X Default)' removed due to missing VM type extension.

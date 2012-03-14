@@ -1,0 +1,12 @@
+package networking;
+
+public class ClientServer {
+    private enum State {
+        CLIENT, SERVER, NONE
+    }
+    public boolean becomeHost() {
+        return false;
+    }
+    public boolean becomeClient() {
+    }
+}

@@ -1,4 +1,4 @@
-#Wed Mar 14 01:10:19 EDT 2012
+#Wed Mar 14 01:58:25 EDT 2012
 org.eclipse.jdt.ui.PackageExplorer_patternFilterId_.*=true
 semanticHighlighting.localVariableDeclaration.color=53,122,146
 org.eclipse.jdt.ui.packages.linktoeditor=true
@@ -23,7 +23,7 @@ org.eclipse.jdt.ui.text.custom_templates=<?xml version\="1.0" encoding\="UTF-8"?
 org.eclipse.jdt.ui.PackageExplorer.ContainedLibraryFilter=true
 java_bracket=255,255,255
 java_string=71,116,136
-content_assist_lru_history=<?xml version\="1.0" encoding\="UTF-8"?><history maxLHS\="100" maxRHS\="10"><lhs name\="java.lang.CharSequence"><rhs name\="java.lang.String"/></lhs><lhs name\="com.bezurk.web.dao.IHotelCitySearchRequestDAO"><rhs name\="com.bezurk.web.dao.HotelCitySearchRequestDAO"/></lhs><lhs name\="com.bezurk.web.dao.HotelCitySearchRequestDAO"><rhs name\="com.bezurk.web.dao.HotelCitySearchRequestDAO"/></lhs><lhs name\="com.bezurk.web.dao.IHotelSearchClickThroughDAO"><rhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"/></lhs><lhs name\="com.bezurk.web.dao.SomewhatMagicalDAO"><rhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"/></lhs><lhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"><rhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"/></lhs><lhs name\="com.bezurk.web.model.HotelSearchClickThrough"><rhs name\="com.bezurk.web.model.HotelSearchClickThrough"/></lhs><lhs name\="java.lang.Enum"><rhs name\="com.bezurk.web.ajax.LocationService$LocationType"/></lhs><lhs name\="com.bezurk.web.ajax.LocationService$LocationType"><rhs name\="com.bezurk.web.ajax.LocationService$LocationType"/></lhs></history>
+content_assist_lru_history=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><history maxLHS\="100" maxRHS\="10"><lhs name\="java.lang.CharSequence"><rhs name\="java.lang.String"/></lhs><lhs name\="com.bezurk.web.dao.IHotelCitySearchRequestDAO"><rhs name\="com.bezurk.web.dao.HotelCitySearchRequestDAO"/></lhs><lhs name\="com.bezurk.web.dao.HotelCitySearchRequestDAO"><rhs name\="com.bezurk.web.dao.HotelCitySearchRequestDAO"/></lhs><lhs name\="com.bezurk.web.dao.IHotelSearchClickThroughDAO"><rhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"/></lhs><lhs name\="com.bezurk.web.dao.SomewhatMagicalDAO"><rhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"/></lhs><lhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"><rhs name\="com.bezurk.web.dao.HotelSearchClickThroughDAO"/></lhs><lhs name\="com.bezurk.web.model.HotelSearchClickThrough"><rhs name\="com.bezurk.web.model.HotelSearchClickThrough"/></lhs><lhs name\="java.lang.Enum"><rhs name\="com.bezurk.web.ajax.LocationService$LocationType"/></lhs><lhs name\="com.bezurk.web.ajax.LocationService$LocationType"><rhs name\="com.bezurk.web.ajax.LocationService$LocationType"/></lhs></history>
 java_doc_default=140,63,200
 spelling_locale_initialized=true
 java_doc_keyword=128,0,128
@@ -73,7 +73,7 @@ semanticHighlighting.staticField.color=255,255,255
 content_assist_parameters_background=0,0,0
 hoverModifierMasks=org.eclipse.jdt.ui.BestMatchHover;0;org.eclipse.jdt.internal.debug.ui.JavaDebugHover;0;org.eclipse.jdt.ui.ProblemHover;0;org.eclipse.jdt.ui.NLStringHover;0;org.eclipse.jdt.ui.JavadocHover;0;org.eclipse.jdt.ui.JavaSourceHover;131072;org.eclipse.jdt.ui.AnnotationHover;0;
 content_assist_proposals_background=25,25,25
-content_assist_number_of_computers=16
+content_assist_number_of_computers=13
 semanticHighlighting.typeArgument.enabled=true
 org.eclipse.jdt.ui.PackageExplorer.PackageDeclarationFilter=true
 pf_coloring_value=255,255,255

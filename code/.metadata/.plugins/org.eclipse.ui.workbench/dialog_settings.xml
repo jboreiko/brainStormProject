@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="PreferencesImportWizard">
+		<item value="/gpfs/main/home/jboreiko/Downloads/Eclipse preferences.epf" key=""/>
+		<item value="true" key="WizardPreferencesExportPage1.EXPORT_ALL_PREFERENCES_ID"/>
+		<list key="WizardPreferencesExportPage1.STORE_DESTINATION_NAMES_ID">
+			<item value="/gpfs/main/home/jboreiko/Downloads/Eclipse preferences.epf"/>
+		</list>
+	</section>
+	<section name="ImportExportAction">
+		<item value="org.eclipse.ui.wizards.import.Preferences" key="ImportExportPage.STORE_SELECTED_IMPORT_WIZARD_ID"/>
+		<list key="ImportExportPage.STORE_EXPANDED_IMPORT_CATEGORIES">
+			<item value="org.eclipse.ui.Basic"/>
+		</list>
+	</section>
+</section>

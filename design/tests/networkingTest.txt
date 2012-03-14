@@ -1,0 +1,20 @@
+Tests for networking package
+
+Unit tests:
+Instantiate and run client, shutdown properly
+Instantiate and run server, shutdown properly
+Aftering becoming host, get and return ip
+
+System tests:
+Instantiate both a host and a client
+	    conduct each for both host and client:
+	    -send successful message
+	    -receive message successfully
+	    -run successful update
+	    -recieve and account for successful update
+Instantiate a host and two cliets
+	    conduct each for both host and the two clients:
+	    -send successful message
+	    -all recieve message successfully
+	    -run successful update
+	    -receive and account for successful update

@@ -13,3 +13,4 @@ Test highlighting sections of text
 Test parsing and removal of boring content (words like a, the, an, etc) from highlighted section
 
 Test Opening Browser from program
+

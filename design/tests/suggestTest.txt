@@ -1,1 +1,15 @@
 Testing Plans for Suggest, Chat, and Find Box:
+
+Test Establishing Connection to Internet
+
+Test Establishing Connection to API's
+
+Test Parsing of API resutlts
+
+Test removal of Wikipedia sites from Google Search Results since they will already have a dedicated API
+
+Test highlighting sections of text
+
+Test parsing and removal of boring content (words like a, the, an, etc) from highlighted section
+
+Test Opening Browser from program

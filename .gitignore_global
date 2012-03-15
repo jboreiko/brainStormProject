@@ -1,3 +1,4 @@
 # Please do not mess with the ignore file #
 # Stops our eclipse work spaces from interacting #
 .metadata
+bin

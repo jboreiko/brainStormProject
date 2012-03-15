@@ -1,5 +1,0 @@
-package networking;
-
-public class ClientServer extends NetworkingMain {
-
-}

@@ -2,5 +2,3 @@
 # Stops our eclipse work spaces from interacting #
 .metadata
 bin
-.metadata/*
-bin/*

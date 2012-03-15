@@ -1,0 +1,28 @@
+Tests for GUI Package:
+
+Unit Tests:
+
+Test functionality of whiteboard components
+    -ensure whiteboard can take in and manipulate nodes
+    -find() method finding the correct information
+    -ensures addAction() adding the correct action to the modified stack
+    -changeViewSize() properly reformatting and resizing the user window
+    -undo() properly removing one action and adding it to the modified redo stack
+    -ensure all incoming data merged properly
+Test functionality of main elements
+    -all calls to whiteboard's methods successfully instigating these methods
+
+System Tests:
+
+Test functionality of main and whiteboard
+    -whiteboard and all data structures of whiteboard successfully managed
+    -classes successfully instantiated and interfaced, and nodes/data structures properly managed
+
+User Tests:
+
+User friendly environment, easy understanding of hotkeys, etc.
+Able to add nodes in the proper location
+Map and zoom properly implemented
+Navigation properly implemented
+Minimal, if any, locks or hangs
+Aesthetically pleasing layout and overall look

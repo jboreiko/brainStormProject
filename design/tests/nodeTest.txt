@@ -1,0 +1,27 @@
+Our testing plan should have specific actions to ensure correctness of each node.
+The different nodes we will support are bubble nodes, square nodes, and drawing nodes. We will also support paths between each node.
+We wish to avoid testing by manually clicking and dragging an application because we would like to separate Swing functionality from node functionality.
+Therefore, I will create separate classes that will manually instigate callback methods that are usually only called by Swing.
+
+Bubble nodes:
+  A test class that will:
+	Create a Bubble instance
+	call appendText(String) on that bubble.
+		call getText() on that bubble and ensure it worked.
+
+Square Node:
+	appendText(String), getText();
+	bulleting, numbering
+	
+Scribble Node:
+	manually add lines to the box
+	make sure we're selecting colors right
+	line extends past the edges of this scribble	
+	
+
+General node (cross-node functionality) tests:
+	+1 functionality should work
+	attach nodes together with a manually created Path object
+		check that they link to each other. 
+	simulate moving a node, make sure node location adjusts
+	infinite applications of undo (more than the number of actions) should not break our nodes

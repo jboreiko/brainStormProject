@@ -17,6 +17,7 @@ public class Host {
 	public Host(int port) {
 		try {
 			server = new ServerSocket(port);
+            server.setSoTimeout(1);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -28,7 +29,7 @@ public class Host {
 		while (true) {
 			Socket soc = null;
 			try {
-				server.setSoTimeout(1);
+			    System.out.println("Running through loop.");
 				soc = server.accept();
 				if (soc != null) {
 					//accept new connection
@@ -54,6 +55,7 @@ public class Host {
 						System.err.println("Fail on handshake");
 					}
 				}
+				
 				for (Socket s : clients) {
 					System.out.println("Checking client.");
 					ObjectInputStream ois = new ObjectInputStream(s.getInputStream());

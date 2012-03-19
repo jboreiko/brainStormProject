@@ -41,7 +41,7 @@ Whiteboard Element:
 	getText()
 	copy() //this works like clone
 	String encode()
-	Element decode(String s)
+	Element decode(String s) //decodes from XML
 	getUID()
 	getPos() //returns position on board
 	setPos(int x, int y) 

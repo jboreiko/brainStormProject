@@ -49,6 +49,7 @@ public class Client {
 		try {
 			oos.writeObject(new ChatMessage(client_id, msg));
 			oos.flush();
+			System.out.println("Message Sent!");
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

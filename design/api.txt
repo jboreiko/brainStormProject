@@ -7,14 +7,29 @@ MainFrame:
 	save()
 	load()
 	undo()
+	redo()
 
 Whiteboard:
 ===========
 	find(String)
+	addNode(Node n)
+	removeNode(int UID)
+	modifyNode(int UID, String attribute, Object newvalue);
+	addPath(Node a, Node b, ...)
+	removePath(..)
+	modifyPath(..)
+	Node getNode(int UID)
 	addAction()
 	changeViewSize()
 	renderWhole()
 	renderView()
+	String encode()
+	Whiteboard decode(String s)
+	void loadState(Whiteboard w);
+	void compressNodes()
+	copy(int UID);
+	Node getClipboard();
+	paste(int x, int y)//pastes the contents of the clipboard at the given coordinates
 	
 Whiteboard Element:
 -------------------
@@ -24,8 +39,17 @@ Whiteboard Element:
 	render()
 	destroy()
 	getText()
-	copy()
-
+	copy() //this works like clone
+	String encode()
+	Element decode(String s)
+	getUID()
+	getPos() //returns position on board
+	setPos(int x, int y) 
+	translate(int x, int y) //translates it by the given values
+	getPaths() //gives the edges coming out of it
+	/**for each attribute, there needs to be a getter and setter so that the whiteboard can access and modify it
+	**this includes position, style, and anything else we end up using */
+	
 NodeElement:
 -----------
 	changeType() -> returns nodeElement
@@ -33,10 +57,12 @@ NodeElement:
 PathElement:
 -----------
 	changeType()
+	getLength()
+	getVertices()
 
 Suggest:
 ========
-	populate() -> pass in wbe
+	populate() -> pass in WhiteboardElement
 	render()
 
 Chat:

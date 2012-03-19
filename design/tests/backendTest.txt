@@ -1,0 +1,34 @@
+Tests for the Backend:
+
+Unit Tests:
+
+Test functionality of adding and removing nodes:
+	-Ensure a node can no longer be searched/found after removing
+	-Ensure a node can be searched/found after adding
+Test functionality of the action stack:
+	-Ensure you can undo unlimited times backwards.
+	-Ensure you can redo unlimited times forwards until you change something.
+	-Ensure that undo and redo work correctly in recreating states.
+	-Ensure that undo and redo work correctly on each type of object.
+Test saving and loading:
+	-Ensure that a state can be saved and loaded correctly.
+Test find:
+	-Ensure that find works correctly - that is, things that are searched for are found, and things that are not searched for are not found.
+Test lookup:
+	-Ensure that lookup in the tree works correctly.
+	
+
+System Tests:
+
+Test speed:
+	-Ensure that adding, removing, undoing, redoing, and recreating state happen negligably quickly.
+	-Ensure that finding goes quickly.
+	-Ensure that moving and modifying nodes goes quickly
+Test interactions with other parts of the project:
+	-Make sure nodes are modified correctly.
+	-Make sure the states encode correctly.
+Test copying and pasting:
+	-Make sure pasting gives a copy of the most recently copied item.
+Test compression:
+	-Make sure compression works nicely (i.e. looks nice) and doesn't mess other things up.
+

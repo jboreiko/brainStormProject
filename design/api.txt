@@ -31,7 +31,7 @@ Whiteboard:
 	Node getClipboard();
 	paste(int x, int y)//pastes the contents of the clipboard at the given coordinates
 	
-Whiteboard Element:
+class BoardElement extends JComponent
 -------------------
 	onClick()
 	onDoubleClick()

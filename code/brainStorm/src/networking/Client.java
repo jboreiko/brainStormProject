@@ -34,9 +34,9 @@ class Client {
      * creates a socket (you write that method)
      * TODO: And create the two new, read & write threads.
      **********************************************************/
-    public Client(String userName) {
+    public Client(String _userName) {
         //init private i-vars here
-    	userName = "John";
+    	userName = _userName;
 
         System.out.println("Connecting as " + userName + "...");
 
@@ -50,6 +50,17 @@ class Client {
         //make threads here
         writeThread = new ClientWriteThread();
         readThread = new ClientReadThread();
+        
+        //System.out.println("Running threads");
+        writeThread.start();
+        readThread.start();
+        try {
+            readThread.join();
+            writeThread.join();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /******************************************************************
@@ -59,10 +70,19 @@ class Client {
     * NOTE:Make sure to catch and report exceptions!!!
     *******************************************************************/
     public Socket createSocket() {
-        InetAddress addr = null;
+        //InetAddress addr = null;
         Socket sock = null;
 
         /* TODO */
+        try {
+            sock = new Socket(addrName, port);
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         return sock;
     }
@@ -76,7 +96,6 @@ class Client {
             System.out.println("Usage: chatClient <User Name>");
             System.exit(0);
         }
-
         new Client(args[0]);
     }
 
@@ -88,7 +107,7 @@ class Client {
     private class ClientWriteThread extends Thread {
         private PrintWriter writer;
         private BufferedReader stdinReader;
-
+        
         /*********************************************************************
          *  Initialize both the <PrintWriter> and the <BufferedReader> classes.
          * - The <writer> should be writing to the socket (socket.getOutputStream())
@@ -97,6 +116,13 @@ class Client {
          ***********************************************************************/
         public ClientWriteThread() {
             /* TODO */
+            try {
+                writer = new PrintWriter(socket.getOutputStream());
+                stdinReader = new BufferedReader(new InputStreamReader(System.in));
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         /**********************************************************************
@@ -106,12 +132,28 @@ class Client {
          * by calling writer.println()
          ***********************************************************************/ 
         public void run() {
-            String message;
+            String message = null;
 
-            /* This is necessary for the server to know who you are */           
-            writer.println(userName);
-
-            /* TODO */
+            while(true) {
+                try {
+                    //System.out.println("Print your message");
+                    message = stdinReader.readLine();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                if (message != null) {
+                /* This is necessary for the server to know who you are */          
+                    //System.out.println(userName + " sending: " + message);
+                    writer.println(userName);
+                    writer.flush();
+                    writer.println(message);
+                    writer.flush();
+                } else {
+                    break;
+                }
+                /* TODO */
+            }
         }
 
     }
@@ -129,6 +171,12 @@ class Client {
          *****************************************************************/
         public ClientReadThread() {
             /* TODO */
+            try {
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         /***********************************************************************
@@ -138,8 +186,21 @@ class Client {
          * NOTE: If the server dies, reader.readLine() will be returning null!
          ************************************************************************/
         public void run() {
-            String message;
-
+            String message = null;
+            while (true) {
+                try {
+                    //System.out.println("Waiting for message...");
+                    message = reader.readLine();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                if (message != null) {
+                    System.out.println(message);
+                } else {
+                    break;
+                }
+            }
             /* TODO */
         }
     }

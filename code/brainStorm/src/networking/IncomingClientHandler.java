@@ -28,6 +28,7 @@ public class IncomingClientHandler extends Thread {
     ****************************************************************************/
     public IncomingClientHandler(Server serv, Socket clientSock) throws IOException {
         /*TODO*/
+        System.out.println("Setting up handler");
     	server = serv;
     	out = new PrintWriter(clientSock.getOutputStream());
     	in = new BufferedReader(new InputStreamReader(clientSock.getInputStream()));
@@ -39,8 +40,11 @@ public class IncomingClientHandler extends Thread {
      **************************************************************************/
     public void send(String message) {
         /*TODO*/
-    	out.write(message);
-    	out.flush();
+        if (message != null) {
+            System.out.println("Handler sending: " + message);
+            out.println(message);
+            out.flush();
+        }
     }
 
     /**************************************************************************
@@ -82,12 +86,17 @@ public class IncomingClientHandler extends Thread {
      *   thread.  
      **********************************************************************************************/  
     public void run() {
+        System.out.println("Running new handler");
         String message;
         /*TODO*/
         while(true) {
         	try {
+        	    //System.out.println("Waiting to read");
+        	    //System.out.flush();
+        	    username = in.readLine();
 				message = in.readLine();
-				if (message != null) {
+				//System.out.println(message);
+				if (message != null && username != null) {
 					server.broadcastMessage(username + ": " + message);
 				} else {
 					throw new IOException();
@@ -95,7 +104,7 @@ public class IncomingClientHandler extends Thread {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				this.signOff();
-				this.stop();
+				break;
 			}
         }
     }

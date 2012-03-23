@@ -45,9 +45,11 @@ public class Server {
         /*TODO*/
         while(true)	{
         	try {
+        	    System.out.println("Waiting to accept");
 				clientSocket = serverSocket.accept();
 				handler = new IncomingClientHandler(this, clientSocket);
 				clients.add(handler);
+				System.out.println("Start handler");
 				handler.start();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -64,6 +66,7 @@ public class Server {
     ***************************************************************************/
     public synchronized void broadcastMessage(String message) {
         /*TODO*/
+        System.out.println("Broadcasting: " + message);
     	for (IncomingClientHandler ich: clients) {
     		ich.send(message);
     	}

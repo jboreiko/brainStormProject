@@ -3,7 +3,7 @@ package networking;
 public class Networking {
     private int DEFAULT_PORT = 4567;
     State currentState;
-    Client client;
+    Client2 client;
     Host host;
 
     private enum State {
@@ -25,7 +25,7 @@ public class Networking {
     
     public boolean becomeClient(String hostIp) {
         currentState = State.CLIENT;
-        client = new Client(hostIp, DEFAULT_PORT);
+        client = new Client2(hostIp, DEFAULT_PORT);
         return (client != null);
     }
     

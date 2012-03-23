@@ -10,4 +10,8 @@ public abstract class BoardElt {
 	public abstract void setPos(Point p);
 	public abstract String getText();
 	public abstract String setText(String s);
+
+	public abstract Object getType();
+
+	public abstract Object getPos();
 }

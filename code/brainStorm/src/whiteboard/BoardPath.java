@@ -38,4 +38,17 @@ public class BoardPath extends BoardElt {
 		return 0;
 	}
 
+	@Override
+	public Object getPos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }

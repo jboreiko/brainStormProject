@@ -1,5 +1,5 @@
 package whiteboard;
 
-public enum BoardPathAttribute {
+public enum BoardPathAttribute implements BoardEltAttribute {
 	TEXT, TYPE, POS;
 }

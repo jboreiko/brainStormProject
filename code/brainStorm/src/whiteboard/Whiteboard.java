@@ -13,8 +13,14 @@ public class Whiteboard {
 	
 	private BoardElt clipboard;
 	
-	//Adds the given board elt
+	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
+		boardElts.put(b.getUID(), b);
+		pastActions.push(new CreationAction(b));
+	}
+	
+	//Adds the given board elt and does not add any action to the stack
+	private void just_add(BoardElt b) {
 		boardElts.put(b.getUID(), b);
 	}
 	
@@ -24,20 +30,37 @@ public class Whiteboard {
 	}
 	
 	//Returns and removes the board elt with given UID. Returns null if no elt with that UID exists
+	//If the remove happens, then add a "removal" action to the stack
 	public BoardElt remove(int UID) {
-		return boardElts.remove(UID);
+		BoardElt toReturn = boardElts.remove(UID);
+		if(toReturn!=null) {
+			pastActions.push(new DeletionAction(toReturn));
+		}
+		return toReturn;
 	}
+	
+	//Returns and removes the board elt with given UID. Returns null if no elt with that UID exists
+	//Does not add a "removal" action to the stack
+	public BoardElt just_remove(int UID) {
+		BoardElt toReturn = boardElts.remove(UID);
+		return toReturn;
+	}
+	
 	
 	//Modifies the board node with given UID, changing its given attribute to the given new value
 	//Caller is responsible for passing in the correct type of newValue object and passing the UID of 
 	//	a node, not a path
 	public void modifyBoardNode(int UID, BoardNodeAttribute attribute, Object newValue) {
+		BoardNode b = (BoardNode) boardElts.get(UID);
 		if(attribute == BoardNodeAttribute.TEXT) {
-			((BoardNode) boardElts.get(UID)).setText((String) newValue);
+			b.setText((String) newValue);
+			pastActions.push(new ModificationAction(b, BoardNodeAttribute.TEXT, b.getText(), newValue));
 		} else if (attribute == BoardNodeAttribute.POS) {
-			((BoardNode) boardElts.get(UID)).setPos((Point) newValue);
+			b.setPos((Point) newValue);
+			pastActions.push(new ModificationAction(b, BoardNodeAttribute.POS, b.getPos(), newValue));
 		} else {
 			System.out.println("the given attribute doesn't exist");
+			return;
 		}
 	}
 	
@@ -45,12 +68,16 @@ public class Whiteboard {
 	//Caller is responsible for passing in the correct type of newValue object and passing the UID of 
 	//	a path, not a node
 	public void modifyBoardPath(int UID, BoardPathAttribute attribute, Object newValue) {
+		BoardPath p = ((BoardPath) boardElts.get(UID));
 		if(attribute == BoardPathAttribute.TEXT) {
-			((BoardPath) boardElts.get(UID)).setText((String) newValue);
+			p.setText((String) newValue);
+			pastActions.push(new ModificationAction(p, BoardPathAttribute.TEXT, p.getText(), newValue));
 		} else if (attribute == BoardPathAttribute.TYPE) {
-			((BoardPath) boardElts.get(UID)).changeType((BoardPathType) newValue);
+			p.changeType((BoardPathType) newValue);
+			pastActions.push(new ModificationAction(p, BoardPathAttribute.TYPE, p.getType(), newValue));
 		} else if (attribute == BoardPathAttribute.POS) {
-			((BoardPath) boardElts.get(UID)).setPos((Point) newValue);
+			p.setPos((Point) newValue);
+			pastActions.push(new ModificationAction(p, BoardPathAttribute.POS, p.getPos(), newValue));
 		} else {
 			System.out.println("the given attribute doesn't exist");
 		}
@@ -92,5 +119,47 @@ public class Whiteboard {
 		return null;
 	}
 	
+	private void executeAction(BoardAction b) {
+		if(b.getType() == BoardActionType.CREATION) {
+			this.just_add(b.getTarget());
+		} else if (b.getType() == BoardActionType.DELETION) {
+			this.just_remove(b.getTarget().getUID());
+		} else if (b.getType() == BoardActionType.MODIFICATION) {
+			//start listing attributes
+			BoardElt toModify = boardElts.get(b.getTarget().getUID());
+			if(toModify.getType() == BoardEltType.NODE) {
+				//TODO: this is where we list out every attribute of a node and modify it as it needs to be
+			} else if (toModify.getType() == BoardEltType.PATH) {
+				//TODO: this is where we list out every attribute of a path and modify it as it needs to be
+			}
+			
+			
+		} else {
+			//this should never happen
+			return;
+		}
+	}
+	
+	public void undo() {
+		//get the top of the action stack, executeAction(its inverse), and push it to the top of the future stack
+		BoardAction toUndo = pastActions.pop();
+		executeAction(toUndo.inverse());
+		futureActions.push(toUndo);
+	}
+	
+	public void redo() {
+		//get the top of the redo stack, executeAction(that thing), and push it to the top of the past stack
+		BoardAction toRedo = futureActions.pop();
+		executeAction(toRedo);
+		pastActions.push(toRedo);
+	}
+	
+	public String encode() {
+		//call boardelt.encode on all of the elements in the board, and concatenate them all into one XML/JSON string that this will return
+	}
+	
+	public static Whiteboard decode() {
+		//TODO: take in XML/JSON and create a whiteboard object out of it, compelte with all the elements that are in it
+	}
 	
 }

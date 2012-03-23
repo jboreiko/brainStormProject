@@ -1,4 +1,4 @@
-package brainStormProject;
+package GUI;
 
 import java.util.*;
 import javax.swing.*;

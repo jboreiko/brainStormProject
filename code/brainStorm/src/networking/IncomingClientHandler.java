@@ -15,7 +15,7 @@ import java.net.*;
  *  the server that the client is no longer connected.  
  **************************************************************************/
 public class IncomingClientHandler extends Thread {
-    private Server server;
+    private Host server;
 
     private PrintWriter out;
     private BufferedReader in;
@@ -26,7 +26,7 @@ public class IncomingClientHandler extends Thread {
      * Initialize 'server' and 'clientSocket', and create the input and output
      * streams using the socket's getInputStream() and getOutputStream() functions.
     ****************************************************************************/
-    public IncomingClientHandler(Server serv, Socket clientSock) throws IOException {
+    public IncomingClientHandler(Host serv, Socket clientSock) throws IOException {
         /*TODO*/
         System.out.println("Setting up handler");
     	server = serv;

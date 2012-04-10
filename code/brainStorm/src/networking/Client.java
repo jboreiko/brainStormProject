@@ -10,7 +10,7 @@ import java.net.*;
  *This class handles the clients communication with the server. It receives and
  *sends information over input and output streams continuously.
  *\*********************************************************/
-class Client {
+class Client extends Thread{
     private Socket socket;
     private String userName;
     private ClientWriteThread writeThread;
@@ -26,40 +26,28 @@ class Client {
     * socket may still be in use when you try to run again and this will cause
     * otherwise working code to fail due to a busy port.
     */
-    private final int port = 1224;
-    private final String addrName = "localhost";
+    private int port = 1337;
+    private String addrName = "localhost";
 
     /**********************************************************
      * TODO: Initializes the private variables
      * creates a socket (you write that method)
      * TODO: And create the two new, read & write threads.
      **********************************************************/
-    public Client(String _userName) {
+    public Client(String _hostIp, int _port) {
         //init private i-vars here
-    	userName = _userName;
+    	//userName = _userName;
 
-        System.out.println("Connecting as " + userName + "...");
+        //System.out.println("Connecting as " + userName + "...");
+    	
+    	port = _port;
+    	addrName = _hostIp;
 
         socket = createSocket();
 
         if (socket == null) {
             System.out.println("Error creating socket");
             System.exit(0);
-        }
-
-        //make threads here
-        writeThread = new ClientWriteThread();
-        readThread = new ClientReadThread();
-        
-        //System.out.println("Running threads");
-        writeThread.start();
-        readThread.start();
-        try {
-            readThread.join();
-            writeThread.join();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -86,11 +74,29 @@ class Client {
 
         return sock;
     }
+    
+    public void run() {
+        //make threads here
+        writeThread = new ClientWriteThread();
+        readThread = new ClientReadThread();
+        
+        //System.out.println("Running threads");
+        writeThread.start();
+        readThread.start();
+        try {
+            readThread.join();
+            writeThread.join();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
     /******************************************************************
     * First it gets the user name as a parameter It then creates a new
     * Client
     ******************************************************************/
+    /*
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Usage: chatClient <User Name>");
@@ -98,6 +104,7 @@ class Client {
         }
         new Client(args[0]);
     }
+    */
 
 
     /***********************************************************

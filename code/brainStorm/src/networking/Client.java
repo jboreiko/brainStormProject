@@ -2,6 +2,10 @@ package networking;
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
+
+import networking.NetworkMessage.Type;
 
 /**********************************************************
  *
@@ -11,10 +15,15 @@ import java.net.*;
  *sends information over input and output streams continuously.
  *\*********************************************************/
 class Client extends Thread{
+    public int clientId;
+    
     private Socket socket;
-    private String userName;
     private ClientWriteThread writeThread;
     private ClientReadThread readThread;
+    private LinkedBlockingQueue<NetworkMessage> toSend; 
+    private LinkedBlockingQueue<ChatMessage> chatReceived; 
+    private LinkedBlockingQueue<ActionMessage> actionReceived;
+    private Semaphore lock;
 
     /*
     * These constants are the port number and host name for your server. For
@@ -39,9 +48,15 @@ class Client extends Thread{
     	//userName = _userName;
 
         //System.out.println("Connecting as " + userName + "...");
+        
+        toSend = new LinkedBlockingQueue<NetworkMessage>();
+        chatReceived = new LinkedBlockingQueue<ChatMessage>();
+        actionReceived = new LinkedBlockingQueue<ActionMessage>();
+        lock = new Semaphore(0);
     	
     	port = _port;
     	addrName = _hostIp;
+    	clientId = -1;
 
         socket = createSocket();
 
@@ -75,10 +90,31 @@ class Client extends Thread{
         return sock;
     }
     
+    public boolean send (NetworkMessage nm) {
+        try {
+            lock.acquire();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("Current id before sending: " + clientId);
+        nm.setSenderID(clientId);
+        return toSend.offer(nm);
+    }
+    
+    public NetworkMessage receive (Type t) {
+        if (t == Type.CHAT) {
+            return chatReceived.poll();
+        } else if (t == Type.ACTION) {
+            return actionReceived.poll();
+        }
+        return null;
+    }
+    
     public void run() {
         //make threads here
         writeThread = new ClientWriteThread();
-        readThread = new ClientReadThread();
+        readThread = new ClientReadThread(this);
         
         //System.out.println("Running threads");
         writeThread.start();
@@ -112,8 +148,9 @@ class Client extends Thread{
      * It has access to the Client's <socket> variable
      ***********************************************************/ 
     private class ClientWriteThread extends Thread {
-        private PrintWriter writer;
-        private BufferedReader stdinReader;
+        //private PrintWriter writer;
+        //private BufferedReader stdinReader;
+        private ObjectOutputStream writer;
         
         /*********************************************************************
          *  Initialize both the <PrintWriter> and the <BufferedReader> classes.
@@ -124,8 +161,9 @@ class Client extends Thread{
         public ClientWriteThread() {
             /* TODO */
             try {
-                writer = new PrintWriter(socket.getOutputStream());
-                stdinReader = new BufferedReader(new InputStreamReader(System.in));
+                //writer = new PrintWriter(socket.getOutputStream());
+                writer = new ObjectOutputStream(socket.getOutputStream());
+                //stdinReader = new BufferedReader(new InputStreamReader(System.in));
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -139,24 +177,39 @@ class Client extends Thread{
          * by calling writer.println()
          ***********************************************************************/ 
         public void run() {
-            String message = null;
-
+            NetworkMessage message = null;
+            
+            try {
+                //Get Id
+                System.out.println("Requesting id, currently I have " + clientId);
+                writer.writeObject(new Handshake(clientId, -1));
+                writer.flush();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            
             while(true) {
-                try {
-                    //System.out.println("Print your message");
-                    message = stdinReader.readLine();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                //System.out.println("Print your message");
+                //message = stdinReader.readLine();
+                System.out.println("Reader is polling now.");
+                message = toSend.poll();
+                System.out.println("Reader is done polling.");
                 if (message != null) {
                 /* This is necessary for the server to know who you are */          
                     //System.out.println(userName + " sending: " + message);
-                    writer.println(userName);
-                    writer.flush();
-                    writer.println(message);
-                    writer.flush();
+                    //writer.println(userName);
+                    //writer.flush();
+                    try {
+                        System.out.println("Writing out message");
+                        writer.writeObject(message);
+                        writer.flush();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 } else {
+                    System.err.println("Writing thread has quit!");
                     break;
                 }
                 /* TODO */
@@ -171,15 +224,19 @@ class Client extends Thread{
      * This blocks!
      ************************************************************************/
     private class ClientReadThread extends Thread {
-        private BufferedReader reader;
-
+        //private BufferedReader reader;
+        private ObjectInputStream reader;
+        private Client parent;
+        
         /*****************************************************************
          * This should initialize the buffered Reader
          *****************************************************************/
-        public ClientReadThread() {
+        public ClientReadThread(Client _parent) {
             /* TODO */
+            parent = _parent;
             try {
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                reader = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -193,18 +250,33 @@ class Client extends Thread{
          * NOTE: If the server dies, reader.readLine() will be returning null!
          ************************************************************************/
         public void run() {
-            String message = null;
+            NetworkMessage message = null;
             while (true) {
                 try {
                     //System.out.println("Waiting for message...");
-                    message = reader.readLine();
+                    //message = reader.readLine();
+                    message = (NetworkMessage) reader.readObject();
                 } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 if (message != null) {
-                    System.out.println(message);
+                    //System.out.println(message);
+                    if (message.type == Type.ACTION) {
+                        actionReceived.offer((ActionMessage) message);
+                    } else if (message.type == Type.CHAT) {
+                        System.out.println("Received chat message: " + ((ChatMessage) message).text);
+                        chatReceived.offer((ChatMessage) message);
+                    } else if (message.type == Type.HANDSHAKE) {
+                        clientId = ((Handshake) message).client_id;
+                        System.out.println("Update client id to: " + clientId);
+                        parent.lock.release();
+                    }
                 } else {
+                    System.err.println("Failure reading thread has quit!");
                     break;
                 }
             }

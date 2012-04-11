@@ -65,7 +65,7 @@ public class Host2 {
 						if (nm.type == Type.CHAT) {
 							System.out.println("ChatMessage received.");
 							ChatMessage cm = (ChatMessage) nm;
-							System.out.println("From: " + cm.sender_id + " Message: " + cm.message);
+							System.out.println("From: " + cm.sender_id + " Message: " + cm.text);
 						}
 					}
 				}

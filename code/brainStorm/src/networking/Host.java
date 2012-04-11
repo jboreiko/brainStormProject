@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
+import networking.NetworkMessage.Type;
+
 /**********************************************************
  *
  * @author 
@@ -16,7 +18,11 @@ public class Host extends Thread{
     private int localport;               //The local port the server will listen on.
     private ServerSocket serverSocket;   //The socket the server will accept connections on.
 
-    private List<IncomingClientHandler> clients; //The list of currently connected clients.
+    private List<ClientHandler> clients; //The list of currently connected clients.
+    private Client localClient;
+    private int hostId = 0;
+    
+    private int openId;
 
     /**************************************************************************
      * The constructor must initialize 'serverSocket' and 'clients'.
@@ -27,9 +33,24 @@ public class Host extends Thread{
         /*TODO*/
     	localport = _localport;
     	serverSocket = new ServerSocket(localport);
-    	clients = new LinkedList<IncomingClientHandler>();
+    	clients = new LinkedList<ClientHandler>();
+    	localClient = new Client("localhost", localport);
+    	localClient.start();
+    	openId = 1;
     }
-
+    
+    public boolean send(NetworkMessage nm) {
+        return localClient.send(nm);
+    }
+    
+    public NetworkMessage receive (Type t) {
+        return localClient.receive(t);
+    }
+    
+    public int getNextOpenId() {
+        return openId++;
+    }
+    
     /***************************************************************************************
      * Accept connections and add them to the clients queue.
      * This function should, in a while loop:
@@ -41,13 +62,13 @@ public class Host extends Thread{
       **************************************************************************************/
     public void run() {
         Socket clientSocket;
-        IncomingClientHandler handler;
+        ClientHandler handler;
         /*TODO*/
         while(true)	{
         	try {
         	    System.out.println("Waiting to accept");
 				clientSocket = serverSocket.accept();
-				handler = new IncomingClientHandler(this, clientSocket);
+				handler = new ClientHandler(this, clientSocket);
 				clients.add(handler);
 				System.out.println("Start handler");
 				handler.start();
@@ -64,12 +85,26 @@ public class Host extends Thread{
      * looping through the clients list.
      * Warning: More than one ClientHandler can call this function at a time. 
     ***************************************************************************/
-    public synchronized void broadcastMessage(String message) {
+    public synchronized void broadcastMessage(NetworkMessage message, ClientHandler client) {
         /*TODO*/
         System.out.println("Broadcasting: " + message);
-    	for (IncomingClientHandler ich: clients) {
-    		ich.send(message);
+    	for (ClientHandler ch: clients) {
+    	    if (ch != client) {
+    	        System.out.println("Sending to: " + ch.id);
+    	        ch.send(message);
+    	    }
     	}
+    }
+    
+    public synchronized void respondHandshake(NetworkMessage message, ClientHandler client) {
+        /*TODO*/
+        if (message.sender_id == -1) {
+            int temp = getNextOpenId();
+            System.out.println("Replying to handshake with id: " + temp);
+            client.send(new Handshake(hostId, temp));
+        } else {
+            System.out.println("Client already has received an id");
+        }
     }
 
     /**************************************************************************
@@ -77,7 +112,7 @@ public class Host extends Thread{
      * Warning: More than one ClientHandler can call this function at a time. 
      * Return whether the client was found or not.
      **************************************************************************/
-    public synchronized boolean removeClient(IncomingClientHandler client) {
+    public synchronized boolean removeClient(ClientHandler client) {
         /*TODO*/
     	if (clients.contains(client)) {
     		return clients.remove(client);
@@ -85,10 +120,11 @@ public class Host extends Thread{
         return false;
     }
 
+    /*
     /**************************************************************************
      * This function just creates the Server and runs it.
      * @param args - the port you will be listening on
-     **************************************************************************/
+     ************************************************************************** /
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("usage: Server portnumber");
@@ -107,4 +143,5 @@ public class Host extends Thread{
 
         s.run();
     }
+    */
 }

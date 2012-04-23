@@ -20,16 +20,26 @@ public class Networking {
         host = null;
     }
 
-    public boolean becomeHost() throws IOException {
+    public boolean becomeHost(String username) {
         currentState = State.HOST;
-        host = new Host(DEFAULT_PORT);
+		try {
+			host = new Host(DEFAULT_PORT, username);
+		} catch (IOException e) {
+			System.out.println("server: failed to create socket listener and connect client");
+			return false;
+		}
         host.start();
         return (host != null);
     }
 
-    public boolean becomeClient(String hostIp) {
+    public boolean becomeClient(String hostIp, String username) {
         currentState = State.CLIENT;
-        client = new Client(hostIp, DEFAULT_PORT);
+		try {
+			client = new Client(hostIp, DEFAULT_PORT, username);
+		} catch (IOException e) {
+			System.out.println("client: failed to connect socket");
+			return false;
+		}
         client.start();
         return (client != null);
     }

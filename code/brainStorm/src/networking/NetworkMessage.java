@@ -26,6 +26,6 @@ public class NetworkMessage implements Serializable{
 	}
 	
 	public String toString() {
-	    return "Lol I'm a network message";
+	    return "NetworkMessage, sender: " + sender_id + " type: " + type;
 	}
 }

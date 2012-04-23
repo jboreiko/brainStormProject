@@ -19,6 +19,7 @@ public class Host extends Thread{
     private ServerSocket serverSocket;   //The socket the server will accept connections on.
 
     private List<ClientHandler> clients; //The list of currently connected clients.
+    private Queue<ClientInfo> recoveryPriority;
     private Client localClient;
     private int hostId = 0;
     
@@ -29,12 +30,11 @@ public class Host extends Thread{
      * @param localport - the port the server will listen on
      * @throws IOException
      **************************************************************************/
-    public Host(int _localport) throws IOException {
-        /*TODO*/
+    public Host(int _localport, String username) throws IOException {
     	localport = _localport;
     	serverSocket = new ServerSocket(localport);
     	clients = new LinkedList<ClientHandler>();
-    	localClient = new Client("localhost", localport);
+    	localClient = new Client("localhost", localport, username);
     	localClient.start();
     	openId = 1;
     }
@@ -63,14 +63,22 @@ public class Host extends Thread{
     public void run() {
         Socket clientSocket;
         ClientHandler handler;
+        /*
+        try {
+			serverSocket = new ServerSocket(localport);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		*/
         /*TODO*/
         while(true)	{
         	try {
-        	    System.out.println("Waiting to accept");
+        	    System.out.println("server: waiting to accept client");
 				clientSocket = serverSocket.accept();
 				handler = new ClientHandler(this, clientSocket);
 				clients.add(handler);
-				System.out.println("Start handler");
+				System.out.println("server: starting new client handler");
 				handler.start();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -87,27 +95,35 @@ public class Host extends Thread{
     ***************************************************************************/
     public synchronized void broadcastMessage(NetworkMessage message, ClientHandler client) {
         /*TODO*/
-        System.out.println("Broadcasting: " + message);
+        System.out.println("server: broadcasting msg: " + message);
     	for (ClientHandler ch: clients) {
     	    if (ch != client) {
-    	        System.out.println("Sending to: " + ch.id);
+    	        System.out.println("server: sending msg to client: " + ch.id);
     	        ch.send(message);
     	    }
     	}
     }
     
-    public synchronized void respondHandshake(NetworkMessage message, ClientHandler client) {
+    public synchronized void respondHandshake(Handshake message, ClientHandler clientHandler) {
         /*TODO*/
         if (message.sender_id == -1) {
+        	String username = message.client_username;
             int temp = getNextOpenId();
-            System.out.println("Replying to handshake with id: " + temp);
-            client.send(new Handshake(hostId, temp));
+            //System.out.println("server: replying to handshake with id: " + temp);
+            clientHandler.setUsernameAndId(username, temp);
+            clientHandler.send(new Handshake(hostId, temp, username));
+            registerClient(clientHandler);
+            System.out.println("server: registered client with id: " + temp + ", uname: " + username);
         } else {
-            System.out.println("Client already has received an id");
+            System.out.println("server: client already has received an id ERROR");
         }
     }
 
-    /**************************************************************************
+    private void registerClient(ClientHandler ch) {
+		recoveryPriority.add(new ClientInfo(ch.ip, ch.id, ch.username));
+	}
+
+	/**************************************************************************
      * Remove the given client from the clients list.
      * Warning: More than one ClientHandler can call this function at a time. 
      * Return whether the client was found or not.

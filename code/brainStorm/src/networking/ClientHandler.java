@@ -23,7 +23,9 @@ public class ClientHandler extends Thread {
     //private BufferedReader in;
     private ObjectOutputStream writer;
     private ObjectInputStream reader;
+    public InetAddress ip;
 
+    String username;
     int id;
 
     /***************************************************************************
@@ -32,8 +34,9 @@ public class ClientHandler extends Thread {
     ****************************************************************************/
     public ClientHandler(Host serv, Socket clientSock) throws IOException {
         /*TODO*/
-        System.out.println("Setting up handler");
+        //System.out.println("Setting up handler");
     	server = serv;
+    	ip = clientSock.getInetAddress();
     	//out = new PrintWriter(clientSock.getOutputStream());
     	//in = new BufferedReader(new InputStreamReader(clientSock.getInputStream()));
     	writer = new ObjectOutputStream(clientSock.getOutputStream());
@@ -47,7 +50,7 @@ public class ClientHandler extends Thread {
     public void send(NetworkMessage message) {
         /*TODO*/
         if (message != null) {
-            System.out.println("Handler sending: " + message);
+            //System.out.println("Handler sending: " + message);
             //out.println(message);
             //out.flush();
             try {
@@ -78,6 +81,7 @@ public class ClientHandler extends Thread {
         /*TODO*/
     	//out.write(id + " has signed off.");
     	//out.close();
+    	server.broadcastMessage(new ChatMessage(username + " has signed off"), this);
     	try {
             writer.close();
             reader.close();
@@ -100,7 +104,7 @@ public class ClientHandler extends Thread {
      *   thread.  
      **********************************************************************************************/  
     public void run() {
-        System.out.println("Running new handler");
+        //System.out.println("Running new handler");
         //String message;
         NetworkMessage message;
         /*TODO*/
@@ -114,23 +118,22 @@ public class ClientHandler extends Thread {
         	    message = (NetworkMessage) reader.readObject();
         	    if (message.sender_id == -1) {
         	        //We need to issue this client an id
-        	        System.out.println("Has no id");
+        	        System.out.println("server: message has no id");
         	    } else {
-        	        System.out.println("Has id: " + message.sender_id);
+        	        System.out.println("server: message has id: " + message.sender_id);
         	    }
 				//if (message != null && username != null) {
         	    if (message != null) {
         	        if (message.type == Type.HANDSHAKE) {
-        	            server.respondHandshake(message, this);
+        	            server.respondHandshake((Handshake) message, this);
         	        } else {
         	            //server.broadcastMessage(username + ": " + message);
         	            server.broadcastMessage(message, this);
         	        }
-				} else {
-					throw new IOException();
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
+				System.out.println("server: client <" + id + ", " + username + "> disconnected");
 				this.signOff();
 				break;
 			} catch (ClassNotFoundException e) {
@@ -139,4 +142,9 @@ public class ClientHandler extends Thread {
             }
         }
     }
+
+	public void setUsernameAndId(String _username, int temp) {
+		username = _username;
+		id = temp;
+	}
 }

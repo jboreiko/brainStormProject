@@ -36,13 +36,16 @@ class Client extends Thread{
 	 */
 	private int port = 1337;
 	private String addrName = "localhost";
+	private String username;
 
 	/**********************************************************
 	 * TODO: Initializes the private variables
 	 * creates a socket (you write that method)
 	 * TODO: And create the two new, read & write threads.
+	 * @throws IOException 
+	 * @throws UnknownHostException 
 	 **********************************************************/
-	public Client(String _hostIp, int _port) {
+	public Client(String _hostIp, int _port, String _username) throws IOException {
 		//init private i-vars here
 		//userName = _userName;
 
@@ -56,13 +59,10 @@ class Client extends Thread{
 		port = _port;
 		addrName = _hostIp;
 		clientId = -1;
-
+		username = _username;
+		socket = null;
+		
 		socket = createSocket();
-
-		if (socket == null) {
-			System.out.println("Error creating socket");
-			System.exit(0);
-		}
 	}
 
 	/******************************************************************
@@ -70,22 +70,12 @@ class Client extends Thread{
 	 * Socket and return it.
 	 *
 	 * NOTE:Make sure to catch and report exceptions!!!
+	 * @throws IOException 
 	 *******************************************************************/
-	public Socket createSocket() {
+	public Socket createSocket() throws IOException {
 		//InetAddress addr = null;
 		Socket sock = null;
-
-		/* TODO */
-		try {
-			sock = new Socket(addrName, port);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		sock = new Socket(addrName, port);
 		return sock;
 	}
 
@@ -97,7 +87,7 @@ class Client extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Current id before sending: " + clientId);
+		//System.out.println("Current id before sending: " + clientId);
 		nm.setSenderID(clientId);
 		boolean ret = toSend.offer(nm);
 		isRegistered.release();
@@ -120,6 +110,35 @@ class Client extends Thread{
 	}
 
 	public void run() {
+		/*
+		int i = 0;
+		while (socket == null && i < 10) {
+			try {
+				socket = createSocket();
+			} catch (UnknownHostException e1) {
+				System.out.println("client: cannot find host, attempt: " + i);
+				i++;
+			} catch (IOException e1) {
+				System.out.println("client: io failure, attempt: " + i);
+				i++;
+			}
+			try {
+				Thread.sleep(4000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		*/
+
+		// Check that socket creation was successful
+		if (socket == null) {
+			System.out.println("client: error creating socket");
+			return;
+		}
+		
+		System.out.println("client: socket successfully connected");
+		
 		//make threads here
 		writeThread = new ClientWriteThread();
 		readThread = new ClientReadThread(this);
@@ -135,21 +154,6 @@ class Client extends Thread{
 			e.printStackTrace();
 		}
 	}
-
-	/******************************************************************
-	 * First it gets the user name as a parameter It then creates a new
-	 * Client
-	 ******************************************************************/
-	/*
-    public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Usage: chatClient <User Name>");
-            System.exit(0);
-        }
-        new Client(args[0]);
-    }
-	 */
-
 
 	/***********************************************************
 	 * This thread is used to write to the socket
@@ -189,8 +193,8 @@ class Client extends Thread{
 
 			try {
 				//Get Id
-				System.out.println("Requesting id, currently I have " + clientId);
-				writer.writeObject(new Handshake(clientId, -1));
+				System.out.println("client: requesting id, current id: " + clientId);
+				writer.writeObject(new Handshake(clientId, -1, username));
 				writer.flush();
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -200,21 +204,21 @@ class Client extends Thread{
 			while(true) {
 				//System.out.println("Print your message");
 				//message = stdinReader.readLine();
-				System.out.println("Reader is taking now.");
+				//System.out.println("Reader is taking now.");
 				try {
 					message = toSend.take();
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				System.out.println("Reader is done taking.");
+				//System.out.println("Reader is done taking.");
 				if (message != null) {
 					/* This is necessary for the server to know who you are */          
 					//System.out.println(userName + " sending: " + message);
 					//writer.println(userName);
 					//writer.flush();
 					try {
-						System.out.println("Writing out message");
+						//System.out.println("Writing out message");
 						writer.writeObject(message);
 						writer.flush();
 					} catch (IOException e) {
@@ -271,7 +275,9 @@ class Client extends Thread{
 					message = (NetworkMessage) reader.readObject();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
+					System.out.println("client: connection with host has closed, shutting down");
+					break;
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -281,11 +287,11 @@ class Client extends Thread{
 					if (message.type == Type.ACTION) {
 						actionReceived.offer((ActionMessage) message);
 					} else if (message.type == Type.CHAT) {
-						System.out.println("Received chat message: " + ((ChatMessage) message).text);
+						System.out.println("client: received chat message: " + ((ChatMessage) message).text);
 						chatReceived.offer((ChatMessage) message);
 					} else if (message.type == Type.HANDSHAKE) {
 						clientId = ((Handshake) message).client_id;
-						System.out.println("Update client id to: " + clientId);
+						System.out.println("client: update id to: " + clientId);
 						parent.isRegistered.release();
 					}
 				} else {

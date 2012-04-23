@@ -1,4 +1,4 @@
-package GUI;
+package brainStormProject;
 
 import java.util.*;
 import javax.swing.*;
@@ -6,13 +6,46 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * @author bverch
+ *
+ *
+ *	This is the frame that the user will see upon starting the program.
+ *
+ *	The user will click on the file menu and select one of the following options:
+ *
+ *		Create a Project: This will create a new whiteboard panel that will initialize as a host.
+ *
+ *		Join a Project: This will create a new whiteboard panel that will connect to a host, which will then
+ *send information about the brainstormsession entered to the whiteboard panel's backend.
+ *
+ *		Load Project: This will create a new whiteboard panel that will load its backend from an xml(?)
+ *
+ *		Save Project: This will save the whiteboard panel's backend to an xml(?)
+ *
+ *		Close Project: This will close a project, promting the user to save first.
+ *
+ *		Exit Brainstorm: This will exit the program, promting the user to save first.
+ *
+ *
+ */
+
 public class MainFrame extends JFrame {
 	private JTabbedPane _tabbedPane;
-	private JMenuItem _newProject, _save, _close, _exit, _load, _undo, _redo;
+	private JMenuItem _newProject, _save, _close, _exit, _load, _undo, _redo, _join;
 	private JMenu _file, _edit;
 	private JMenuBar _menuBar;
-	private JPanel _interfacePane;
-	private JCheckBox _contInsertion;
+	private InterfacePanel _interfacePane;
+	private ArrayList<WhiteboardPanel> _whiteboards;
+	
+	/*
+	 * Mainframe()
+	 * 
+	 * Initializes the menus and list of whiteboardpanels.
+	 * 
+	 * 
+	 */
+	
 	
 	public MainFrame(String title){
 		super(title);
@@ -23,27 +56,8 @@ public class MainFrame extends JFrame {
 		setBounds(0,0,screenSize.width,screenSize.height);
 		_tabbedPane = new JTabbedPane();
 		_tabbedPane.setVisible(true);
-		_interfacePane = new JPanel();
-		Dimension interfaceSize = new Dimension(250,2000);
-		_interfacePane.setPreferredSize(interfaceSize);
-		_interfacePane.setSize(interfaceSize);
-		_interfacePane.setLayout(new GridLayout(10,0));
-		_interfacePane.setVisible(true);
-		_contInsertion = new JCheckBox("Continuous Insertion",null,true);
-		_contInsertion.setVisible(true);
-		_contInsertion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!(_tabbedPane.getTabCount() == 0)){
-					JScrollPane jsp = (JScrollPane)_tabbedPane.getComponent(_tabbedPane.getSelectedIndex());
-				}
-				else{
-					JOptionPane.showMessageDialog(null, "No existing projects to close!","Error!", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
-		_interfacePane.add(_contInsertion);
+		_whiteboards = new ArrayList<WhiteboardPanel>();
 		getContentPane().add(_tabbedPane,BorderLayout.CENTER);
-		getContentPane().add(_interfacePane,BorderLayout.WEST);
 	}
 	/*
 	 * Method initMenu()
@@ -66,7 +80,7 @@ public class MainFrame extends JFrame {
 		_menuBar.add(_file);
 		
 		//new project MenuItem
-		_newProject = new JMenuItem("New", KeyEvent.VK_N);
+		_newProject = new JMenuItem("Create a Project", KeyEvent.VK_N);
 		_newProject.setMnemonic('N');
 		_newProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
 		_newProject.getAccessibleContext().setAccessibleDescription("Creates a new project");
@@ -79,13 +93,31 @@ public class MainFrame extends JFrame {
 						_save.setEnabled(true);
 						_close.setEnabled(true);
 						WhiteboardPanel wb = new WhiteboardPanel();
+						_whiteboards.add(wb);
+						_interfacePane = new InterfacePanel(wb);
+						Dimension interfaceSize = new Dimension(250,2000);
+						_interfacePane.setPreferredSize(interfaceSize);
+						_interfacePane.setSize(interfaceSize);
+						_interfacePane.setLayout(new GridLayout(10,0));
+						_interfacePane.setVisible(true);
 					    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 					    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+					    JPanel cow = new JPanel();
+					    cow.setPreferredSize(new Dimension(10000,10000));
 						JScrollPane scrollPane = new JScrollPane(wb,v,h);
-						scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-						scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
-						_tabbedPane.addTab(projectName, scrollPane);
-						JOptionPane.showMessageDialog(null, "You clicked the New menu, and added: " + projectName);
+						//interesting stuff
+						ViewportDragScrollListener l = new ViewportDragScrollListener(wb);
+						JViewport vp = scrollPane.getViewport();
+						vp.addMouseMotionListener(l);
+						vp.addMouseListener(l);
+						vp.addHierarchyListener(l);
+						
+						JPanel sessionPanel = new JPanel();
+						sessionPanel.setLayout(new BorderLayout());
+						sessionPanel.add(_interfacePane,BorderLayout.WEST);
+						sessionPanel.add(scrollPane,BorderLayout.CENTER);
+						_tabbedPane.addTab(projectName, sessionPanel);
+						JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
 						break;
 					}
 					else{
@@ -97,8 +129,26 @@ public class MainFrame extends JFrame {
 		});
 		_file.add(_newProject);
 		
+
+		//join project MenuItem
+		_join = new JMenuItem("Join Project", KeyEvent.VK_L);
+		_join.setMnemonic('J');
+		_join.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, InputEvent.CTRL_MASK));
+		_join.getAccessibleContext().setAccessibleDescription("Joins an existing project");
+		_join.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//whiteboard.joinProject
+				if(!(_tabbedPane.getTabCount() == 0)){
+					_save.setEnabled(true);
+					_close.setEnabled(true);
+				}
+				JOptionPane.showMessageDialog(null, "You clicked the Join Project menu");
+			}
+		});
+		_file.add(_join);
+		
 		//load project MenuItem
-		_load = new JMenuItem("Load", KeyEvent.VK_L);
+		_load = new JMenuItem("Load Project", KeyEvent.VK_L);
 		_load.setMnemonic('L');
 		_load.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_MASK));
 		_load.getAccessibleContext().setAccessibleDescription("Loads an existing project");
@@ -115,7 +165,7 @@ public class MainFrame extends JFrame {
 		_file.add(_load);
 
 		//save project MenuItem
-		_save = new JMenuItem("Save", KeyEvent.VK_S);
+		_save = new JMenuItem("Save Project", KeyEvent.VK_S);
 		_save.setMnemonic('S');
 		_save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		_save.getAccessibleContext().setAccessibleDescription("Saves an existing project");
@@ -129,7 +179,7 @@ public class MainFrame extends JFrame {
 		_file.add(_save);
 
 		//close project MenuItem
-		_close = new JMenuItem("Close", KeyEvent.VK_Q);
+		_close = new JMenuItem("Close Project", KeyEvent.VK_Q);
 		_close.setMnemonic('Q');
 		_close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
 		_close.getAccessibleContext().setAccessibleDescription("Closes an existing project");
@@ -154,7 +204,7 @@ public class MainFrame extends JFrame {
 		_file.add(_close);
 
 		//quit program MenuItem
-		_exit = new JMenuItem("Exit");
+		_exit = new JMenuItem("Exit Brainstorm");
 		_exit.getAccessibleContext().setAccessibleDescription("Exits the entire program");
 		_exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

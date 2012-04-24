@@ -23,9 +23,9 @@ import java.awt.event.*;
  *
  *		Save Project: This will save the whiteboard panel's backend to an xml(?)
  *
- *		Close Project: This will close a project, promting the user to save first.
+ *		Close Project: This will close a project, prompting the user to save first.
  *
- *		Exit Brainstorm: This will exit the program, promting the user to save first.
+ *		Exit Brainstorm: This will exit the program, prompting the user to save first.
  *
  *
  */

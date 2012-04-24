@@ -27,6 +27,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	 * @return a new BoardElt with specified ID at no particular location*/
 	public BoardElt(int ID) {
 		UID = ID;
+		setFocusable(true);
 	}
 	
 	/*@param x the x location

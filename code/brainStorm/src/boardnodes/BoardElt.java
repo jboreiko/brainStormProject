@@ -1,12 +1,13 @@
 package boardnodes;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
 /*The parent class for all Board Elements,
  * Paths and BoardNodes*/
-public abstract class BoardElt extends JComponent implements Cloneable{
+public abstract class BoardElt extends JPanel implements Cloneable{
 	//the unique identifier of this BoardElt
 	private int UID;
 	//position on the board

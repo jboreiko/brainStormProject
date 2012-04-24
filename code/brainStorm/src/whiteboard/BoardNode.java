@@ -44,4 +44,10 @@ public class BoardNode extends BoardElt {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String encode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

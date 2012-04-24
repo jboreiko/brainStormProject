@@ -50,5 +50,11 @@ public class BoardPath extends BoardElt {
 		return null;
 	}
 
+	@Override
+	public String encode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

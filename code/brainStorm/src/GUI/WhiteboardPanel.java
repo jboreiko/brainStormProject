@@ -5,6 +5,8 @@ import java.util.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+
+import whiteboard.Whiteboard;
 /**
  * 
  * @author bverch
@@ -24,6 +26,7 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 	private int _tx,_ty;
 	private int _oldX,_oldY;
 	private int _increment;
+	private Whiteboard _backend;
 	
 	
 	public WhiteboardPanel(){
@@ -46,6 +49,16 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 		setPreferredSize(_panelSize);
 		setSize(_panelSize);
 	}
+	
+	/**
+	 * @author aabeshou
+	 * 
+	 * This returns the whiteboard object (i.e. the backend data structure)
+	 */
+	public Whiteboard getBoard() {
+		return _backend;
+	}
+	
 	public void mousePressed(MouseEvent e){
 		_tx = e.getLocationOnScreen().x - this.getX();
 		_ty = e.getLocationOnScreen().y - this.getY();

@@ -22,6 +22,8 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	double _s0, _s1;  //the location on the map of start if _start is null
 	double _e0, _e1; //end location of map is _end is null
 	
+	int _holding; //which end you're currently dragging. 0 for start, 1 for end
+	
 	Point _seminal; //used for painting, see paint(Graphics)
 	Point _terminal;
 	
@@ -90,7 +92,13 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	}
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub	
+		double startDist = (e.getX() - _seminal.x)*(e.getX() - _seminal.x) + (e.getY() - _seminal.y)*(e.getY() - _seminal.y);
+		double endDist = (e.getX() - _terminal.x)*(e.getX() - _terminal.x) + (e.getY() - _terminal.y)*(e.getY() - _terminal.y);
+		if (startDist < endDist) { //change the start dot location
+			_holding = 0;
+		} else {
+			_holding = 1;
+		}
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
@@ -101,10 +109,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	//change the location of the start/end point (whichever is closest)
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		System.out.println("Drag:0");
-		double startDist = (e.getX() - _seminal.x)*(e.getX() - _seminal.x) + (e.getY() - _seminal.y)*(e.getY() - _seminal.y);
-		double endDist = (e.getX() - _terminal.x)*(e.getX() - _terminal.x) + (e.getY() - _terminal.y)*(e.getY() - _terminal.y);
-		if (startDist < endDist) { //change the start dot location
+		if (_holding == 0) { //change the start dot location
 			_seminal.x = e.getX();
 			_seminal.y = e.getY();
 		} else {
@@ -116,7 +121,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub		
+		// TODO Auto-generated method stub
 	}	
 	
 	public static void main(String[] args) {

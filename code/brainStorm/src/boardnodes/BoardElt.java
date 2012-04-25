@@ -16,12 +16,24 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	private String textBody;
 	private static int ID_Last;
 	public BoardEltType Type;
-	public enum BoardEltType {
-		NODE, PATH
-	}
 	
+	protected static int nextUID = 0;
+	
+	private BoardEltType type;
+	public abstract int getUID();
+	public abstract BoardElt clone();
+	public abstract void setPos(java.awt.Point p);
 
+	public BoardEltType getType() {
+		return type;
+	}
+
+	public abstract java.awt.Point getPos();
 	
+	
+	public int containsText(String q) {
+		return getText().toLowerCase().indexOf(q.toLowerCase());
+	}	
 	
 	/*@param ID - the unique ID of this object
 	 * @return a new BoardElt with specified ID at no particular location*/

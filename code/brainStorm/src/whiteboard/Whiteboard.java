@@ -1,6 +1,7 @@
 package whiteboard;
 
 import java.awt.Point;
+import boardnodes.BoardElt;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -8,7 +9,7 @@ import java.util.Stack;
 
 import networking.Networking;
 
-import boardnodes.BoardElt.BoardEltType;
+import boardnodes.BoardEltType;
 
 public class Whiteboard {
 	private Hashtable<Integer, BoardElt> boardElts;
@@ -25,7 +26,7 @@ public class Whiteboard {
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
 		boardElts.put(b.getUID(), b);
-		pastActions.push(new CreationAction(b.getUID(), b.getType(), (int)(b.getPos().getX()), (int)(b.getPos().getY())));
+		pastActions.push(new CreationAction(b.getUID(), b.getType(), b.getPos().x, b.getPos().y));
 	}
 	
 	//Adds the given board elt and does not add any action to the stack
@@ -61,7 +62,7 @@ public class Whiteboard {
 	public void modifyBoardElt(int UID) {
 		BoardElt b = (BoardElt) boardElts.get(UID);
 		if(b!=null) {
-			pastActions.push(new ModificationAction(UID));
+			pastActions.push(new ModificationAction(UID, BoardActionType.ELT_DO));
 		}
 	}
 	
@@ -92,14 +93,44 @@ public class Whiteboard {
 	}
 	
 	public void undo() {
-		//get the top of the action stack, executeAction(its inverse), and push it to the top of the future stack
+		//get the top of the action stack, handle it, and push it to the future actions stack for redo
+		BoardAction b = pastActions.pop();
+		switch(b.getType()) {
+		case ELT_MOD:
+			boardElts.get(b.getTarget()).undo();
+			break;
+		case CREATION:
+			//TODO: handle creatio
+			break;
+		case DELETION:
+			//TODO: handle deletion
+			break;
+		case MOVE:
+			//TODO: handle move
+			break;
+		}
+		futureActions.push(b);
 	}
 	
 	public void redo() {
-		//get the top of the redo stack, executeAction(that thing), and push it to the top of the past stack
-		BoardAction toRedo = futureActions.pop();
-		executeAction(toRedo, false);
-		pastActions.push(toRedo);
+		//get the top of the action stack, handle it, and push it to the past actions stack for undo
+		BoardAction b = futureActions.pop();
+		switch(b.getType()) {
+		case ELT_MOD:
+			boardElts.get(b.getTarget()).redo();
+			break;
+		case CREATION:
+			//TODO: handle creation
+			break;
+		case DELETION:
+			//TODO: handle deletion
+			break;
+		case MOVE:
+			//TODO: handle move
+			break;
+		}
+		pastActions.push(b);
+		
 	}
 	
 	/**

@@ -11,7 +11,6 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JFrame;
 
-import whiteboard.BoardPathType;
 
 public class BoardPath extends BoardElt implements MouseListener, MouseMotionListener{
 	public final static int DRAG_SQUARE_SIZE = 5; //the size of the red/green squares
@@ -27,8 +26,6 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	Point _seminal; //used for painting, see paint(Graphics)
 	Point _terminal;
 	
-	BoardPathType TYPE;
-	
 	boolean _mouseIn; //true iff the mouse is in the region of this Path
 	
 	
@@ -38,7 +35,6 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		_mouseIn = false;
-		this.TYPE = BoardPathType.SOLID_THIN;
 	}
 	
 	//set the start+end point/nodes
@@ -134,5 +130,41 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		display.pack();
 		display.setVisible(true);
 		display.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	@Override
+	public void redo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void undo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public BoardElt clone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Point getPos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getUID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setPos(Point p) {
+		// TODO Auto-generated method stub
+		
 	}
 }

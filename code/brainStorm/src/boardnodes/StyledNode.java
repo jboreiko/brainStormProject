@@ -1,6 +1,7 @@
 package boardnodes;
 
 import java.awt.Dimension;
+import java.awt.Point;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,7 +13,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
-import boardnodes.BoardElt.BoardEltType;
+import boardnodes.BoardEltType;
 
 public class StyledNode extends BoardElt {
 	final BoardEltType Type = BoardEltType.NODE;
@@ -80,6 +81,48 @@ public class StyledNode extends BoardElt {
 	@Override
 	String encode() {
 		return null;
+	}
+
+
+	@Override
+	public void redo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void undo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public BoardElt clone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public Point getPos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public int getUID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public void setPos(Point p) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -112,5 +113,40 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		f.pack();
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+
+	@Override
+	public void redo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public BoardElt clone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public Point getPos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public int getUID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public void setPos(Point p) {
+		// TODO Auto-generated method stub
+		
 	}
 }

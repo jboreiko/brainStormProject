@@ -32,8 +32,6 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
         startPt.setLocation(pt);
     }
     @Override public void mousePressed(MouseEvent e) {
-    	Point offset = ((JViewport)e.getSource()).getViewPosition();
-    	((WhiteboardPanel)(this.wb)).addRectangle(e, new Point(e.getX() + offset.x, e.getY() + offset.y));
         ((JComponent)e.getSource()).setCursor(hc); //label.setCursor(hc);
         startPt.setLocation(e.getPoint());
         move.setLocation(0, 0);
@@ -47,11 +45,12 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
     }
     @Override
     public void mouseClicked(MouseEvent e){
+		Point offset = ((JViewport)e.getSource()).getViewPosition();
+		Point wbPoint = new Point(e.getX() + offset.x, e.getY() + offset.y);
     	if (e.getModifiers() == 16) { //left click
+        	wb.addNode(wbPoint);
     		
     	} else if (e.getModifiers() == 4) { //right click
-    		Point offset = ((JViewport)e.getSource()).getViewPosition();
-    		Point wbPoint = new Point(e.getX() + offset.x, e.getY() + offset.y);
     		wb.displayContextMenu(wbPoint);
     	}
     }

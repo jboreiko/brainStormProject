@@ -5,8 +5,6 @@ import java.util.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.StyledDocument;
 
 import whiteboard.Whiteboard;
 
@@ -23,13 +21,15 @@ import boardnodes.*;
  * 
  */
 public class WhiteboardPanel extends JPanel{
+	/**
+	 * 
+	 */
+	public static final int STYLED = 1;
+	public static final int SCRIBBLE = 2;
+	private int _lastAdded;
 	private ArrayList<BoardElt> _rectangles;
-	private BoardElt _rectToAdd;
 	private Dimension _panelSize;
 	private boolean _contIns;
-	private int _tx,_ty;
-	private int _oldX,_oldY;
-	private int _increment;
 	private Whiteboard _board;
 	
 	private Point _addLocation; //the location you should add the next BoardElt to
@@ -38,9 +38,7 @@ public class WhiteboardPanel extends JPanel{
 
 	public WhiteboardPanel(){
 		super();
-		_tx = 0;
-		_ty = 0;
-		_increment = 1;
+		_lastAdded = 0;
 		_board = new Whiteboard();
 		this.setLayout(null);
 		this.setVisible(true);
@@ -71,6 +69,7 @@ public class WhiteboardPanel extends JPanel{
 				Dimension size = styledNode.getSize();
 				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(styledNode);
+				_lastAdded = WhiteboardPanel.STYLED;
 				repaint();
 			}
 		});
@@ -83,6 +82,8 @@ public class WhiteboardPanel extends JPanel{
 				Dimension size = scribbleNode.getSize();
 				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(scribbleNode);
+				_board.add(scribbleNode);
+				_lastAdded = WhiteboardPanel.SCRIBBLE;
 				repaint();
 			}
 		});
@@ -90,8 +91,9 @@ public class WhiteboardPanel extends JPanel{
 		
 		return popup;
 	}
-	public void addRectangle(MouseEvent e,Point p){
+	public void addNode(Point p){
 		if(_contIns){
+			_addLocation = p;
 			/*if(e.getX() > _panelSize.width - 200){
 				Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
 				this.setPreferredSize(newSize);
@@ -118,11 +120,23 @@ public class WhiteboardPanel extends JPanel{
 				this.setSize(newSize);
 				_panelSize = newSize;
 			}*/
-			_rectToAdd = new BoardPath(4234); //fake UID for the moment
-			((BoardPath)_rectToAdd).setStart(e.getX(), e.getY());
-			((BoardPath)_rectToAdd).setEnd(24, 24);
-			_rectangles.add(_rectToAdd);
-			repaint();
+			if(_lastAdded == 0){
+				
+			}
+			else if(_lastAdded == WhiteboardPanel.SCRIBBLE){
+				ScribbleNode scribbleNode = new ScribbleNode(3);
+				Dimension size = scribbleNode.getSize();
+				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(scribbleNode);
+				repaint();
+			}
+			else if(_lastAdded == WhiteboardPanel.STYLED){
+				StyledNode styledNode = new StyledNode(3);
+				Dimension size = styledNode.getSize();
+				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(styledNode);
+				repaint();
+			}
 		}
 	}
 /*	public Dimension getPreferredScrollableViewportSize() {
@@ -171,6 +185,9 @@ public class WhiteboardPanel extends JPanel{
 			//g2.draw(_rectangles.get(i));
 			//g2.fill(_rectangles.get(i));
 		}
+	}
+	public void load(){
+		//_board.load("fileName");
 	}
 	public void setContinuousInsertion(boolean contIns){
 		_contIns = contIns;

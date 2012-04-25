@@ -9,7 +9,6 @@ public class ViewportDragScrollListener extends MouseAdapter implements Hierarch
     private static final int DELAY = 10;
     private final Cursor dc;
     private final Cursor hc = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
-    private final Timer scroller;
     private final JComponent panel;
     private Point startPt = new Point();
     private Point move    = new Point();
@@ -17,21 +16,9 @@ public class ViewportDragScrollListener extends MouseAdapter implements Hierarch
     public ViewportDragScrollListener(JComponent comp) {
         this.panel = comp;
         this.dc = comp.getCursor();
-        this.scroller = new Timer(DELAY, new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) {
-                JViewport vport = (JViewport)panel.getParent();
-                System.out.println(vport);
-                Point vp = vport.getViewPosition(); //= SwingUtilities.convertPoint(vport,0,0,label);
-                vp.translate(move.x, move.y);
-                panel.scrollRectToVisible(new Rectangle(vp, vport.getSize())); //vport.setViewPosition(vp);
-            }
-        });
     }
     @Override public void hierarchyChanged(HierarchyEvent e) {
         JComponent c = (JComponent)e.getSource();
-        if((e.getChangeFlags() & HierarchyEvent.DISPLAYABILITY_CHANGED)!=0 && !c.isDisplayable()) {
-            scroller.stop();
-        }
     }
     @Override public void mouseDragged(MouseEvent e) {
     	System.out.println("dragging");
@@ -51,15 +38,12 @@ public class ViewportDragScrollListener extends MouseAdapter implements Hierarch
         ((JComponent)e.getSource()).setCursor(hc); //label.setCursor(hc);
         startPt.setLocation(e.getPoint());
         move.setLocation(0, 0);
-        scroller.stop();
     }
     @Override public void mouseReleased(MouseEvent e) {
         ((JComponent)e.getSource()).setCursor(dc); //label.setCursor(dc);
-        scroller.start();
     }
     @Override public void mouseExited(MouseEvent e) {
         ((JComponent)e.getSource()).setCursor(dc); //label.setCursor(dc);
         move.setLocation(0, 0);
-        scroller.stop();
     }
 }

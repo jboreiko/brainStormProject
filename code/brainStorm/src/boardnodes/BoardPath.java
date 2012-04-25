@@ -31,6 +31,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	
 	boolean _mouseIn; //true iff the mouse is in the region of this Path
 	
+	
 	/**/
 	public BoardPath(int ID) {
 		super(ID);

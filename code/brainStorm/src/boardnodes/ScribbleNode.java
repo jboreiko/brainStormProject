@@ -23,11 +23,13 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public final static int POINT_WIDTH = 3;
 	public final static ColoredPoint BREAK_POINT = new ColoredPoint(-1,-1, Color.WHITE);
 	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
+	LinkedList<List<ColoredPoint>> undrawnArea; //the drawn areas that have been undone
 
 	public ScribbleNode(int ID, whiteboard.Whiteboard w) {
 		super(ID, w);
 		setBackground(Color.WHITE);
 		drawnArea = new LinkedList<List<ColoredPoint>>();
+		undrawnArea = new LinkedList<List<ColoredPoint>>();
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setPreferredSize(new Dimension(200,150));
@@ -75,9 +77,19 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void undo() {
 		System.out.println("trying to undo");
 		if(!drawnArea.isEmpty()) {
-			drawnArea.removeLast();
+			undrawnArea.add(drawnArea.removeLast());
 		}
 	}
+
+
+	@Override
+	public void redo() {
+		System.out.println("trying to undo");
+		if(!undrawnArea.isEmpty()) {
+			drawnArea.add(undrawnArea.removeLast());
+		}
+	}
+	
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
@@ -124,12 +136,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-
-	@Override
-	public void redo() {
-		// TODO Auto-generated method stub
-
-	}
 
 
 	@Override

@@ -29,6 +29,8 @@ public class WhiteboardPanel extends JPanel{
 	private int _oldX,_oldY;
 	private int _increment;
 	private Whiteboard _board;
+	
+	private Point _addLocation; //the location you should add the next BoardElt to
 
 	private JPopupMenu _rightClickMenu; //the options when a user right-clicks
 
@@ -38,9 +40,9 @@ public class WhiteboardPanel extends JPanel{
 		_ty = 0;
 		_increment = 1;
 		_board = new Whiteboard();
-		this.setLayout(new BorderLayout());
+		this.setLayout(null);
 		this.setVisible(true);
-		this.setBackground(Color.WHITE);
+		this.setBackground(Color.BLUE);
 		_contIns = true;
 		_rectangles = new ArrayList<BoardElt>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -52,13 +54,23 @@ public class WhiteboardPanel extends JPanel{
 	
 	public Whiteboard getBoard() {return _board;}
 	
+	public void displayContextMenu(Point display) {
+		_addLocation = display;
+		_rightClickMenu.show(this, display.x, display.y);
+	}
+	
 	//initialize the right-click menu to allow for adding of nodes
 	private JPopupMenu initPopupMenu() {
 		JPopupMenu popup = new JPopupMenu("Context Menu");
 		JMenuItem menuItem = new JMenuItem("Add Styled Node");
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				_rectangles.add(new StyledNode(3)); //communicate with backend for next available free UID
+				StyledNode s = new StyledNode(3);
+				add(s);
+				Dimension size = s.getSize();
+				s.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				_rectangles.add(s); //communicate with backend for next available free UID
+				repaint();
 			}
 		});
 		popup.add(menuItem);

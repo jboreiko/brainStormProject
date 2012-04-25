@@ -81,7 +81,7 @@ public class StyledNode extends BoardElt {
 	String encode() {
 		return null;
 	}
-
+	
 
 	@Override
 	public void addAction(ActionObject ao) {

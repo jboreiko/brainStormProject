@@ -70,11 +70,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if (e.getModifiers() == 16) {
+		if (e.getModifiers() == 16) { //left click
 			drawnArea.getLast().add(new ColoredPoint(e.getPoint(), Color.BLACK));
 			ColoredPoint b = new ColoredPoint(0,0,Color.WHITE);
 			repaint();
-		} else if (e.getModifiers() == 4) {
+		} else if (e.getModifiers() == 4) { //right click
 			drawnArea.getLast().add(new ColoredPoint(e.getPoint(), Color.WHITE));
 			repaint();
 		}

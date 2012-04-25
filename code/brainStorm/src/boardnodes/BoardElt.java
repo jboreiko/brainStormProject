@@ -65,6 +65,8 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	}
 	
 	
+	public abstract void addAction(ActionObject ao);
+	
 	abstract String encode();
 	
 	abstract void decode(String obj);

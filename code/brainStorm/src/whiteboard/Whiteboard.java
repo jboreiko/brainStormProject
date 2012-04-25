@@ -174,11 +174,11 @@ public class Whiteboard {
 	 */
 	public String encode() {
 		StringBuilder ret = new StringBuilder();
-		ret.append(Encoding.WHITEBOARD_OPEN);
+		//ret.append(Encoding.WHITEBOARD_OPEN);
 		for(BoardElt b: boardElts.values()) {
 			ret.append(b.encode());
 		}
-		ret.append(Encoding.WHITEBOARD_CLOSE);
+		//ret.append(Encoding.WHITEBOARD_CLOSE);
 		return ret.toString();
 	}
 	

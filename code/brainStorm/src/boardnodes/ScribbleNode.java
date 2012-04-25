@@ -113,4 +113,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+
+
+	@Override
+	public void addAction(ActionObject ao) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -46,7 +46,8 @@ public class ViewportDragScrollListener extends MouseAdapter implements Hierarch
         startPt.setLocation(pt);
     }
     @Override public void mousePressed(MouseEvent e) {
-    	((WhiteboardPanel)(this.panel)).addRectangle(e);
+    	Point offset = ((JViewport)e.getSource()).getViewPosition();
+    	((WhiteboardPanel)(this.panel)).addRectangle(e, new Point(e.getX() + offset.x, e.getY() + offset.y));
         ((JComponent)e.getSource()).setCursor(hc); //label.setCursor(hc);
         startPt.setLocation(e.getPoint());
         move.setLocation(0, 0);

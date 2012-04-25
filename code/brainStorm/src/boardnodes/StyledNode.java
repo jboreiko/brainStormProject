@@ -30,7 +30,7 @@ public class StyledNode extends BoardElt {
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
-			if (e.getEdit().getPresentationName().equals("addition")) {
+			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
 					if(text.getText(text.getLength()-1, 1).equals("\n")) {
 						text.insertString(text.getLength(), "\u2022 ", null);
@@ -80,6 +80,13 @@ public class StyledNode extends BoardElt {
 	@Override
 	String encode() {
 		return null;
+	}
+
+
+	@Override
+	public void addAction(ActionObject ao) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

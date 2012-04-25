@@ -7,6 +7,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import whiteboard.Whiteboard;
+
+import boardnodes.*;
 /**
  * 
  * @author bverch
@@ -19,59 +21,51 @@ import whiteboard.Whiteboard;
  * 
  */
 public class WhiteboardPanel extends JPanel{
-	private ArrayList<Rectangle> _rectangles;
-	private Rectangle _rectToAdd;
+	private ArrayList<BoardElt> _rectangles;
+	private BoardElt _rectToAdd;
 	private Dimension _panelSize;
 	private boolean _contIns;
 	private int _tx,_ty;
 	private int _oldX,_oldY;
 	private int _increment;
-	private Whiteboard _backend;
-	
-	
+	private Whiteboard _board;
+
+	private JPopupMenu _rightClickMenu; //the options when a user right-clicks
+
 	public WhiteboardPanel(){
 		super();
 		_tx = 0;
 		_ty = 0;
 		_increment = 1;
-		//_board = new Whiteboard();
+		_board = new Whiteboard();
 		this.setLayout(new BorderLayout());
 		this.setVisible(true);
 		this.setBackground(Color.WHITE);
 		_contIns = true;
-		_rectangles = new ArrayList<Rectangle>();
+		_rectangles = new ArrayList<BoardElt>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		_panelSize = new Dimension(screenSize.width, screenSize.height-100);
 		setPreferredSize(_panelSize);
 		setSize(_panelSize);
+		_rightClickMenu = initPopupMenu();
 	}
-<<<<<<< HEAD
+	
+	public Whiteboard getBoard() {return _board;}
+	
+	//initialize the right-click menu to allow for adding of nodes
+	private JPopupMenu initPopupMenu() {
+		JPopupMenu popup = new JPopupMenu("Context Menu");
+		JMenuItem menuItem = new JMenuItem("Add Styled Node");
+		menuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_rectangles.add(new StyledNode(3)); //communicate with backend for next available free UID
+			}
+		});
+		popup.add(menuItem);
+		
+		return popup;
+	}
 	public void addRectangle(MouseEvent e,Point p){
-=======
-	
-	/**
-	 * @author aabeshou
-	 * 
-	 * This returns the whiteboard object (i.e. the backend data structure)
-	 */
-	public Whiteboard getBoard() {
-		return _backend;
-	}
-	
-	Point pressed; //the point you pressed down
-	public void mousePressed(MouseEvent e){
-		pressed = new Point(e.getPoint());
-	}
-	public void mouseReleased(MouseEvent e){
-	}
-	public void mouseEntered(MouseEvent e){
-	}
-	public void mouseExited(MouseEvent e){
-	}
-	public void mouseClicked(MouseEvent e){
-		_tx = e.getLocationOnScreen().x - this.getX();
-		_ty = e.getLocationOnScreen().y - this.getY();
->>>>>>> bdf52545bc1c95bc38454d8915574fdf37b69337
 		if(_contIns){
 			/*if(e.getX() > _panelSize.width - 200){
 				Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
@@ -99,46 +93,14 @@ public class WhiteboardPanel extends JPanel{
 				this.setSize(newSize);
 				_panelSize = newSize;
 			}*/
-			_rectToAdd = new Rectangle((int)e.getX(),(int)e.getY(),100,100);
+			_rectToAdd = new BoardPath(4234); //fake UID for the moment
+			((BoardPath)_rectToAdd).setStart(e.getX(), e.getY());
+			((BoardPath)_rectToAdd).setEnd(24, 24);
 			_rectangles.add(_rectToAdd);
 			repaint();
 		}
 	}
-<<<<<<< HEAD
 /*	public Dimension getPreferredScrollableViewportSize() {
-=======
-	public void mouseMoved(MouseEvent e){
-	}
-	public void mouseDragged(final MouseEvent e){
-		System.out.println("Drag from (" + pressed.x + ", " + pressed.y + ") to (" + e.getX() + ", " + e.getY() + ")");
-		//get viewport
-		//viewport.setViewPosition(new Point())
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				Rectangle r = new Rectangle(getVisibleRect());
-				Point temp = new Point(e.getPoint());
-				if (pressed != null) {
-					r.x -= temp.getX()-pressed.x;
-					r.y -= temp.getY()-pressed.y;
-				}
-				scrollRectToVisible(r);
-				pressed = temp;
-			}
-		});
-		/* TAKEN OUT BY JFRANTZ 4/24
-		Rectangle r = new Rectangle(e.getX(),e.getY(),1,1);
-		scrollRectToVisible(r); */
-        /*this.scrollRectToVisible(getVisibleRect());
-        this.setLocation(e.getLocationOnScreen().x - _tx, e.getLocationOnScreen().y - _ty);
-        System.out.println(_tx);
-        System.out.println(_ty);
-        _tx = e.getLocationOnScreen().x - this.getX();
-        _ty = e.getLocationOnScreen().y - this.getY();*/
-	}
-	public void mouseWheelMoved(MouseWheelEvent e){
-	}
-	public Dimension getPreferredScrollableViewportSize() {
->>>>>>> bdf52545bc1c95bc38454d8915574fdf37b69337
 		return getPreferredSize();
 	}
 	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction){
@@ -180,11 +142,13 @@ public class WhiteboardPanel extends JPanel{
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		for(int i=0;i<_rectangles.size();i++){
-			g2.draw(_rectangles.get(i));
-			g2.fill(_rectangles.get(i));
+			_rectangles.get(i).paintComponents(g2);
+			//g2.draw(_rectangles.get(i));
+			//g2.fill(_rectangles.get(i));
 		}
 	}
 	public void setContinuousInsertion(boolean contIns){
 		_contIns = contIns;
 	}
+	
 }

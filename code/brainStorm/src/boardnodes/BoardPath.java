@@ -135,4 +135,10 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		display.setVisible(true);
 		display.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+
+	@Override
+	public void addAction(ActionObject ao) {
+		// TODO Auto-generated method stub
+		
+	}
 }

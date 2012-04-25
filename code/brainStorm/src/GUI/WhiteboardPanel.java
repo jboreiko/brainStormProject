@@ -5,6 +5,8 @@ import java.util.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+
+import whiteboard.Whiteboard;
 /**
  * 
  * @author bverch
@@ -24,6 +26,7 @@ public class WhiteboardPanel extends JPanel{
 	private int _tx,_ty;
 	private int _oldX,_oldY;
 	private int _increment;
+	private Whiteboard _backend;
 	
 	
 	public WhiteboardPanel(){
@@ -42,7 +45,33 @@ public class WhiteboardPanel extends JPanel{
 		setPreferredSize(_panelSize);
 		setSize(_panelSize);
 	}
+<<<<<<< HEAD
 	public void addRectangle(MouseEvent e,Point p){
+=======
+	
+	/**
+	 * @author aabeshou
+	 * 
+	 * This returns the whiteboard object (i.e. the backend data structure)
+	 */
+	public Whiteboard getBoard() {
+		return _backend;
+	}
+	
+	Point pressed; //the point you pressed down
+	public void mousePressed(MouseEvent e){
+		pressed = new Point(e.getPoint());
+	}
+	public void mouseReleased(MouseEvent e){
+	}
+	public void mouseEntered(MouseEvent e){
+	}
+	public void mouseExited(MouseEvent e){
+	}
+	public void mouseClicked(MouseEvent e){
+		_tx = e.getLocationOnScreen().x - this.getX();
+		_ty = e.getLocationOnScreen().y - this.getY();
+>>>>>>> bdf52545bc1c95bc38454d8915574fdf37b69337
 		if(_contIns){
 			/*if(e.getX() > _panelSize.width - 200){
 				Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
@@ -75,7 +104,41 @@ public class WhiteboardPanel extends JPanel{
 			repaint();
 		}
 	}
+<<<<<<< HEAD
 /*	public Dimension getPreferredScrollableViewportSize() {
+=======
+	public void mouseMoved(MouseEvent e){
+	}
+	public void mouseDragged(final MouseEvent e){
+		System.out.println("Drag from (" + pressed.x + ", " + pressed.y + ") to (" + e.getX() + ", " + e.getY() + ")");
+		//get viewport
+		//viewport.setViewPosition(new Point())
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				Rectangle r = new Rectangle(getVisibleRect());
+				Point temp = new Point(e.getPoint());
+				if (pressed != null) {
+					r.x -= temp.getX()-pressed.x;
+					r.y -= temp.getY()-pressed.y;
+				}
+				scrollRectToVisible(r);
+				pressed = temp;
+			}
+		});
+		/* TAKEN OUT BY JFRANTZ 4/24
+		Rectangle r = new Rectangle(e.getX(),e.getY(),1,1);
+		scrollRectToVisible(r); */
+        /*this.scrollRectToVisible(getVisibleRect());
+        this.setLocation(e.getLocationOnScreen().x - _tx, e.getLocationOnScreen().y - _ty);
+        System.out.println(_tx);
+        System.out.println(_ty);
+        _tx = e.getLocationOnScreen().x - this.getX();
+        _ty = e.getLocationOnScreen().y - this.getY();*/
+	}
+	public void mouseWheelMoved(MouseWheelEvent e){
+	}
+	public Dimension getPreferredScrollableViewportSize() {
+>>>>>>> bdf52545bc1c95bc38454d8915574fdf37b69337
 		return getPreferredSize();
 	}
 	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction){

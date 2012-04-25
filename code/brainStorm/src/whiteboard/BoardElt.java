@@ -14,4 +14,13 @@ public abstract class BoardElt {
 	public abstract Object getType();
 
 	public abstract Object getPos();
+	public abstract String encode();
+	
+	public static BoardElt decode(String s) {
+		//TODO: implement
+		return null;
+	}
+	public int containsText(String q) {
+		return getText().toLowerCase().indexOf(q.toLowerCase());
+	}
 }

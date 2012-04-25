@@ -25,9 +25,9 @@ import java.awt.event.*;
  *
  *		Save Project: This will save the whiteboard panel's backend to an xml(?)
  *
- *		Close Project: This will close a project, promting the user to save first.
+ *		Close Project: This will close a project, prompting the user to save first.
  *
- *		Exit Brainstorm: This will exit the program, promting the user to save first.
+ *		Exit Brainstorm: This will exit the program, prompting the user to save first.
  *
  *
  */
@@ -39,6 +39,7 @@ public class MainFrame extends JFrame {
 	private JMenuBar _menuBar;
 	private InterfacePanel _interfacePane;
 	private ArrayList<WhiteboardPanel> _whiteboards;
+	private WhiteboardPanel _activeBoardPanel;
 	
 	/*
 	 * Mainframe()
@@ -232,7 +233,7 @@ public class MainFrame extends JFrame {
 		_undo.getAccessibleContext().setAccessibleDescription("Undoes an action");
 		_undo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//whiteboard.undo()
+				_activeBoardPanel.getBoard().undo();
 				JOptionPane.showMessageDialog(null, "You clicked the Undo menu");
 			}
 		});
@@ -246,7 +247,7 @@ public class MainFrame extends JFrame {
 		_redo.getAccessibleContext().setAccessibleDescription("Redoes an action");
 		_redo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//whiteboard.redo()
+				_activeBoardPanel.getBoard().redo();
 				JOptionPane.showMessageDialog(null, "You clicked the Redo menu");
 			}
 		});

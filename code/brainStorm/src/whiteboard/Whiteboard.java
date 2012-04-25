@@ -4,7 +4,10 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Stack;
+
+import boardnodes.BoardElt.BoardEltType;
 
 public class Whiteboard {
 	private Hashtable<Integer, BoardElt> boardElts;
@@ -12,6 +15,9 @@ public class Whiteboard {
 	private Stack<BoardAction> futureActions;
 	
 	private BoardElt clipboard;
+	
+	//TODO: make every method that adds an action just add the action and then call executeaction on it (every method
+	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
 	
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
@@ -119,7 +125,8 @@ public class Whiteboard {
 		return null;
 	}
 	
-	private void executeAction(BoardAction b) {
+	private void executeAction(BoardAction b, boolean clearRedo) {
+		boolean execSuccess = true;
 		if(b.getType() == BoardActionType.CREATION) {
 			this.just_add(b.getTarget());
 		} else if (b.getType() == BoardActionType.DELETION) {
@@ -136,30 +143,59 @@ public class Whiteboard {
 			
 		} else {
 			//this should never happen
-			return;
+			System.out.println("error: executeAction received an invalid BoardAction: "+b.toString());
+			execSuccess = false;
+		}
+		if(execSuccess && clearRedo) {
+			//this means everything went well, and we've been asked to clear the redo history
+			futureActions.clear();
 		}
 	}
 	
 	public void undo() {
 		//get the top of the action stack, executeAction(its inverse), and push it to the top of the future stack
 		BoardAction toUndo = pastActions.pop();
-		executeAction(toUndo.inverse());
+		executeAction(toUndo.inverse(), false);
 		futureActions.push(toUndo);
 	}
 	
 	public void redo() {
 		//get the top of the redo stack, executeAction(that thing), and push it to the top of the past stack
 		BoardAction toRedo = futureActions.pop();
-		executeAction(toRedo);
+		executeAction(toRedo, false);
 		pastActions.push(toRedo);
 	}
 	
+	/**
+	 * @author aabeshou
+	 * call boardelt.encode on all of the elements in the board, and concatenate them all into one XML string that this will return
+	 * @return
+	 * An XML string encoding the whiteboard.
+	 */
 	public String encode() {
-		//call boardelt.encode on all of the elements in the board, and concatenate them all into one XML/JSON string that this will return
+		StringBuilder ret = new StringBuilder();
+		ret.append(Encoding.WHITEBOARD_OPEN);
+		for(BoardElt b: boardElts.values()) {
+			ret.append(b.encode());
+		}
+		ret.append(Encoding.WHITEBOARD_CLOSE);
+		return ret.toString();
 	}
 	
 	public static Whiteboard decode() {
+		return null;
 		//TODO: take in XML/JSON and create a whiteboard object out of it, compelte with all the elements that are in it
+	}
+	
+	public Hashtable<BoardElt, Integer> search(String query) {
+		Hashtable<BoardElt, Integer> toReturn = new Hashtable<BoardElt, Integer>();
+		for(BoardElt b: boardElts.values()) {
+			int loc = b.containsText(query);
+			if(loc != -1) {
+				toReturn.put(b, loc);
+			}
+		}
+		return toReturn;
 	}
 	
 }

@@ -4,8 +4,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Stack;
+
+import networking.Networking;
 
 import boardnodes.BoardElt.BoardEltType;
 
@@ -13,16 +14,18 @@ public class Whiteboard {
 	private Hashtable<Integer, BoardElt> boardElts;
 	private Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
-	
+	private Networking networking;
 	private BoardElt clipboard;
+	
 	
 	//TODO: make every method that adds an action just add the action and then call executeaction on it (every method
 	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
+	//TODO: when calling networking.sendAction be sure to check for return false - that indicates either something went wrong (if networking is on) or networking is off
 	
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
 		boardElts.put(b.getUID(), b);
-		pastActions.push(new CreationAction(b));
+		pastActions.push(new CreationAction(b.getUID(), b.getType(), (int)(b.getPos().getX()), (int)(b.getPos().getY())));
 	}
 	
 	//Adds the given board elt and does not add any action to the stack
@@ -40,7 +43,7 @@ public class Whiteboard {
 	public BoardElt remove(int UID) {
 		BoardElt toReturn = boardElts.remove(UID);
 		if(toReturn!=null) {
-			pastActions.push(new DeletionAction(toReturn));
+			pastActions.push(new DeletionAction(toReturn.getUID()));
 		}
 		return toReturn;
 	}
@@ -53,59 +56,18 @@ public class Whiteboard {
 	}
 	
 	
-	//Modifies the board node with given UID, changing its given attribute to the given new value
-	//Caller is responsible for passing in the correct type of newValue object and passing the UID of 
-	//	a node, not a path
-	public void modifyBoardNode(int UID, BoardNodeAttribute attribute, Object newValue) {
-		BoardNode b = (BoardNode) boardElts.get(UID);
-		if(attribute == BoardNodeAttribute.TEXT) {
-			b.setText((String) newValue);
-			pastActions.push(new ModificationAction(b, BoardNodeAttribute.TEXT, b.getText(), newValue));
-		} else if (attribute == BoardNodeAttribute.POS) {
-			b.setPos((Point) newValue);
-			pastActions.push(new ModificationAction(b, BoardNodeAttribute.POS, b.getPos(), newValue));
-		} else {
-			System.out.println("the given attribute doesn't exist");
-			return;
+	//Keeps track of the event that the board element with given UID was just modified, so the whiteboard knows which
+	//	one to ask to undo when necessary
+	public void modifyBoardElt(int UID) {
+		BoardElt b = (BoardElt) boardElts.get(UID);
+		if(b!=null) {
+			pastActions.push(new ModificationAction(UID));
 		}
-	}
-	
-	//Modifies the board path with given UID, changing its given attribute to the given new value
-	//Caller is responsible for passing in the correct type of newValue object and passing the UID of 
-	//	a path, not a node
-	public void modifyBoardPath(int UID, BoardPathAttribute attribute, Object newValue) {
-		BoardPath p = ((BoardPath) boardElts.get(UID));
-		if(attribute == BoardPathAttribute.TEXT) {
-			p.setText((String) newValue);
-			pastActions.push(new ModificationAction(p, BoardPathAttribute.TEXT, p.getText(), newValue));
-		} else if (attribute == BoardPathAttribute.TYPE) {
-			p.changeType((BoardPathType) newValue);
-			pastActions.push(new ModificationAction(p, BoardPathAttribute.TYPE, p.getType(), newValue));
-		} else if (attribute == BoardPathAttribute.POS) {
-			p.setPos((Point) newValue);
-			pastActions.push(new ModificationAction(p, BoardPathAttribute.POS, p.getPos(), newValue));
-		} else {
-			System.out.println("the given attribute doesn't exist");
-		}
-	}
-	
-	//Returns a list of boardelts that contain the given string. The caller is responsible for finding
-	//	the precise index(es) of that string within the boardnode's contents
-	public ArrayList<BoardElt> find(String s) {
-		ArrayList<BoardElt> toReturn = new ArrayList<BoardElt>();
-		Collection<BoardElt> allElts = boardElts.values();
-		for(BoardElt b: allElts) {
-			if(b.getText()!=null) {
-				if(b.getText().indexOf(s)!=-1) {
-					toReturn.add(b);
-				}
-			}
-		}		
-		return toReturn;
 	}
 	
 	//Adds the given action to the stack
 	public void addAction(BoardAction ba) {
+		//TODO: execute action here but avoid redundancy with calls (i.e. dont execute twice)
 		pastActions.push(ba);
 	}
 	
@@ -126,37 +88,11 @@ public class Whiteboard {
 	}
 	
 	private void executeAction(BoardAction b, boolean clearRedo) {
-		boolean execSuccess = true;
-		if(b.getType() == BoardActionType.CREATION) {
-			this.just_add(b.getTarget());
-		} else if (b.getType() == BoardActionType.DELETION) {
-			this.just_remove(b.getTarget().getUID());
-		} else if (b.getType() == BoardActionType.MODIFICATION) {
-			//start listing attributes
-			BoardElt toModify = boardElts.get(b.getTarget().getUID());
-			if(toModify.getType() == BoardEltType.NODE) {
-				//TODO: this is where we list out every attribute of a node and modify it as it needs to be
-			} else if (toModify.getType() == BoardEltType.PATH) {
-				//TODO: this is where we list out every attribute of a path and modify it as it needs to be
-			}
-			
-			
-		} else {
-			//this should never happen
-			System.out.println("error: executeAction received an invalid BoardAction: "+b.toString());
-			execSuccess = false;
-		}
-		if(execSuccess && clearRedo) {
-			//this means everything went well, and we've been asked to clear the redo history
-			futureActions.clear();
-		}
+		
 	}
 	
 	public void undo() {
 		//get the top of the action stack, executeAction(its inverse), and push it to the top of the future stack
-		BoardAction toUndo = pastActions.pop();
-		executeAction(toUndo.inverse(), false);
-		futureActions.push(toUndo);
 	}
 	
 	public void redo() {
@@ -173,13 +109,8 @@ public class Whiteboard {
 	 * An XML string encoding the whiteboard.
 	 */
 	public String encode() {
-		StringBuilder ret = new StringBuilder();
-		ret.append(Encoding.WHITEBOARD_OPEN);
-		for(BoardElt b: boardElts.values()) {
-			ret.append(b.encode());
-		}
-		ret.append(Encoding.WHITEBOARD_CLOSE);
-		return ret.toString();
+		//TODO: encode the board
+		return null;
 	}
 	
 	public static Whiteboard decode() {
@@ -187,6 +118,7 @@ public class Whiteboard {
 		//TODO: take in XML/JSON and create a whiteboard object out of it, compelte with all the elements that are in it
 	}
 	
+	//returns a map from elements that contain the term to the first index of that term in the element's text field
 	public Hashtable<BoardElt, Integer> search(String query) {
 		Hashtable<BoardElt, Integer> toReturn = new Hashtable<BoardElt, Integer>();
 		for(BoardElt b: boardElts.values()) {

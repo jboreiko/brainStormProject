@@ -2,14 +2,15 @@ package whiteboard;
 
 public class DeletionAction extends BoardAction {
 
-	public DeletionAction(BoardElt target) {
+	public DeletionAction(int target) {
 		super(target);
 		type = BoardActionType.DELETION;
 	}
 
 	@Override
-	public BoardAction inverse() {
-		return new CreationAction(target);
+	public String encode() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

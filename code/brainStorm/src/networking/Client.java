@@ -100,6 +100,7 @@ class Client extends Thread{
 				return chatReceived.take();
 			} else if (t == Type.ACTION) {
 				return actionReceived.take();
+				//if notStack addAction
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

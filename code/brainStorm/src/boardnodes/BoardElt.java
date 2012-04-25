@@ -62,6 +62,9 @@ public abstract class BoardElt extends JComponent implements Cloneable{
 		textBody = toSet;
 	}
 	
+	public abstract void undo();
+	
+	public abstract void redo();
 	
 	abstract String encode();
 	

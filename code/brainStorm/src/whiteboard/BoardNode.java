@@ -1,6 +1,7 @@
 package whiteboard;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 
 public class BoardNode extends BoardElt {
 
@@ -34,19 +35,13 @@ public class BoardNode extends BoardElt {
 		return 0;
 	}
 
-	public Object getPos() {
+	public Point2D getPos() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object getType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String encode() {
+	public boardnodes.BoardEltType getType() {
 		// TODO Auto-generated method stub
 		return null;
 	}

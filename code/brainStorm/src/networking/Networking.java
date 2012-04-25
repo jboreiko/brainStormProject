@@ -64,7 +64,7 @@ public class Networking {
     }
 
     //This is blocking!!
-    public String recieveChatMessage() {        
+    public String receiveChatMessage() {        
         String ret = "";
         if (currentState == State.CLIENT) {
             ret = ((ChatMessage) client.receive(Type.CHAT)).text;
@@ -75,7 +75,7 @@ public class Networking {
     }
 
     //This is blocking!!
-    public Object recieveActionMessage() {
+    public Object receiveActionMessage() {
         Object ret = null;
         if (currentState == State.CLIENT) {
             ret = ((ActionMessage) client.receive(Type.CHAT)).action;

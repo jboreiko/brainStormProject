@@ -4,10 +4,10 @@ package whiteboard;
 //TODO: THIS
 
 public abstract class BoardAction {
-	protected BoardElt target;
+	protected int target;
 	protected BoardActionType type;
 	
-	public BoardElt getTarget() {
+	public int getTarget() {
 		return target;
 	}
 	
@@ -15,10 +15,9 @@ public abstract class BoardAction {
 		return type;
 	}
 	
-	public BoardAction(BoardElt _target) {
+	public BoardAction(int _target) {
 		target = _target;
 	}
 	
-	//returns the inverse action for execution
-	public abstract BoardAction inverse();
+	public abstract String encode();
 }

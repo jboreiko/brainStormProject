@@ -1,5 +1,5 @@
 package whiteboard;
 
 public enum BoardActionType {
-	CREATION, DELETION, MODIFICATION;
+	CREATION, DELETION, MOVE, MODIFICATION;
 }

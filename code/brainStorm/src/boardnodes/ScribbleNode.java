@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 
 public class ScribbleNode extends BoardElt implements MouseListener, MouseMotionListener{
@@ -27,6 +28,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		drawnArea = new LinkedList<List<ColoredPoint>>();
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		setPreferredSize(new Dimension(200,150));
+		setSize(150,200);
+		setBorder(BorderFactory.createLineBorder(Color.black));
+
 	}
 	
 
@@ -36,7 +41,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	}
 
 	@Override
-	String encode() {
+	public String encode() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -71,11 +76,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if (e.getModifiers() == 16) {
+		if (e.getModifiers() == 16) { //left click
 			drawnArea.getLast().add(new ColoredPoint(e.getPoint(), Color.BLACK));
 			ColoredPoint b = new ColoredPoint(0,0,Color.WHITE);
 			repaint();
-		} else if (e.getModifiers() == 4) {
+		} else if (e.getModifiers() == 4) { //right click
 			drawnArea.getLast().add(new ColoredPoint(e.getPoint(), Color.WHITE));
 			repaint();
 		}
@@ -146,6 +151,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	@Override
 	public void setPos(Point p) {
+		//TODO
+	}
+	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub
 		
 	}

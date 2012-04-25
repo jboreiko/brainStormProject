@@ -1,5 +1,7 @@
 package GUI;
 
+
+
 import java.util.*;
 import javax.swing.*;
 
@@ -59,6 +61,7 @@ public class MainFrame extends JFrame {
 		_tabbedPane.setVisible(true);
 		_whiteboards = new ArrayList<WhiteboardPanel>();
 		getContentPane().add(_tabbedPane,BorderLayout.CENTER);
+        add(_tabbedPane);
 	}
 	/*
 	 * Method initMenu()
@@ -103,8 +106,6 @@ public class MainFrame extends JFrame {
 						_interfacePane.setVisible(true);
 					    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 					    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
-					    JPanel cow = new JPanel();
-					    cow.setPreferredSize(new Dimension(10000,10000));
 						JScrollPane scrollPane = new JScrollPane(wb,v,h);
 						//interesting stuff
 						ViewportDragScrollListener l = new ViewportDragScrollListener(wb);
@@ -112,6 +113,9 @@ public class MainFrame extends JFrame {
 						vp.addMouseMotionListener(l);
 						vp.addMouseListener(l);
 						vp.addHierarchyListener(l);
+						
+						
+						
 						
 						JPanel sessionPanel = new JPanel();
 						sessionPanel.setLayout(new BorderLayout());

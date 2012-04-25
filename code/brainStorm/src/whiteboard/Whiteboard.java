@@ -23,15 +23,16 @@ public class Whiteboard {
 	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
 	//TODO: when calling networking.sendAction be sure to check for return false - that indicates either something went wrong (if networking is on) or networking is off
 	
+	public Whiteboard() {
+		pastActions = new Stack<BoardAction>();
+		futureActions = new Stack<BoardAction>();
+		boardElts = new Hashtable<Integer, BoardElt>();
+	}
+	
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
 		boardElts.put(b.getUID(), b);
 		pastActions.push(new CreationAction(b.getUID(), b.getType(), b.getPos().x, b.getPos().y));
-	}
-	
-	//Adds the given board elt and does not add any action to the stack
-	private void just_add(BoardElt b) {
-		boardElts.put(b.getUID(), b);
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -62,7 +63,7 @@ public class Whiteboard {
 	public void modifyBoardElt(int UID) {
 		BoardElt b = (BoardElt) boardElts.get(UID);
 		if(b!=null) {
-			pastActions.push(new ModificationAction(UID, BoardActionType.ELT_DO));
+			pastActions.push(new ModificationAction(UID));
 		}
 	}
 	
@@ -86,10 +87,6 @@ public class Whiteboard {
 	public Object render() {
 		//TODO: will render everything in each list. Discuss with brandon exactly how I should return this/do this
 		return null;
-	}
-	
-	private void executeAction(BoardAction b, boolean clearRedo) {
-		
 	}
 	
 	public void undo() {
@@ -140,8 +137,13 @@ public class Whiteboard {
 	 * An XML string encoding the whiteboard.
 	 */
 	public String encode() {
-		//TODO: encode the board
-		return null;
+		StringBuilder ret = new StringBuilder();
+		//ret.append(Encoding.WHITEBOARD_OPEN);
+		for(BoardElt b: boardElts.values()) {
+			ret.append(b.encode());
+		}
+		//ret.append(Encoding.WHITEBOARD_CLOSE);
+		return ret.toString();
 	}
 	
 	public static Whiteboard decode() {
@@ -159,6 +161,10 @@ public class Whiteboard {
 			}
 		}
 		return toReturn;
+	}
+	
+	public ArrayList<BoardElt> getElts() {
+		return new ArrayList<BoardElt>(boardElts.values());
 	}
 	
 }

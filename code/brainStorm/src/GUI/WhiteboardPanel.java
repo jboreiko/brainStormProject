@@ -5,8 +5,12 @@ import java.util.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.StyledDocument;
 
 import whiteboard.Whiteboard;
+
+import boardnodes.*;
 /**
  * 
  * @author bverch
@@ -18,62 +22,77 @@ import whiteboard.Whiteboard;
  * 
  * 
  */
-public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener, MouseWheelListener, MouseMotionListener{
-	private ArrayList<Rectangle> _rectangles;
-	private Rectangle _rectToAdd;
+public class WhiteboardPanel extends JPanel{
+	private ArrayList<BoardElt> _rectangles;
+	private BoardElt _rectToAdd;
 	private Dimension _panelSize;
 	private boolean _contIns;
 	private int _tx,_ty;
 	private int _oldX,_oldY;
 	private int _increment;
-	private Whiteboard _backend;
+	private Whiteboard _board;
 	
-	
+	private Point _addLocation; //the location you should add the next BoardElt to
+
+	private JPopupMenu _rightClickMenu; //the options when a user right-clicks
+
 	public WhiteboardPanel(){
 		super();
 		_tx = 0;
 		_ty = 0;
 		_increment = 1;
-		//_board = new Whiteboard();
-		this.setLayout(new BorderLayout());
+		_board = new Whiteboard();
+		this.setLayout(null);
 		this.setVisible(true);
-		this.setBackground(Color.WHITE);
-		this.addMouseListener(this);
-		this.addMouseMotionListener(this);
-		this.addMouseWheelListener(this);
-		this.setAutoscrolls(true);
+		this.setBackground(Color.BLUE);
 		_contIns = true;
-		_rectangles = new ArrayList<Rectangle>();
+		_rectangles = new ArrayList<BoardElt>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		_panelSize = new Dimension(screenSize.width, screenSize.height-100);
 		setPreferredSize(_panelSize);
 		setSize(_panelSize);
+		_rightClickMenu = initPopupMenu();
 	}
 	
-	/**
-	 * @author aabeshou
-	 * 
-	 * This returns the whiteboard object (i.e. the backend data structure)
-	 */
-	public Whiteboard getBoard() {
-		return _backend;
+	public Whiteboard getBoard() {return _board;}
+	
+	public void displayContextMenu(Point display) {
+		_addLocation = display;
+		_rightClickMenu.show(this, display.x, display.y);
 	}
 	
-	Point pressed; //the point you pressed down
-	public void mousePressed(MouseEvent e){
-		pressed = new Point(e.getPoint());
+	//initialize the right-click menu to allow for adding of nodes
+	private JPopupMenu initPopupMenu() {
+		JPopupMenu popup = new JPopupMenu("Context Menu");
+		JMenuItem styledNodeMenuItem = new JMenuItem("Add Styled Node");
+		styledNodeMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				StyledNode styledNode = new StyledNode(3, _board);
+				Dimension size = styledNode.getSize();
+				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(styledNode);
+				repaint();
+			}
+		});
+		popup.add(styledNodeMenuItem);
+		
+		JMenuItem drawNodeMenuItem = new JMenuItem("Add Scribble Node");
+		drawNodeMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ScribbleNode scribbleNode = new ScribbleNode(3);
+				Dimension size = scribbleNode.getSize();
+				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(scribbleNode);
+				repaint();
+			}
+		});
+		popup.add(drawNodeMenuItem);
+		
+		return popup;
 	}
-	public void mouseReleased(MouseEvent e){
-	}
-	public void mouseEntered(MouseEvent e){
-	}
-	public void mouseExited(MouseEvent e){
-	}
-	public void mouseClicked(MouseEvent e){
-		_tx = e.getLocationOnScreen().x - this.getX();
-		_ty = e.getLocationOnScreen().y - this.getY();
+	public void addRectangle(MouseEvent e,Point p){
 		if(_contIns){
-			if(e.getX() > _panelSize.width - 200){
+			/*if(e.getX() > _panelSize.width - 200){
 				Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
 				this.setPreferredSize(newSize);
 				this.setSize(newSize);
@@ -85,7 +104,7 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 				this.setSize(newSize);
 				_panelSize = newSize;
 			}
-			/*if(e.getX() < 200){
+			if(e.getX() < 200){
 				//SOME KIND OF TRANSLATION HERE
 				Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
 				this.setPreferredSize(newSize);
@@ -99,42 +118,14 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 				this.setSize(newSize);
 				_panelSize = newSize;
 			}*/
-			_rectToAdd = new Rectangle((int)e.getX(),(int)e.getY(),100,100);
+			_rectToAdd = new BoardPath(4234); //fake UID for the moment
+			((BoardPath)_rectToAdd).setStart(e.getX(), e.getY());
+			((BoardPath)_rectToAdd).setEnd(24, 24);
 			_rectangles.add(_rectToAdd);
 			repaint();
 		}
 	}
-	public void mouseMoved(MouseEvent e){
-	}
-	public void mouseDragged(final MouseEvent e){
-		System.out.println("Drag from (" + pressed.x + ", " + pressed.y + ") to (" + e.getX() + ", " + e.getY() + ")");
-		//get viewport
-		//viewport.setViewPosition(new Point())
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				Rectangle r = new Rectangle(getVisibleRect());
-				Point temp = new Point(e.getPoint());
-				if (pressed != null) {
-					r.x -= temp.getX()-pressed.x;
-					r.y -= temp.getY()-pressed.y;
-				}
-				scrollRectToVisible(r);
-				pressed = temp;
-			}
-		});
-		/* TAKEN OUT BY JFRANTZ 4/24
-		Rectangle r = new Rectangle(e.getX(),e.getY(),1,1);
-		scrollRectToVisible(r); */
-        /*this.scrollRectToVisible(getVisibleRect());
-        this.setLocation(e.getLocationOnScreen().x - _tx, e.getLocationOnScreen().y - _ty);
-        System.out.println(_tx);
-        System.out.println(_ty);
-        _tx = e.getLocationOnScreen().x - this.getX();
-        _ty = e.getLocationOnScreen().y - this.getY();*/
-	}
-	public void mouseWheelMoved(MouseWheelEvent e){
-	}
-	public Dimension getPreferredScrollableViewportSize() {
+/*	public Dimension getPreferredScrollableViewportSize() {
 		return getPreferredSize();
 	}
 	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction){
@@ -171,16 +162,18 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 	}
 	public void setIncrement(int pixels){
 		_increment = pixels;
-	}
+	}*/
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		for(int i=0;i<_rectangles.size();i++){
-			g2.draw(_rectangles.get(i));
-			g2.fill(_rectangles.get(i));
+			_rectangles.get(i).paintComponents(g2);
+			//g2.draw(_rectangles.get(i));
+			//g2.fill(_rectangles.get(i));
 		}
 	}
 	public void setContinuousInsertion(boolean contIns){
 		_contIns = contIns;
 	}
+	
 }

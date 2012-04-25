@@ -1,8 +1,7 @@
 package boardnodes;
+import java.awt.*;
 
-import java.awt.Dimension;
-import java.awt.Point;
-
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -13,6 +12,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
+import whiteboard.BoardActionType;
+
 import boardnodes.BoardEltType;
 
 public class StyledNode extends BoardElt {
@@ -20,18 +21,19 @@ public class StyledNode extends BoardElt {
 	JTextPane content;
 	StyledDocument text;
 	
-	public StyledNode(int UID){
-		super(UID);
+	public StyledNode(int UID, whiteboard.Whiteboard w){
+		super(UID, w);
 		content = createEditorPane();
 		JScrollPane view = 
 			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		this.add(view);
+		this.setSize(new Dimension(215,165));
 	}
 	
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
-			if (e.getEdit().getPresentationName().equals("addition")) {
+			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
 					if(text.getText(text.getLength()-1, 1).equals("\n")) {
 						text.insertString(text.getLength(), "\u2022 ", null);
@@ -40,6 +42,8 @@ public class StyledNode extends BoardElt {
 					e1.printStackTrace();
 				}
 			}
+			
+			notifyWhiteboard(BoardActionType.ELT_MOD);
 			System.out.println("Send to backend "+e.getEdit().getPresentationName());
 		}
 		
@@ -65,7 +69,7 @@ public class StyledNode extends BoardElt {
 	/*This exists just to let me peek at progress incrementally*/
 	public static void main(String[] args){
 		JFrame node = new JFrame("Text Node Demo");
-		StyledNode a = new StyledNode(3);
+		StyledNode a = new StyledNode(3, null);
 		a.setVisible(true);
 		node.add(a);
 		node.pack();
@@ -79,8 +83,15 @@ public class StyledNode extends BoardElt {
 
 
 	@Override
-	String encode() {
+	public String encode() {
 		return null;
+	}
+	
+
+	@Override
+	public void addAction(ActionObject ao) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

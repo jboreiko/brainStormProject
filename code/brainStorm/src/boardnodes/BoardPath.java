@@ -66,7 +66,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	}
 
 	@Override
-	String encode() {
+	public String encode() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -164,7 +164,11 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 
 	@Override
 	public void setPos(Point p) {
-		// TODO Auto-generated method stub
-		
+		//TODO: auto-generated method stub
+	}
+	
+	@Override
+	public void addAction(ActionObject ao) {
+		// TODO Auto-generated method stub		
 	}
 }

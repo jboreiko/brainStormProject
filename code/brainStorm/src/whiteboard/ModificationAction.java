@@ -2,9 +2,9 @@ package whiteboard;
 
 public class ModificationAction extends BoardAction {
 	
-	public ModificationAction(int target, BoardActionType _type) {
+	public ModificationAction(int target) {
 		super(target);
-		type = _type;
+		type = BoardActionType.ELT_MOD;
 	}
 
 	@Override

@@ -14,12 +14,13 @@ import javax.swing.text.StyledDocument;
 
 import boardnodes.BoardElt.BoardEltType;
 
-public class StyledNode extends JPanel {
+public class StyledNode extends BoardElt {
 	final BoardEltType Type = BoardEltType.NODE;
 	JTextPane content;
 	StyledDocument text;
 	
-	public StyledNode(){
+	public StyledNode(int UID){
+		super(UID);
 		content = createEditorPane();
 		JScrollPane view = 
 			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -55,7 +56,6 @@ public class StyledNode extends JPanel {
 		}
 		JTextPane toReturn = new JTextPane(text);
 		toReturn.setPreferredSize(new Dimension(200,150));
-		//toReturn.createDefaultEditorKit();
 		
 		return toReturn;
 	}
@@ -64,11 +64,22 @@ public class StyledNode extends JPanel {
 	/*This exists just to let me peek at progress incrementally*/
 	public static void main(String[] args){
 		JFrame node = new JFrame("Text Node Demo");
-		StyledNode a = new StyledNode();
+		StyledNode a = new StyledNode(3);
 		a.setVisible(true);
 		node.add(a);
 		node.pack();
 		node.setVisible(true);
+	}
+
+
+	@Override
+	void decode(String obj) {
+	}
+
+
+	@Override
+	String encode() {
+		return null;
 	}
 
 	

@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
 
-public class ViewportDragScrollListener extends MouseAdapter implements HierarchyListener{
+public class ViewportDragScrollListener implements MouseListener,MouseMotionListener, HierarchyListener{
     private static final int SPEED = 4;
     private static final int DELAY = 10;
     private final Cursor dc;
@@ -46,4 +46,18 @@ public class ViewportDragScrollListener extends MouseAdapter implements Hierarch
         ((JComponent)e.getSource()).setCursor(dc); //label.setCursor(dc);
         move.setLocation(0, 0);
     }
+    @Override
+    public void mouseClicked(MouseEvent e){
+    	
+    }
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 }

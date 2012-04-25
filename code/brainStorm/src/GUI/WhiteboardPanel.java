@@ -72,6 +72,7 @@ public class WhiteboardPanel extends JPanel{
 				Dimension size = styledNode.getSize();
 				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(styledNode);
+				_board.add(styledNode);
 				_lastAdded = WhiteboardPanel.STYLED;
 				repaint();
 			}
@@ -134,6 +135,7 @@ public class WhiteboardPanel extends JPanel{
 				Dimension size = scribbleNode.getSize();
 				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(scribbleNode);
+				_board.add(scribbleNode);
 				repaint();
 			}
 			else if(_lastAdded == WhiteboardPanel.STYLED){
@@ -142,6 +144,7 @@ public class WhiteboardPanel extends JPanel{
 				Dimension size = styledNode.getSize();
 				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(styledNode);
+				_board.add(styledNode);
 				repaint();
 			}
 		}

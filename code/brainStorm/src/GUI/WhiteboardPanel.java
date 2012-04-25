@@ -16,7 +16,7 @@ import javax.swing.*;
  * 
  * 
  */
-public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener, MouseWheelListener, MouseMotionListener{
+public class WhiteboardPanel extends JPanel{
 	private ArrayList<Rectangle> _rectangles;
 	private Rectangle _rectToAdd;
 	private Dimension _panelSize;
@@ -35,10 +35,6 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 		this.setLayout(new BorderLayout());
 		this.setVisible(true);
 		this.setBackground(Color.WHITE);
-		this.addMouseListener(this);
-		this.addMouseMotionListener(this);
-		this.addMouseWheelListener(this);
-		this.setAutoscrolls(true);
 		_contIns = true;
 		_rectangles = new ArrayList<Rectangle>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -46,11 +42,9 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 		setPreferredSize(_panelSize);
 		setSize(_panelSize);
 	}
-	public void mousePressed(MouseEvent e){
-		_tx = e.getLocationOnScreen().x - this.getX();
-		_ty = e.getLocationOnScreen().y - this.getY();
+	public void addRectangle(MouseEvent e,Point p){
 		if(_contIns){
-			if(e.getX() > _panelSize.width - 200){
+			/*if(e.getX() > _panelSize.width - 200){
 				Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
 				this.setPreferredSize(newSize);
 				this.setSize(newSize);
@@ -62,7 +56,7 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 				this.setSize(newSize);
 				_panelSize = newSize;
 			}
-			/*if(e.getX() < 200){
+			if(e.getX() < 200){
 				//SOME KIND OF TRANSLATION HERE
 				Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
 				this.setPreferredSize(newSize);
@@ -81,29 +75,7 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 			repaint();
 		}
 	}
-	public void mouseReleased(MouseEvent e){
-	}
-	public void mouseEntered(MouseEvent e){
-	}
-	public void mouseExited(MouseEvent e){
-	}
-	public void mouseClicked(MouseEvent e){
-	}
-	public void mouseMoved(MouseEvent e){
-	}
-	public void mouseDragged(MouseEvent e){
-		Rectangle r = new Rectangle(e.getX(),e.getY(),1,1);
-		scrollRectToVisible(r);
-        /*this.scrollRectToVisible(getVisibleRect());
-        this.setLocation(e.getLocationOnScreen().x - _tx, e.getLocationOnScreen().y - _ty);
-        System.out.println(_tx);
-        System.out.println(_ty);
-        _tx = e.getLocationOnScreen().x - this.getX();
-        _ty = e.getLocationOnScreen().y - this.getY();*/
-	}
-	public void mouseWheelMoved(MouseWheelEvent e){
-	}
-	public Dimension getPreferredScrollableViewportSize() {
+/*	public Dimension getPreferredScrollableViewportSize() {
 		return getPreferredSize();
 	}
 	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction){
@@ -140,7 +112,7 @@ public class WhiteboardPanel extends JPanel implements Scrollable, MouseListener
 	}
 	public void setIncrement(int pixels){
 		_increment = pixels;
-	}
+	}*/
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;

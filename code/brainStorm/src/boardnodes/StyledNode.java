@@ -1,16 +1,19 @@
 package boardnodes;
 import java.awt.*;
+import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
+import javax.swing.undo.UndoableEdit;
 
 import whiteboard.BoardActionType;
 
@@ -18,11 +21,16 @@ import boardnodes.BoardEltType;
 
 public class StyledNode extends BoardElt {
 	final BoardEltType Type = BoardEltType.NODE;
-	JTextPane content;
+	JTextArea content;
 	StyledDocument text;
+	
+	Stack<UndoableEdit> undos;
+	Stack<UndoableEdit> redos;
 	
 	public StyledNode(int UID, whiteboard.Whiteboard w){
 		super(UID, w);
+		undos = new Stack<UndoableEdit>();
+		redos = new Stack<UndoableEdit>();
 		content = createEditorPane();
 		JScrollPane view = 
 			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -42,39 +50,29 @@ public class StyledNode extends BoardElt {
 					e1.printStackTrace();
 				}
 			}
-			
 			notifyWhiteboard(BoardActionType.ELT_MOD);
-			System.out.println("Send to backend "+e.getEdit().getPresentationName());
 		}
-		
 	}
 	
-	private JTextPane createEditorPane() {
+	private JTextArea createEditorPane() {
 		text = new DefaultStyledDocument();
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
+		//text.
 		try {
 			text.insertString(0, "\u2022 Make a node", null);
 			text.insertString(text.getLength(), "\n\u2022 Fill it in", null);
+			//if (text.)
 		} catch (BadLocationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JTextPane toReturn = new JTextPane(text);
+		JTextArea toReturn = new JTextArea(text);
 		toReturn.setPreferredSize(new Dimension(200,150));
 		
 		return toReturn;
 	}
 	
 	
-	/*This exists just to let me peek at progress incrementally*/
-	public static void main(String[] args){
-		JFrame node = new JFrame("Text Node Demo");
-		StyledNode a = new StyledNode(3, null);
-		a.setVisible(true);
-		node.add(a);
-		node.pack();
-		node.setVisible(true);
-	}
 
 
 	@Override
@@ -97,15 +95,25 @@ public class StyledNode extends BoardElt {
 
 	@Override
 	public void redo() {
-		// TODO Auto-generated method stub
-		
+		UndoableEdit e = redos.pop();
+		if (e.canRedo()) {
+			e.redo();
+			undos.push(e);
+		} else {
+			System.out.println("Could not redo " + e);
+		}
 	}
 
 
 	@Override
 	public void undo() {
-		// TODO Auto-generated method stub
-		
+		UndoableEdit e = undos.pop();
+		if (e.canUndo()) {
+			e.undo();
+			redos.push(e);
+		} else {
+			System.out.println("Could not undo " + e);
+		}
 	}
 
 
@@ -128,5 +136,13 @@ public class StyledNode extends BoardElt {
 		
 	}
 
-	
+	/*This exists just to let me peek at progress incrementally*/
+	public static void main(String[] args){
+		JFrame node = new JFrame("Text Node Demo");
+		StyledNode a = new StyledNode(3, null);
+		a.setVisible(true);
+		node.add(a);
+		node.pack();
+		node.setVisible(true);
+	}
 }

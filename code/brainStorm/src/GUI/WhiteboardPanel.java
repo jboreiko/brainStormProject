@@ -131,7 +131,7 @@ public class WhiteboardPanel extends JPanel{
 				repaint();
 			}
 			else if(_lastAdded == WhiteboardPanel.STYLED){
-				StyledNode styledNode = new StyledNode(3);
+				StyledNode styledNode = new StyledNode(3, _board);
 				Dimension size = styledNode.getSize();
 				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(styledNode);

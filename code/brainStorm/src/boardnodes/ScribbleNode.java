@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 
 public class ScribbleNode extends BoardElt implements MouseListener, MouseMotionListener{
@@ -26,6 +27,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		drawnArea = new LinkedList<List<ColoredPoint>>();
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		setPreferredSize(new Dimension(200,150));
+		setSize(150,200);
+		setBorder(BorderFactory.createLineBorder(Color.black));
+
 	}
 	
 

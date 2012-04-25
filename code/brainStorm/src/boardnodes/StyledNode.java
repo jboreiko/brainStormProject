@@ -1,7 +1,8 @@
 package boardnodes;
 
-import java.awt.Dimension;
+import java.awt.*;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,6 +26,7 @@ public class StyledNode extends BoardElt {
 		JScrollPane view = 
 			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		this.add(view);
+		this.setSize(new Dimension(215,165));
 	}
 	
 	public class BoardCommUndoableEditListener implements UndoableEditListener {

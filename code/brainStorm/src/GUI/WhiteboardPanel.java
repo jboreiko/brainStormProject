@@ -5,6 +5,8 @@ import java.util.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.StyledDocument;
 
 import whiteboard.Whiteboard;
 
@@ -62,18 +64,29 @@ public class WhiteboardPanel extends JPanel{
 	//initialize the right-click menu to allow for adding of nodes
 	private JPopupMenu initPopupMenu() {
 		JPopupMenu popup = new JPopupMenu("Context Menu");
-		JMenuItem menuItem = new JMenuItem("Add Styled Node");
-		menuItem.addActionListener(new ActionListener() {
+		JMenuItem styledNodeMenuItem = new JMenuItem("Add Styled Node");
+		styledNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				StyledNode s = new StyledNode(3);
-				add(s);
-				Dimension size = s.getSize();
-				s.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-				_rectangles.add(s); //communicate with backend for next available free UID
+				StyledNode styledNode = new StyledNode(3);
+				Dimension size = styledNode.getSize();
+				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(styledNode);
 				repaint();
 			}
 		});
-		popup.add(menuItem);
+		popup.add(styledNodeMenuItem);
+		
+		JMenuItem drawNodeMenuItem = new JMenuItem("Add Scribble Node");
+		drawNodeMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ScribbleNode scribbleNode = new ScribbleNode(3);
+				Dimension size = scribbleNode.getSize();
+				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(scribbleNode);
+				repaint();
+			}
+		});
+		popup.add(drawNodeMenuItem);
 		
 		return popup;
 	}

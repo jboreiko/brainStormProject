@@ -106,8 +106,6 @@ public class MainFrame extends JFrame {
 						_interfacePane.setVisible(true);
 					    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 					    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
-					    JPanel cow = new JPanel();
-					    cow.setPreferredSize(new Dimension(4000,4000));
 						JScrollPane scrollPane = new JScrollPane(wb,v,h);
 						//interesting stuff
 						ViewportDragScrollListener l = new ViewportDragScrollListener(wb);

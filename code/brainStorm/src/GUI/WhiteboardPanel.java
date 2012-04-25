@@ -24,6 +24,7 @@ public class WhiteboardPanel extends JPanel{
 	/**
 	 * 
 	 */
+	public static int UIDCounter = 0;
 	public static final int STYLED = 1;
 	public static final int SCRIBBLE = 2;
 	private int _lastAdded;
@@ -65,7 +66,9 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem styledNodeMenuItem = new JMenuItem("Add Styled Node");
 		styledNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				StyledNode styledNode = new StyledNode(3, _board);
+				StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _board);
+
+				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 				Dimension size = styledNode.getSize();
 				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(styledNode);
@@ -78,7 +81,9 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem drawNodeMenuItem = new JMenuItem("Add Scribble Node");
 		drawNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ScribbleNode scribbleNode = new ScribbleNode(3);
+				ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _board);
+
+				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter+" that should be equal to "+scribbleNode.getUID());
 				Dimension size = scribbleNode.getSize();
 				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(scribbleNode);
@@ -124,20 +129,30 @@ public class WhiteboardPanel extends JPanel{
 				
 			}
 			else if(_lastAdded == WhiteboardPanel.SCRIBBLE){
-				ScribbleNode scribbleNode = new ScribbleNode(3);
+				ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _board);
+				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 				Dimension size = scribbleNode.getSize();
 				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(scribbleNode);
 				repaint();
 			}
 			else if(_lastAdded == WhiteboardPanel.STYLED){
-				StyledNode styledNode = new StyledNode(3, _board);
+				StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _board);
+				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 				Dimension size = styledNode.getSize();
 				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(styledNode);
 				repaint();
 			}
 		}
+	}
+	
+	public void undo() {
+		_board.undo();
+	}
+	
+	public void redo() {
+		_board.redo();
 	}
 /*	public Dimension getPreferredScrollableViewportSize() {
 		return getPreferredSize();

@@ -32,7 +32,7 @@ public class Whiteboard {
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
 		boardElts.put(b.getUID(), b);
-		pastActions.push(new CreationAction(b.getUID(), b.getType(), b.getPos().x, b.getPos().y));
+		pastActions.push(new CreationAction(b.getUID(), b.getType(), b.getX(), b.getY()));
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -91,10 +91,16 @@ public class Whiteboard {
 	
 	public void undo() {
 		//get the top of the action stack, handle it, and push it to the future actions stack for redo
+		if(pastActions.empty()) {
+			System.out.println("no actions to undo!");
+			return;
+		}
 		BoardAction b = pastActions.pop();
 		switch(b.getType()) {
 		case ELT_MOD:
+			System.out.println("undoing a modification on node "+b.getTarget());
 			boardElts.get(b.getTarget()).undo();
+			boardElts.get(b.getTarget()).repaint();
 			break;
 		case CREATION:
 			//TODO: handle creatio
@@ -111,6 +117,10 @@ public class Whiteboard {
 	
 	public void redo() {
 		//get the top of the action stack, handle it, and push it to the past actions stack for undo
+		if(futureActions.empty()) {
+			System.out.println("no actions to redo!");
+			return;
+		}
 		BoardAction b = futureActions.pop();
 		switch(b.getType()) {
 		case ELT_MOD:

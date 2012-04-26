@@ -61,7 +61,14 @@ public class MainFrame extends JFrame {
 		_tabbedPane.setVisible(true);
 		_whiteboards = new ArrayList<WhiteboardPanel>();
 		getContentPane().add(_tabbedPane,BorderLayout.CENTER);
-        add(_tabbedPane);
+		_interfacePane = new InterfacePanel(_whiteboards);
+		Dimension interfaceSize = new Dimension(250,2000);
+		_interfacePane.setPreferredSize(interfaceSize);
+		_interfacePane.setSize(interfaceSize);
+		_interfacePane.setLayout(new GridLayout(10,0));
+		_interfacePane.setVisible(true);
+        add(_tabbedPane, BorderLayout.CENTER);
+		add(_interfacePane, BorderLayout.WEST);
 	}
 	/*
 	 * Method initMenu()
@@ -102,12 +109,6 @@ public class MainFrame extends JFrame {
 						_close.setEnabled(true);
 						WhiteboardPanel wb = new WhiteboardPanel();
 						_whiteboards.add(wb);
-						_interfacePane = new InterfacePanel(wb);
-						Dimension interfaceSize = new Dimension(250,2000);
-						_interfacePane.setPreferredSize(interfaceSize);
-						_interfacePane.setSize(interfaceSize);
-						_interfacePane.setLayout(new GridLayout(10,0));
-						_interfacePane.setVisible(true);
 					    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 					    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
 						JScrollPane scrollPane = new JScrollPane(wb,v,h);
@@ -117,15 +118,7 @@ public class MainFrame extends JFrame {
 						vp.addMouseMotionListener(l);
 						vp.addMouseListener(l);
 						vp.addHierarchyListener(l);
-						
-						
-						
-						
-						JPanel sessionPanel = new JPanel();
-						sessionPanel.setLayout(new BorderLayout());
-						sessionPanel.add(_interfacePane,BorderLayout.WEST);
-						sessionPanel.add(scrollPane,BorderLayout.CENTER);
-						_tabbedPane.addTab(projectName, sessionPanel);
+						_tabbedPane.addTab(projectName, scrollPane);
 						JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
 						break;
 					}

@@ -12,6 +12,8 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JFrame;
 
+import GUI.WhiteboardPanel;
+
 import whiteboard.Whiteboard;
 
 
@@ -32,8 +34,8 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	boolean _mouseIn; //true iff the mouse is in the region of this Path
 	
 	/**/
-	public BoardPath(int ID, Whiteboard wb) {
-		super(ID, wb);
+	public BoardPath(int ID, Whiteboard wb, WhiteboardPanel wbp) {
+		super(ID, wb, wbp);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		_mouseIn = false;
@@ -130,7 +132,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		System.out.println("Seminal is at (" + _seminal.x + "," + _seminal.y + " and terminal at (" + _terminal.x + "," + _terminal.y +")");
 		//now set the bounds of the JPanel to just barely contain the path
 		setSize(Math.abs(_terminal.x - _seminal.x + DRAG_SQUARE_SIZE), Math.abs(_terminal.y - _seminal.y + DRAG_SQUARE_SIZE));
-		_board.notifyChangePath(this);
+		wbp.notifyChangePath(this);
 		repaint();
 	}
 

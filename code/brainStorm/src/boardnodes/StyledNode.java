@@ -1,6 +1,11 @@
 package boardnodes;
 import java.awt.*;
 import java.util.Stack;
+import whiteboard.Whiteboard;
+import GUI.WhiteboardPanel;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -19,23 +24,30 @@ import whiteboard.BoardActionType;
 
 import boardnodes.BoardEltType;
 
-public class StyledNode extends BoardElt {
+public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
 	final BoardEltType Type = BoardEltType.NODE;
 	JTextPane content;
 	StyledDocument text;
-	
 	Stack<UndoableEdit> undos;
 	Stack<UndoableEdit> redos;
 	
-	public StyledNode(int UID, whiteboard.Whiteboard w){
-		super(UID, w);
+	public StyledNode(int UID, whiteboard.Whiteboard w,WhiteboardPanel wbp){
+		super(UID, w,wbp);
 		undos = new Stack<UndoableEdit>();
 		redos = new Stack<UndoableEdit>();
 		content = createEditorPane();
 		JScrollPane view = 
 			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		view.setPreferredSize(new Dimension(200,150));
+		System.out.println("Y is : " + view.getHeight() + "  X is : " + view.getWidth());
 		this.add(view);
 		this.setSize(new Dimension(215,165));
+		addMouseListener(this);
+		addMouseMotionListener(this);
+		repaint();
+		view.repaint();
+		revalidate();
+		view.revalidate();
 	}
 	
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
@@ -72,7 +84,6 @@ public class StyledNode extends BoardElt {
 		
 		return toReturn;
 	}
-	
 	
 
 
@@ -140,14 +151,53 @@ public class StyledNode extends BoardElt {
 		// TODO Auto-generated method stub
 		
 	}
-
-	/*This exists just to let me peek at progress incrementally*/
-	public static void main(String[] args){
-		JFrame node = new JFrame("Text Node Demo");
-		StyledNode a = new StyledNode(3, null);
-		a.setVisible(true);
-		node.add(a);
-		node.pack();
-		node.setVisible(true);
+	
+	
+	
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		System.out.println("CLICKED!");
+		
 	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		System.out.println("ENTERED!");
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
+			System.out.println("BOTTOM RIGHT CORNER");
+			
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }

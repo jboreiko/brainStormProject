@@ -1,6 +1,8 @@
 package boardnodes;
 
 import java.awt.BasicStroke;
+import whiteboard.Whiteboard;
+import GUI.WhiteboardPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -25,8 +27,8 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
 	LinkedList<List<ColoredPoint>> undrawnArea; //the drawn areas that have been undone
 
-	public ScribbleNode(int ID, whiteboard.Whiteboard w) {
-		super(ID, w);
+	public ScribbleNode(int ID, whiteboard.Whiteboard w,WhiteboardPanel wbp) {
+		super(ID, w,wbp);
 		setBackground(Color.WHITE);
 		drawnArea = new LinkedList<List<ColoredPoint>>();
 		undrawnArea = new LinkedList<List<ColoredPoint>>();
@@ -125,15 +127,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		this.notifyWhiteboard(BoardActionType.ELT_MOD);
-	}
-
-	public static void main(String[] args) {
-		JFrame f = new JFrame("Scribble Test");
-		ScribbleNode s = new ScribbleNode(0, null);
-		f.add(s);
-		f.pack();
-		f.setVisible(true);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 

@@ -7,6 +7,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import networking.Networking;
+
 import whiteboard.Whiteboard;
 
 import boardnodes.*;

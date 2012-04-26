@@ -20,6 +20,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import networking.Networking;
+
 public class SuggestGUI extends JPanel {
 	private JTextField input;
 	private JTextArea wikioutput;
@@ -30,6 +32,7 @@ public class SuggestGUI extends JPanel {
 	private JPanel _networkPanel;
 	private JTextField _usernameField;
 	private JTextField _ipField;
+	private Networking _net;
 	
 	public SuggestGUI() {
 		super(new java.awt.BorderLayout());
@@ -51,7 +54,9 @@ public class SuggestGUI extends JPanel {
 		queryService = new QueryService();
 	}
 	
-	
+	public void setNetworking(Networking net) {
+		_net = net;
+	}
 	
 	private void buildChatTab() {
 		
@@ -80,6 +85,11 @@ public class SuggestGUI extends JPanel {
 					// call networking becomehost method
 					//_usernameField.getText for parameter
 					// check for bad connection boolean
+					if (_net != null) {
+						_net.becomeHost(_usernameField.getText());
+					} else {
+						System.out.println("suggest: networking is null, has not be set");
+					}
 				}
 			}
 		});
@@ -105,7 +115,11 @@ public class SuggestGUI extends JPanel {
 					// _ipField.getText and _usernameField.getText for parameters
 					// check for bad connection boolean
 					//
-					
+					if (_net != null) {
+						_net.becomeClient(_ipField.getText(), _usernameField.getText());
+					} else {
+						System.out.println("suggest: networking is null, has not be set");
+					}
 				}
 			}
 		});

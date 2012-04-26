@@ -29,7 +29,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	JPanel _scribbleArea; //the scribble area must be contained in this jpanel so we can delete and drag
 	
-	public final static int DELETE_SQUARE_WIDTH = 7; //the size of the red square signifying a delete
+	public final static int BORDER_WIDTH = 7; //the size of the red square signifying a delete
 	
 	public ScribbleNode(int ID, whiteboard.Backend w) {
 		super(ID, w);
@@ -70,16 +70,16 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		//draw the border
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, getWidth(), DELETE_SQUARE_WIDTH);
-		g.fillRect(0, 0, DELETE_SQUARE_WIDTH, getHeight());
-		g.fillRect(getWidth()-DELETE_SQUARE_WIDTH, 0, DELETE_SQUARE_WIDTH, getHeight());
-		g.fillRect(0, getHeight()-DELETE_SQUARE_WIDTH, getWidth(), DELETE_SQUARE_WIDTH);
+		g.fillRect(0, 0, getWidth(), BORDER_WIDTH);
+		g.fillRect(0, 0, BORDER_WIDTH, getHeight());
+		g.fillRect(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, getHeight());
+		g.fillRect(0, getHeight()-BORDER_WIDTH, getWidth(), BORDER_WIDTH);
 		//draw the delete square
 		g.setColor(Color.RED);
-		g.fillRect(0, 0, DELETE_SQUARE_WIDTH, DELETE_SQUARE_WIDTH);
+		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
 		//draw the resize square
 		g.setColor(Color.LIGHT_GRAY);
-		g.fillRect(getWidth()-DELETE_SQUARE_WIDTH, getHeight()-DELETE_SQUARE_WIDTH, DELETE_SQUARE_WIDTH, DELETE_SQUARE_WIDTH);
+		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
 	}
 
 	@Override
@@ -107,23 +107,16 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		Rectangle nodeBounds = getBounds();
+		Rectangle previousBounds = getBounds();
 		int xoffset =  - (startPt.x - e.getX());
 		int yoffset =  - (startPt.y - e.getY());
 		if(_resizeLock){
-			if(nodeBounds.width + xoffset < DELETE_SQUARE_WIDTH && nodeBounds.height + yoffset < DELETE_SQUARE_WIDTH){
-				xoffset = 0;
-				yoffset = 0;
+			if (e.getX() > BORDER_WIDTH*8) {//the resize leaves us with positive width
+				setBounds(previousBounds.x, previousBounds.y, e.getX(), previousBounds.height);
 			}
-			else if(nodeBounds.width + xoffset < DELETE_SQUARE_WIDTH){
-				xoffset = 0;
+			if (e.getY()> BORDER_WIDTH*8) { //the resize leaves us with positive height
+				setBounds(previousBounds.x, previousBounds.y, getBounds().width, e.getY());
 			}
-			else if(nodeBounds.height + yoffset < DELETE_SQUARE_WIDTH){
-				yoffset = 0;
-			}
-				System.out.println(startPt);
-				System.out.println(e.getX() + "<=====X  a   Y=====>" + e.getY());
-				setBounds(nodeBounds.x,nodeBounds.y,nodeBounds.width + xoffset,nodeBounds.height + yoffset);
 			wbp.extendPanel(getBounds());
 			repaint();
 			revalidate();
@@ -132,7 +125,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		else if(_dragLock){
 			System.out.println(startPt);
 			System.out.println(e.getX() + "<=====X   b  Y=====>" + e.getY());
-			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
+			setBounds(previousBounds.x + xoffset,previousBounds.y + yoffset,previousBounds.width,previousBounds.height);
 			wbp.extendPanel(getBounds());
 			repaint();
 			revalidate();
@@ -155,7 +148,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		System.out.println("("+e.getX() + "," + e.getY() + ")");
-		if (e.getX() < DELETE_SQUARE_WIDTH && e.getY() < DELETE_SQUARE_WIDTH) {
+		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
 			backend.remove(this.getUID());
 		}
 	}
@@ -171,10 +164,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void mousePressed(MouseEvent e) {
 		wbp.setListFront(this);
 		startPt = new Point(e.getX(),e.getY());
-		if(e.getX() > this.getWidth()-DELETE_SQUARE_WIDTH && e.getY() > this.getHeight()-DELETE_SQUARE_WIDTH){
+		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
 			_resizeLock = true;
 		}
-		else if(e.getX() > this.getWidth()-DELETE_SQUARE_WIDTH|| e.getX() < DELETE_SQUARE_WIDTH || e.getY() < DELETE_SQUARE_WIDTH|| e.getY() > this.getHeight()-DELETE_SQUARE_WIDTH) {
+		else if(e.getX() > this.getWidth()-BORDER_WIDTH|| e.getX() < BORDER_WIDTH || e.getY() < BORDER_WIDTH|| e.getY() > this.getHeight()-BORDER_WIDTH) {
 			_dragLock = true;
 		}
 		else {

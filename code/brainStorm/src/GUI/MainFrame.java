@@ -74,7 +74,7 @@ public class MainFrame extends JFrame {
 		_interfacePane.setLayout(new FlowLayout());
 		_interfacePane.setVisible(true);
 		
-		_suggestPanel = new SuggestGUI();
+		_suggestPanel = new SuggestGUI(interfaceSize);
 		_interfacePane.add(_suggestPanel);
         add(_tabbedPane, BorderLayout.CENTER);
 		add(_interfacePane, BorderLayout.WEST);

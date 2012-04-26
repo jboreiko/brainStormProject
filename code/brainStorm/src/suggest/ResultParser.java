@@ -79,20 +79,14 @@ public class ResultParser {
 					line += numTotal + ".   ";
 					JSONObject textObj = termArr.getJSONObject(k);
 					String text = textObj.getString("text");
-					// trying to fix <*> tags
-//					if (text.contains("<")) {
-//						System.out.println("inside");
-//						int indexOf = text.indexOf("<");
-//						int indexOf2 = text.indexOf(">");
-//						System.out.println("un" + indexOf);
-//						System.out.println("du" + indexOf2);
-//						text= text.substring(0,indexOf) + text.substring(indexOf2, text.length());
-//						text.replaceAll("<[^>]*>", "");
-//						System.out.println(text);
-//					}
+					// remove <*> tags
+					while (text.contains("<")) {
+						int indexOf = text.indexOf("<");
+						int indexOf2 = text.indexOf(">");
+						text= text.substring(0,indexOf) + text.substring(indexOf2+1, text.length());
+					}
 					line += text;
 					line += "\n\n";
-					System.out.println("aline:   " + line);
 					def += line;
 					numTotal++;
 				}

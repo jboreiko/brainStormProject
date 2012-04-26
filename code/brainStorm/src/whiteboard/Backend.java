@@ -120,7 +120,7 @@ public class Backend {
 			if(be.getType()==BoardEltType.PATH) {
 				paths.remove(be);
 			}
-			futureActions.push(new DeletionAction(be));
+			futureActions.push(new CreationAction(be));
 			break;
 		case DELETION:
 			//undoing a deletion means doing a creation
@@ -132,7 +132,7 @@ public class Backend {
 			if(be.getType()==BoardEltType.PATH) {
 				paths.add((boardnodes.BoardPath)be);
 			}
-			futureActions.push(new CreationAction(be));
+			futureActions.push(new DeletionAction(be));
 			break;
 		case MOVE:
 			//TODO: handle move
@@ -147,24 +147,43 @@ public class Backend {
 			System.out.println("no actions to redo!");
 			return;
 		}
+		BoardElt be;
 		BoardAction b = futureActions.pop();
 		switch(b.getType()) {
 		case ELT_MOD:
-			boardElts.get(b.getTarget()).redo();
-			boardElts.get(b.getTarget()).repaint();
+			b.getTarget().redo();
+			b.getTarget().repaint();
+			pastActions.push(b);
 			break;
 		case CREATION:
-			//TODO: handle creation
-			break;
+			//redoing a creation means doing a creation
+			be = b.getTarget();
+			if(be==null)
+				return;
+			panel.add(be);
+			boardElts.put(be.getUID(), be);
+			if(be.getType()==BoardEltType.PATH) {
+				paths.add((boardnodes.BoardPath)be);
+			}
+			pastActions.push(new CreationAction(be));
+			break;			
 		case DELETION:
-			//TODO: handle deletion
+			//redoing a deletion means doing a deletion
+			be = b.getTarget();
+			if(be==null)
+				return;
+			panel.remove(be);
+			boardElts.remove(be.getUID());
+			if(be.getType()==BoardEltType.PATH) {
+				paths.remove(be);
+			}
+			pastActions.push(new DeletionAction(be));
 			break;
 		case MOVE:
 			//TODO: handle move
 			break;
 		}
-		pastActions.push(b);
-		
+		panel.repaint();
 	}
 	
 	public Networking getNetworking() {

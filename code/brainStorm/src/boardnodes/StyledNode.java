@@ -29,8 +29,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	private Point startPt,nextPt;
 	JTextPane content;
 	StyledDocument text;
-	Stack<UndoableEdit> undos;
-	Stack<UndoableEdit> redos;
+	Stack<StyledNodeEdit> undos;
+	Stack<StyledNodeEdit> redos;
 	WhiteboardPanel _wbp;
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
@@ -42,8 +42,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		super(UID, w);
 		type = BoardEltType.STYLED;
 		setLayout(null);
-		undos = new Stack<UndoableEdit>();
-		redos = new Stack<UndoableEdit>();
+		undos = new Stack<StyledNodeEdit>();
+		redos = new Stack<StyledNodeEdit>();
 		_resizeLock = false;
 		_dragLock = false;
 		content = createEditorPane();
@@ -68,7 +68,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
-			undos.push(e.getEdit());
+			undos.push(new StyledNodeEdit(e.getEdit()));
 			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
 					if(text.getText(text.getLength()-1, 1).equals("\n")) {
@@ -113,25 +113,40 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public void redo() {
 		if (redos.empty()) 
 			return;
-		UndoableEdit e = redos.pop();
-		if (e.canRedo()) {
-			e.redo();
-			undos.push(e);
-		} else {
-			System.out.println("Could not redo " + e);
+		StyledNodeEdit f = redos.pop();
+		if (f.type == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.content;
+			if (e.canRedo()) {
+				e.redo();
+				undos.push(f);
+			} else {
+				System.out.println("Could not redo " + e);
+			}
+		} else if (f.type == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.content;
+			undos.push(new StyledNodeEdit(new Rectangle(getBounds())));
+			setBounds(r);
 		}
+			
 	}
 	
 	@Override
 	public void undo() {
 		if (undos.empty()) 
 			return;
-		UndoableEdit e = undos.pop();
-		if (e.canUndo()) {
-			e.undo();
-			redos.push(e);
-		} else {
-			System.out.println("Could not undo " + e);
+		StyledNodeEdit f = undos.pop();
+		if (f.type == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.content;
+			if (e.canUndo()) {
+				e.undo();
+				redos.push(f);
+			} else {
+				System.out.println("Could not undo " + e);
+			}
+		} else if (f.type == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.content;
+			redos.push(new StyledNodeEdit(new Rectangle(getBounds())));
+			setBounds(r);
 		}
 	}
 	
@@ -234,7 +249,23 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 		
 	}
-	
+	public class StyledNodeEdit {
+		private Object content;
+		private StyledNodeEditType type;
+		//the added edit
+		public StyledNodeEdit(UndoableEdit e) {
+			content = e;
+			type = StyledNodeEditType.TEXT;
+		}
+		//@param r		the old location of this node
+		public StyledNodeEdit(Rectangle r) {
+			content = r;
+			type = StyledNodeEditType.DRAG;
+		}
+	}
+	private enum StyledNodeEditType {
+		DRAG, TEXT
+	}
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
 		Graphics2D g = (Graphics2D) graphics;

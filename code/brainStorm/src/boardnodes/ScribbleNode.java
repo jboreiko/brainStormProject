@@ -109,8 +109,8 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		Rectangle previousBounds = getBounds();
-		int xoffset =  - (startPt.x - e.getX());
-		int yoffset =  - (startPt.y - e.getY());
+		int dx =  (e.getX() - startPt.x);
+		int dy =  (e.getY() - startPt.y);
 		if(_resizeLock){
 			if (e.getX() > BORDER_WIDTH*8) {//the resize leaves us with positive width
 				setBounds(previousBounds.x, previousBounds.y, e.getX(), previousBounds.height);
@@ -126,7 +126,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		else if(_dragLock){
 			System.out.println(startPt);
 			System.out.println(e.getX() + "<=====X   b  Y=====>" + e.getY());
-			setBounds(previousBounds.x + xoffset,previousBounds.y + yoffset,previousBounds.width,previousBounds.height);
+			setBounds(previousBounds.x + dx,previousBounds.y + dy,previousBounds.width,previousBounds.height);
 			wbp.extendPanel(getBounds());
 			repaint();
 			revalidate();

@@ -35,20 +35,27 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
 	
+	public final static int BORDER_WIDTH = 15;
+	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
+	
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
 		type = BoardEltType.STYLED;
+		setLayout(null);
 		undos = new Stack<UndoableEdit>();
 		redos = new Stack<UndoableEdit>();
 		_resizeLock = false;
 		_dragLock = false;
 		content = createEditorPane();
 		view = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		view.setPreferredSize(new Dimension(200,150));
+		view.setPreferredSize(DEFAULT_SIZE);
 		
 		System.out.println("Y is : " + view.getHeight() + "  X is : " + view.getWidth());
+		System.out.println("SCrollpane's location in parent is: " + view.getBounds());
+		view.setBounds(BORDER_WIDTH, BORDER_WIDTH, DEFAULT_SIZE.width, DEFAULT_SIZE.height);
+		System.out.println("SCrollpane's location in parent is: " + view.getBounds());
 		this.add(view);
-		this.setSize(new Dimension(215,165));
+		this.setSize(new Dimension(DEFAULT_SIZE.width + BORDER_WIDTH*2, DEFAULT_SIZE.height + BORDER_WIDTH*2));
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
@@ -92,19 +99,15 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		return toReturn;
 	}
 
-
 	@Override
 	public String encode() {
 		return null;
 	}
 	
-
 	@Override
 	public void addAction(ActionObject ao) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
-
 
 	@Override
 	public void redo() {
@@ -118,8 +121,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			System.out.println("Could not redo " + e);
 		}
 	}
-
-
+	
 	@Override
 	public void undo() {
 		if (undos.empty()) 
@@ -132,48 +134,35 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			System.out.println("Could not undo " + e);
 		}
 	}
-
-
+	
 	@Override
 	public BoardElt clone() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
 	@Override
 	public Point getPos() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 	@Override
 	public void setPos(Point p) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
-	
-	
-	
-	
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		System.out.println("CLICKED!");
-		
+		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
+			System.out.println("Deleting " + this.getUID());
+			backend.remove(this.getUID());
+		}
 	}
-
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		System.out.println("ENTERED!");
-		
 	}
-
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
-
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -193,48 +182,62 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		_resizeLock = false;
 		_dragLock = false;
 	}
-
+	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-		Rectangle nodeBounds = getBounds();
-		Rectangle viewBounds = view.getBounds();
-		int xoffset =  - (startPt.x - e.getX());
-		int yoffset =  - (startPt.y - e.getY());
+		System.out.println(e.getPoint());
+		int dx = e.getX() - startPt.x;
+		int dy = e.getY() - startPt.y;
+		int screenX = e.getX() + getBounds().x;
+		int screenY = e.getY() + getBounds().y;
+		System.out.println("screenX,Y: " + screenX+" " + screenY);
+		Rectangle previousBounds = getBounds();
+		Rectangle prevView = view.getBounds();
 		if(_resizeLock){
-			if(nodeBounds.width + xoffset < 30 && nodeBounds.height + yoffset < 30){
-				xoffset = 0;
-				yoffset = 0;
+			if (e.getX() > BORDER_WIDTH*8) { //the resize leaves us with positive width
+				setBounds(previousBounds.x, previousBounds.y, e.getX(), previousBounds.height);
+				view.setBounds(prevView.x, prevView.y, e.getX()-BORDER_WIDTH*2, prevView.height);
 			}
-			else if(nodeBounds.width + xoffset < 30){
-				xoffset = 0;
+			if (e.getY()> BORDER_WIDTH*8) { //the resize leaves us with positive height
+				setBounds(previousBounds.x, previousBounds.y, getBounds().width, e.getY());
+				view.setBounds(prevView.x, prevView.y, view.getBounds().width, e.getY()-BORDER_WIDTH*2);
 			}
-			else if(nodeBounds.height + yoffset < 30){
-				yoffset = 0;
-			}
-				System.out.println(startPt);
-				System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
-				setBounds(nodeBounds.x,nodeBounds.y,nodeBounds.width + xoffset,nodeBounds.height + yoffset);
-				view.setBounds(viewBounds.x,viewBounds.y,viewBounds.width + xoffset,viewBounds.height + yoffset);
-				view.setPreferredSize(new Dimension(viewBounds.width + xoffset,viewBounds.height + yoffset));
-				repaint();
-				revalidate();
-				startPt.setLocation(e.getX(),e.getY());
+			view.setPreferredSize(new Dimension(view.getBounds().width, view.getBounds().height));
+			startPt.setLocation(e.getX(), e.getY());
+		} else if (_dragLock) {
+
+			if (previousBounds.x + dx >= 0 && previousBounds.y + dy >= 0)
+				setBounds(previousBounds.x + dx, previousBounds.y + dy, previousBounds.width, previousBounds.height);
+			//if (screenX>= 0 && screenY>= 0)
+			//	setBounds(screenX, screenY, previousBounds.width, previousBounds.height);
 		}
-		else if(_dragLock){
+		/*else if(_dragLock){
 			System.out.println(startPt);
 			System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
 			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
-			view.setBounds(viewBounds.x + xoffset,viewBounds.y + yoffset,viewBounds.width,viewBounds.height);
-			repaint();
-			revalidate();
-		}
+			//view.setBounds(viewBounds.x + xoffset,viewBounds.y + yoffset,viewBounds.width,viewBounds.height);
+		}*/
+		wbp.extendPanel(getBounds());
+		repaint();
+		revalidate();
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void paintComponent(Graphics graphics) {
+		super.paintComponent(graphics);
+		Graphics2D g = (Graphics2D) graphics;
+		g.setColor(Color.DARK_GRAY);
+		g.fillRect(0,0,getWidth(), getHeight());
+		g.setColor(Color.RED);
+		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
+		
+		g.setColor(Color.LIGHT_GRAY);
+		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
 	}
 	
 }

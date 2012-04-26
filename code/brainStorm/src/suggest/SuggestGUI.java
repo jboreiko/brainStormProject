@@ -2,6 +2,7 @@ package suggest;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.concurrent.Future;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -31,7 +31,7 @@ public class SuggestGUI extends JPanel {
 	private JTextField _usernameField;
 	private JTextField _ipField;
 	
-	public SuggestGUI() {
+	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
 		
 		buildSuggestTab();
@@ -47,7 +47,8 @@ public class SuggestGUI extends JPanel {
 		tabbedPane.addTab("Networking", google, _networkPanel, "Set Up Networking");
 		
 		this.add(tabbedPane);
-		
+		this.setPreferredSize(interfaceSize);
+		this.setSize(interfaceSize);
 		queryService = new QueryService();
 	}
 	
@@ -85,9 +86,10 @@ public class SuggestGUI extends JPanel {
 		});
 		
 		JLabel ipLabel = new JLabel("IP Address: ");
-		_ipField = new JTextField(25);
+		_ipField = new JTextField(18);
 		_ipField.setEditable(true);
 		
+		JPanel joinPanel = new JPanel();
 		JButton joinButton = new JButton("Join a Brainstorm");
 		joinButton.addActionListener(new ActionListener() {
 			
@@ -110,20 +112,22 @@ public class SuggestGUI extends JPanel {
 			}
 		});
 		
+		_networkPanel.setLayout(new FlowLayout());
 		usernamePanel.add(usernamelabel,BorderLayout.WEST);
 		usernamePanel.add(_usernameField, BorderLayout.EAST);
 		hostPanel.add(beHostButton, BorderLayout.CENTER);
-		JPanel holderPanel = new JPanel();
-		holderPanel.add(usernamePanel, BorderLayout.NORTH);
-		holderPanel.add(hostPanel, BorderLayout.SOUTH);
+		//JPanel holderPanel = new JPanel();
+		//holderPanel.add(usernamePanel, BorderLayout.NORTH);
+		//holderPanel.add(hostPanel, BorderLayout.SOUTH);
 		clientPanel.add(ipLabel, BorderLayout.WEST);
-		clientPanel.add(_ipField, BorderLayout.CENTER);
-		clientPanel.add(joinButton, BorderLayout.EAST);
+		clientPanel.add(_ipField, BorderLayout.EAST);
+		joinPanel.add(joinButton, BorderLayout.CENTER);
 		
-		//_networkPanel.add(usernamePanel, BorderLayout.NORTH);
-		//_networkPanel.add(hostPanel, BorderLayout.CENTER);
-		_networkPanel.add(holderPanel, BorderLayout.CENTER);
-		_networkPanel.add(clientPanel, BorderLayout.SOUTH);
+		_networkPanel.add(usernamePanel);
+		_networkPanel.add(hostPanel);
+		//_networkPanel.add(holderPanel, BorderLayout.CENTER);
+		_networkPanel.add(clientPanel);
+		_networkPanel.add(joinPanel);
 		
 	}
 
@@ -188,10 +192,10 @@ public class SuggestGUI extends JPanel {
 		tabbedPane.addTab("DuckDuckGo", duck, duckPanel,
 		"DuckDuckGo");
 		
-		
-		_suggestPanel.add(inputpanel, BorderLayout.PAGE_START);
-		_suggestPanel.add(buttonPanel, BorderLayout.CENTER);
-		_suggestPanel.add(tabbedPane, BorderLayout.PAGE_END);
+		_suggestPanel.setLayout(new FlowLayout());
+		_suggestPanel.add(inputpanel);
+		_suggestPanel.add(buttonPanel);
+		_suggestPanel.add(tabbedPane);
 	}
 
 

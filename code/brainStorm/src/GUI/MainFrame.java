@@ -5,6 +5,8 @@ package GUI;
 import java.util.*;
 import javax.swing.*;
 
+import suggest.SuggestGUI;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -40,6 +42,7 @@ public class MainFrame extends JFrame {
 	private InterfacePanel _interfacePane;
 	private ArrayList<WhiteboardPanel> _whiteboards;
 	private WhiteboardPanel _activeBoardPanel;
+	private JPanel _suggestPanel;
 	
 	/*
 	 * Mainframe()
@@ -57,16 +60,22 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setBounds(0,0,screenSize.width,screenSize.height);
+		
 		_tabbedPane = new JTabbedPane();
 		_tabbedPane.setVisible(true);
 		_whiteboards = new ArrayList<WhiteboardPanel>();
+		
 		getContentPane().add(_tabbedPane,BorderLayout.CENTER);
 		_interfacePane = new InterfacePanel(_whiteboards);
-		Dimension interfaceSize = new Dimension(250,2000);
+		Dimension interfaceSize = new Dimension(350, 2000);//250,2000);
 		_interfacePane.setPreferredSize(interfaceSize);
 		_interfacePane.setSize(interfaceSize);
-		_interfacePane.setLayout(new GridLayout(10,0));
+		//_interfacePane.setLayout(new GridLayout(10,0));
+		_interfacePane.setLayout(new FlowLayout());
 		_interfacePane.setVisible(true);
+		
+		_suggestPanel = new SuggestGUI(interfaceSize);
+		_interfacePane.add(_suggestPanel);
         add(_tabbedPane, BorderLayout.CENTER);
 		add(_interfacePane, BorderLayout.WEST);
 	}

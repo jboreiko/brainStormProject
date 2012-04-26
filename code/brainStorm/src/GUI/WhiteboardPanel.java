@@ -8,6 +8,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import whiteboard.Backend;
+import networking.Networking;
 
 import boardnodes.*;
 /**

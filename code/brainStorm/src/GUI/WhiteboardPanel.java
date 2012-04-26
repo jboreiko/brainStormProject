@@ -42,7 +42,7 @@ public class WhiteboardPanel extends JPanel{
 	public WhiteboardPanel(){
 		super();
 		_lastAdded = 0;
-		_board = new Whiteboard();
+		_board = new Whiteboard(this);
 		this.setLayout(null);
 		this.setVisible(true);
 		this.setBackground(Color.BLUE);
@@ -55,7 +55,9 @@ public class WhiteboardPanel extends JPanel{
 		_rightClickMenu = initPopupMenu();
 	}
 	
-	public Whiteboard getBoard() {return _board;}
+	public Whiteboard getBoard() {
+		return _board;
+	}
 	
 	public void displayContextMenu(Point display) {
 		_addLocation = display;
@@ -90,7 +92,7 @@ public class WhiteboardPanel extends JPanel{
 				Dimension size = scribbleNode.getSize();
 				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(scribbleNode);
-				//_board.add(scribbleNode);
+				_board.add(scribbleNode);
 				repaint();
 			}
 		});

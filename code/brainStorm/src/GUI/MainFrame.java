@@ -119,7 +119,7 @@ public class MainFrame extends JFrame {
 						vp.addMouseListener(l);
 						vp.addHierarchyListener(l);
 						_tabbedPane.addTab(projectName, scrollPane);
-						JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
+						//JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
 						break;
 					}
 					else{

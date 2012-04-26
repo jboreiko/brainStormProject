@@ -12,6 +12,7 @@ import networking.Networking;
 import boardnodes.BoardEltType;
 
 public class Whiteboard {
+	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
 	private Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
@@ -23,7 +24,8 @@ public class Whiteboard {
 	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
 	//TODO: when calling networking.sendAction be sure to check for return false - that indicates either something went wrong (if networking is on) or networking is off
 	
-	public Whiteboard() {
+	public Whiteboard(GUI.WhiteboardPanel _panel) {
+		panel = _panel;
 		pastActions = new Stack<BoardAction>();
 		futureActions = new Stack<BoardAction>();
 		boardElts = new Hashtable<Integer, BoardElt>();
@@ -99,6 +101,7 @@ public class Whiteboard {
 		switch(b.getType()) {
 		case ELT_MOD:
 			System.out.println("undoing a modification on node "+b.getTarget());
+			System.out.println("the hashmap associates "+b.getTarget()+" with "+boardElts.get(b.getTarget()));
 			boardElts.get(b.getTarget()).undo();
 			boardElts.get(b.getTarget()).repaint();
 			break;

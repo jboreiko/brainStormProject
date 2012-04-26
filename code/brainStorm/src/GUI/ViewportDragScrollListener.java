@@ -51,6 +51,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	@Override public void mousePressed(MouseEvent e) {
 		//first, check if we need to start dragging a path
 		Point offset = ((JViewport)e.getSource()).getViewPosition();
+		System.out.println(offset);
 		Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
 		for(BoardPath p: wb.getBackend().getPaths()) {
 			if(p.isNearSeminal(loc.x, loc.y)) {

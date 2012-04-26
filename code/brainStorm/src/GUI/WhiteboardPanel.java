@@ -32,7 +32,6 @@ public class WhiteboardPanel extends JPanel{
 	public static final int PATH = 3;
 	private int _lastAdded;
 	private ArrayList<BoardElt> _elements;
-	private Dimension _panelSize;
 	private boolean _contIns;
 	private Backend _backend;
 	
@@ -46,13 +45,11 @@ public class WhiteboardPanel extends JPanel{
 		_backend = new Backend(this);
 		this.setLayout(null);
 		this.setVisible(true);
-		this.setBackground(Color.BLUE);
+		this.setBackground(Color.GRAY);
 		_contIns = true;
 		_elements = new ArrayList<BoardElt>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		_panelSize = new Dimension(screenSize.width, screenSize.height-100);
-		setPreferredSize(_panelSize);
-		setSize(_panelSize);
+		setPreferredSize(new Dimension(screenSize.width, screenSize.height-100));
 		_rightClickMenu = initPopupMenu();
 	}
 	
@@ -116,32 +113,30 @@ public class WhiteboardPanel extends JPanel{
 	 * @param obtrusion		the shape that may or may not extend beyond the bounds of this panel
 	 */
 	public void extendPanel(Rectangle obtrusion){
-		if(obtrusion.x + obtrusion.width > _panelSize.width){ //extends past the right side
-			Dimension newSize = new Dimension(obtrusion.x + obtrusion.width,_panelSize.height);
+		int panelWidth = this.getSize().width;
+		int panelHeight = this.getSize().height;
+		if(obtrusion.x + obtrusion.width > panelWidth){ //extends past the right side
+			Dimension newSize = new Dimension(obtrusion.x + obtrusion.width,panelHeight);
 			this.setPreferredSize(newSize);
 			this.setSize(newSize);
-			_panelSize = newSize;
 		}
-		if(obtrusion.y + obtrusion.height > _panelSize.height){ //extends down past the bottom
-			Dimension newSize = new Dimension(_panelSize.width, obtrusion.y + obtrusion.height);
+		if(obtrusion.y + obtrusion.height > panelHeight){ //extends down past the bottom
+			Dimension newSize = new Dimension(panelWidth, obtrusion.y + obtrusion.height);
 			this.setPreferredSize(newSize);
 			this.setSize(newSize);
-			_panelSize = newSize;
 		}
-		/*if(e.getX() < 200){
+		if(obtrusion.x < this.getBounds().x){
 			//SOME KIND OF TRANSLATION HERE
-			Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
-			this.setPreferredSize(newSize);
-			this.setSize(newSize);
-			_panelSize = newSize;
+			System.out.println(obtrusion.x);
+			System.out.println(this.getBounds().x);
+			panelWidth = panelWidth - obtrusion.x;
+			this.setBounds(-100,this.getY(),panelWidth,panelHeight);
 		}
-		if(e.getY() < 200){
+		if(obtrusion.y < this.getBounds().y){
 			//SOME KIND OF TRANSLATION HERE
-			Dimension newSize = new Dimension(_panelSize.width,_panelSize.height + 200);
-			this.setPreferredSize(newSize);
-			this.setSize(newSize);
-			_panelSize = newSize;
-		}*/
+			panelHeight = panelHeight - obtrusion.x;
+			this.setBounds(this.getX(),-100,panelWidth,panelHeight);
+		}
 	}
 	public void addNode(Point p){
 		if(_contIns){

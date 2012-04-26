@@ -1,7 +1,7 @@
 package boardnodes;
 import java.awt.*;
 import java.util.Stack;
-import whiteboard.Whiteboard;
+import whiteboard.Backend;
 import GUI.WhiteboardPanel;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -25,33 +25,37 @@ import whiteboard.BoardActionType;
 import boardnodes.BoardEltType;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
+	public static int UIDCounter = 0;
 	final BoardEltType Type = BoardEltType.NODE;
-	public Point startPt,nextPt;
+	private Point startPt,nextPt;
 	JTextPane content;
 	StyledDocument text;
 	Stack<UndoableEdit> undos;
 	Stack<UndoableEdit> redos;
 	WhiteboardPanel _wbp;
-	boolean _resizeLock;
+	JScrollPane view;
+	boolean _resizeLock,_dragLock;
 	
-	public StyledNode(int UID, whiteboard.Whiteboard w){
+	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
 		undos = new Stack<UndoableEdit>();
 		redos = new Stack<UndoableEdit>();
 		_resizeLock = false;
+		_dragLock = false;
 		content = createEditorPane();
-		JScrollPane view = 
-			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		view = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		view.setPreferredSize(new Dimension(200,150));
+		
 		System.out.println("Y is : " + view.getHeight() + "  X is : " + view.getWidth());
 		this.add(view);
 		this.setSize(new Dimension(215,165));
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		repaint();
-		view.repaint();
+		
 		revalidate();
 		view.revalidate();
+		repaint();
+		view.repaint();
 	}
 	
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
@@ -84,7 +88,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		JTextPane toReturn = new JTextPane(text);
-		toReturn.setPreferredSize(new Dimension(200,150));
 		
 		return toReturn;
 	}
@@ -174,9 +177,13 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
+		wbp.setListFront(this);
 		startPt = new Point(e.getX(),e.getY());
 		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
 			_resizeLock = true;
+		}
+		else {
+			_dragLock = true;
 		}
 	}
 
@@ -184,17 +191,43 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		_resizeLock = false;
+		_dragLock = false;
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
+		Rectangle nodeBounds = getBounds();
+		Rectangle viewBounds = view.getBounds();
+		int xoffset =  - (startPt.x - e.getX());
+		int yoffset =  - (startPt.y - e.getY());
 		if(_resizeLock){
+			if(nodeBounds.width + xoffset < 30 && nodeBounds.height + yoffset < 30){
+				xoffset = 0;
+				yoffset = 0;
+			}
+			else if(nodeBounds.width + xoffset < 30){
+				xoffset = 0;
+			}
+			else if(nodeBounds.height + yoffset < 30){
+				yoffset = 0;
+			}
+				System.out.println(startPt);
+				System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
+				setBounds(nodeBounds.x,nodeBounds.y,nodeBounds.width + xoffset,nodeBounds.height + yoffset);
+				view.setBounds(viewBounds.x,viewBounds.y,viewBounds.width + xoffset,viewBounds.height + yoffset);
+				view.setPreferredSize(new Dimension(viewBounds.width + xoffset,viewBounds.height + yoffset));
+				repaint();
+				revalidate();
+				startPt.setLocation(e.getX(),e.getY());
+		}
+		else if(_dragLock){
 			System.out.println(startPt);
-			System.out.println(e.getX() + "<====X     Y=====>" + e.getY());
-			Rectangle currentLocation = getBounds();
-			setBounds(currentLocation.x,currentLocation.y,currentLocation.width - (startPt.x - e.getX()),currentLocation.height - (startPt.y - e.getY()));
-			startPt.setLocation(e.getX(),e.getY());
+			System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
+			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
+			view.setBounds(viewBounds.x + xoffset,viewBounds.y + yoffset,viewBounds.width,viewBounds.height);
+			repaint();
+			revalidate();
 		}
 	}
 

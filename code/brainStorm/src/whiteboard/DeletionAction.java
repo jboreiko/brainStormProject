@@ -2,8 +2,8 @@ package whiteboard;
 
 public class DeletionAction extends BoardAction {
 
-	public DeletionAction(int id, String _targetInfo) {
-		super(id, _targetInfo);
+	public DeletionAction(boardnodes.BoardElt _target) {
+		super(_target);
 		type = BoardActionType.DELETION;
 	}
 	@Override

@@ -3,8 +3,8 @@ import boardnodes.BoardEltType;
 
 public class CreationAction extends BoardAction {
 	
-	public CreationAction(int id, String _targetInfo) {
-		super(id, _targetInfo);
+	public CreationAction(boardnodes.BoardElt _target) {
+		super(_target);
 		type = BoardActionType.CREATION;
 	}
 

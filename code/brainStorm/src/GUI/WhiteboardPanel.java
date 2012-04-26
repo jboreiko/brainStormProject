@@ -7,7 +7,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import whiteboard.Whiteboard;
+import whiteboard.Backend;
 
 import boardnodes.*;
 /**
@@ -30,10 +30,10 @@ public class WhiteboardPanel extends JPanel{
 	public static final int SCRIBBLE = 2;
 	public static final int PATH = 3;
 	private int _lastAdded;
-	private ArrayList<BoardElt> _rectangles;
+	private ArrayList<BoardElt> _elements;
 	private Dimension _panelSize;
 	private boolean _contIns;
-	private Whiteboard _board;
+	private Backend _board;
 	
 	private Point _addLocation; //the location you should add the next BoardElt to
 
@@ -42,12 +42,12 @@ public class WhiteboardPanel extends JPanel{
 	public WhiteboardPanel(){
 		super();
 		_lastAdded = 0;
-		_board = new Whiteboard(this);
+		_board = new Backend(this);
 		this.setLayout(null);
 		this.setVisible(true);
 		this.setBackground(Color.BLUE);
 		_contIns = true;
-		_rectangles = new ArrayList<BoardElt>();
+		_elements = new ArrayList<BoardElt>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		_panelSize = new Dimension(screenSize.width, screenSize.height-100);
 		setPreferredSize(_panelSize);
@@ -55,7 +55,7 @@ public class WhiteboardPanel extends JPanel{
 		_rightClickMenu = initPopupMenu();
 	}
 	
-	public Whiteboard getBoard() {
+	public Backend getBoard() {
 		return _board;
 	}
 	
@@ -153,7 +153,7 @@ public class WhiteboardPanel extends JPanel{
 				newElt(BoardEltType.PATH);
 			}
 		}
-		repaint();
+		//repaint();
 	}
 	
 	private void newElt(BoardEltType b) {
@@ -169,7 +169,6 @@ public class WhiteboardPanel extends JPanel{
 			styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 			add(styledNode);
 			_board.add(styledNode);
-			repaint();
 			break;
 		case SCRIBBLE:
 			System.out.println("trying to add a scribble");
@@ -184,7 +183,6 @@ public class WhiteboardPanel extends JPanel{
 			System.out.println("wide " + getWidth() + ", height " + getHeight());
 			add(scribbleNode);
 			_board.add(scribbleNode);
-			repaint();
 			break;
 		case PATH:
 			System.out.println("trying to add a path");
@@ -196,9 +194,9 @@ public class WhiteboardPanel extends JPanel{
 			bp.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 			add(bp);
 			_board.add(bp);
-			repaint();
 			break;
 		}
+		repaint();
 	}
 	
 	public void undo() {
@@ -208,6 +206,7 @@ public class WhiteboardPanel extends JPanel{
 	public void redo() {
 		_board.redo();
 	}
+
 /*	public Dimension getPreferredScrollableViewportSize() {
 		return getPreferredSize();
 	}
@@ -249,8 +248,8 @@ public class WhiteboardPanel extends JPanel{
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
-		for(int i=0;i<_rectangles.size();i++){
-			_rectangles.get(i).paintComponents(g2);
+		for(int i=0;i<_elements.size();i++){
+			_elements.get(i).paintComponents(g2);
 			//g2.draw(_rectangles.get(i));
 			//g2.fill(_rectangles.get(i));
 		}
@@ -261,5 +260,9 @@ public class WhiteboardPanel extends JPanel{
 	public void setContinuousInsertion(boolean contIns){
 		_contIns = contIns;
 	}
-	
+	public void setListFront(BoardElt element){
+		remove(element);
+		add(element, 0);
+		repaint();
+	}
 }

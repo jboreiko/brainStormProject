@@ -15,7 +15,7 @@ import javax.swing.JFrame;
 
 import GUI.WhiteboardPanel;
 
-import whiteboard.Whiteboard;
+import whiteboard.Backend;
 
 
 public class BoardPath extends BoardElt implements MouseListener, MouseMotionListener{
@@ -35,7 +35,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	boolean _mouseIn; //true iff the mouse is in the region of this Path
 	
 	/**/
-	public BoardPath(int ID, Whiteboard wb) {
+	public BoardPath(int ID, Backend wb) {
 		super(ID, wb);
 		addMouseListener(this);
 		addMouseMotionListener(this);

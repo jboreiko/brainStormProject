@@ -4,11 +4,10 @@ package whiteboard;
 //TODO: THIS
 
 public abstract class BoardAction {
-	protected int target;
 	protected BoardActionType type;
-	protected String targetInfo;
+	protected boardnodes.BoardElt target;
 	
-	public int getTarget() {
+	public boardnodes.BoardElt getTarget() {
 		return target;
 	}
 	
@@ -16,13 +15,8 @@ public abstract class BoardAction {
 		return type;
 	}
 	
-	public BoardAction(int _target, String _targetInfo) {
+	public BoardAction(boardnodes.BoardElt _target) {
 		target = _target;
-		targetInfo = _targetInfo;
-	}
-	
-	public String getTargetInfo() {
-		return targetInfo;
 	}
 	
 	public abstract String encode();

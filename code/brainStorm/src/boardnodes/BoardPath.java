@@ -39,6 +39,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		super(ID, wb, wbp);
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		setBackground(new Color(0,0,0,0));
 		_mouseIn = false;
 		_seminal = new Point(0,0);
 		_terminal = new Point(100, 100);
@@ -122,25 +123,39 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 
 	//change the location of the start/end point (whichever is closest)
 	@Override
-	public void mouseDragged(MouseEvent e) {
+	public void mouseDragged(MouseEvent f) {
+		Point e = new Point(f.getX(), f.getY());
 		if (_holding == 0) { //change the start dot location
-			_seminal.x = e.getX();
-			_seminal.y = e.getY();
+			_seminal.x = e.x;
+			_seminal.y = e.y;
 		} else {
-			_terminal.x = e.getX();
-			_terminal.y = e.getY();
+			_terminal.x = e.x;
+			_terminal.y = e.y;
 		}
 		System.out.println("Seminal is at (" + _seminal.x + "," + _seminal.y + " and terminal at (" + _terminal.x + "," + _terminal.y +")");
 		//now set the bounds of the JPanel to just barely contain the path
-		setSize(Math.abs(_terminal.x - _seminal.x + DRAG_SQUARE_SIZE), Math.abs(_terminal.y - _seminal.y + DRAG_SQUARE_SIZE));
+		setSize(Math.abs(_terminal.x - _seminal.x), Math.abs(_terminal.y - _seminal.y));
 		Rectangle curLoc = getBounds();
-		if (_seminal.x <= _terminal.x && _seminal.y <= _terminal.y) {
-			setBounds(curLoc.x + _seminal.x, curLoc.y + _seminal.y, (_terminal.x - _seminal.x) + DRAG_SQUARE_SIZE, (_terminal.y - _seminal.y) + DRAG_SQUARE_SIZE);
+		setBounds(curLoc.x + Math.min(_seminal.x, _terminal.x), curLoc.y + Math.min(_seminal.y, _terminal.y),
+			Math.abs(_terminal.x - _seminal.x), Math.abs(_terminal.y-_seminal.y));
+		if (_terminal.x > _seminal.x){
 			_terminal.x -= _seminal.x;
-			_terminal.y -= _seminal.y;
-			_seminal.x = 0;
-			_seminal.y = 0;
+		} else {
+			_seminal.x -= _terminal.x;
 		}
+		if (_terminal.y > _seminal.y){
+			_terminal.y -= _seminal.y;
+		} else {
+			_seminal.y -= _terminal.y;
+		}
+		if (_seminal.x <= _terminal.x) 
+			_seminal.x = 0;
+		else 
+			_terminal.x = 0;
+		if (_seminal.y <= _terminal.y)
+			_seminal.y = 0;
+		else 
+			_terminal.y = 0;
 		repaint();
 	}
 

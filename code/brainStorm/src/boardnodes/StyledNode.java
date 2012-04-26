@@ -158,6 +158,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
+		System.out.println("ENTERED");
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
@@ -224,7 +225,13 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub		
+		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+		}
+		else if(e.getX() > this.getWidth()-BORDER_WIDTH|| e.getX() < BORDER_WIDTH || e.getY() < BORDER_WIDTH|| e.getY() > this.getHeight()-BORDER_WIDTH) {
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		}
 		
 	}
 	

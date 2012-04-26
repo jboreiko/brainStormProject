@@ -183,6 +183,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
+		wbp.setListFront(this);
 		startPt = new Point(e.getX(),e.getY());
 		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
 			_resizeLock = true;

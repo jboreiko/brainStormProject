@@ -30,7 +30,7 @@ public class WhiteboardPanel extends JPanel{
 	public static final int SCRIBBLE = 2;
 	public static final int PATH = 3;
 	private int _lastAdded;
-	private ArrayList<BoardElt> _rectangles;
+	private ArrayList<BoardElt> _elements;
 	private Dimension _panelSize;
 	private boolean _contIns;
 	private Whiteboard _board;
@@ -47,7 +47,7 @@ public class WhiteboardPanel extends JPanel{
 		this.setVisible(true);
 		this.setBackground(Color.BLUE);
 		_contIns = true;
-		_rectangles = new ArrayList<BoardElt>();
+		_elements = new ArrayList<BoardElt>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		_panelSize = new Dimension(screenSize.width, screenSize.height-100);
 		setPreferredSize(_panelSize);
@@ -231,8 +231,8 @@ public class WhiteboardPanel extends JPanel{
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
-		for(int i=0;i<_rectangles.size();i++){
-			_rectangles.get(i).paintComponents(g2);
+		for(int i=0;i<_elements.size();i++){
+			_elements.get(i).paintComponents(g2);
 			//g2.draw(_rectangles.get(i));
 			//g2.fill(_rectangles.get(i));
 		}
@@ -243,5 +243,9 @@ public class WhiteboardPanel extends JPanel{
 	public void setContinuousInsertion(boolean contIns){
 		_contIns = contIns;
 	}
-	
+	public void setListFront(BoardElt element){
+		remove(element);
+		add(element, 0);
+		repaint();
+	}
 }

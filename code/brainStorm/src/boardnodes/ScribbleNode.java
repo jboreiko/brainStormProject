@@ -156,6 +156,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	}
 	@Override
 	public void mousePressed(MouseEvent e) {
+		wbp.setListFront(this);
 		startPt = new Point(e.getX(),e.getY());
 		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
 			_resizeLock = true;

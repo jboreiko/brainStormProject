@@ -58,6 +58,7 @@ public class Backend {
 			}
 			addAction(new DeletionAction(toReturn));
 		}
+		panel.repaint();
 		return toReturn;
 	}
 	

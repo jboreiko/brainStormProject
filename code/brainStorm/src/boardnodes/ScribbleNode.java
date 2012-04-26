@@ -157,8 +157,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		System.out.println("("+e.getX() + "," + e.getY() + ")");
-		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
+		if (withinDelete(e.getX(), e.getY())) {
 			backend.remove(this.getUID());
 		}
 	}
@@ -192,10 +191,13 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void mouseReleased(MouseEvent e) {
 		_resizeLock = false;
 		_dragLock = false;
-		this.notifyBackend(BoardActionType.ELT_MOD);
+		if(!withinDelete(e.getX(), e.getY()))
+			this.notifyBackend(BoardActionType.ELT_MOD);
 	}
-
-
+	
+	public boolean withinDelete(int x, int y) {
+		return (x < BORDER_WIDTH && y < BORDER_WIDTH);
+	}
 
 	@Override
 	public BoardElt clone() {

@@ -1,6 +1,8 @@
 package boardnodes;
 
 import java.awt.BasicStroke;
+import whiteboard.Whiteboard;
+import GUI.WhiteboardPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -22,8 +24,8 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public final static ColoredPoint BREAK_POINT = new ColoredPoint(-1,-1, Color.WHITE);
 	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
 	
-	public ScribbleNode(int ID) {
-		super(ID);
+	public ScribbleNode(int ID,Whiteboard wb,WhiteboardPanel wbp) {
+		super(ID,wb,wbp);
 		setBackground(Color.WHITE);
 		drawnArea = new LinkedList<List<ColoredPoint>>();
 		addMouseListener(this);
@@ -109,15 +111,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		//drawnArea.add(BREAK_POINT);
-	}
-	
-	public static void main(String[] args) {
-		JFrame f = new JFrame("Scribble Test");
-		ScribbleNode s = new ScribbleNode(0);
-		f.add(s);
-		f.pack();
-		f.setVisible(true);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 

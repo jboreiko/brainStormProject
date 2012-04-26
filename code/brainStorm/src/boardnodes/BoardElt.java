@@ -1,6 +1,9 @@
 package boardnodes;
 
 import javax.swing.JComponent;
+
+import whiteboard.Whiteboard;
+import GUI.WhiteboardPanel;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -17,6 +20,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	private double y;
 	private String textBody;
 	private static int ID_Last;
+	private WhiteboardPanel wbp;
 	public BoardEltType Type;
 	//the whiteboard that this is a part of
 	private whiteboard.Whiteboard board;
@@ -28,9 +32,10 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract BoardElt clone();
 	public abstract void setPos(java.awt.Point p);
 
-	public BoardElt(int _UID, whiteboard.Whiteboard w) {
+	public BoardElt(int _UID, whiteboard.Whiteboard w,WhiteboardPanel wbp) {
 		UID = _UID;
 		board = w;
+		this.wbp = wbp;
 	}
 
 	public whiteboard.Whiteboard getWhiteboard() {

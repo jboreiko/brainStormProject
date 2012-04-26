@@ -2,17 +2,10 @@ package whiteboard;
 import boardnodes.BoardEltType;
 
 public class CreationAction extends BoardAction {
-
-	int x;
-	int y;
-	BoardEltType eltType;
 	
-	public CreationAction(int id, BoardEltType b, int _x, int _y) {
-		super(id);
-		x = _x;
-		y = _y;
+	public CreationAction(boardnodes.BoardElt _target) {
+		super(_target);
 		type = BoardActionType.CREATION;
-		eltType = b;
 	}
 
 	@Override

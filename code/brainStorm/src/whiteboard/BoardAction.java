@@ -4,10 +4,10 @@ package whiteboard;
 //TODO: THIS
 
 public abstract class BoardAction {
-	protected int target;
 	protected BoardActionType type;
+	protected boardnodes.BoardElt target;
 	
-	public int getTarget() {
+	public boardnodes.BoardElt getTarget() {
 		return target;
 	}
 	
@@ -15,7 +15,7 @@ public abstract class BoardAction {
 		return type;
 	}
 	
-	public BoardAction(int _target) {
+	public BoardAction(boardnodes.BoardElt _target) {
 		target = _target;
 	}
 	

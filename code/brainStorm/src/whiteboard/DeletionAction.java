@@ -2,11 +2,10 @@ package whiteboard;
 
 public class DeletionAction extends BoardAction {
 
-	public DeletionAction(int target) {
-		super(target);
+	public DeletionAction(boardnodes.BoardElt _target) {
+		super(_target);
 		type = BoardActionType.DELETION;
 	}
-
 	@Override
 	public String encode() {
 		// TODO Auto-generated method stub

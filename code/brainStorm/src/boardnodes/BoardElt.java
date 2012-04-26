@@ -2,7 +2,7 @@ package boardnodes;
 
 import javax.swing.JComponent;
 
-import whiteboard.Whiteboard;
+import whiteboard.Backend;
 import GUI.WhiteboardPanel;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
@@ -20,10 +20,10 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	private double y;
 	private String textBody;
 	private static int ID_Last;
-	protected WhiteboardPanel wbp;
 	public BoardEltType Type;
 	//the whiteboard that this is a part of
-	private whiteboard.Whiteboard board;
+	private whiteboard.Backend board;
+	protected WhiteboardPanel wbp;
 
 	protected static int nextUID = 0;
 
@@ -34,13 +34,13 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract BoardElt clone();
 	public abstract void setPos(java.awt.Point p);
 
-	public BoardElt(int _UID, whiteboard.Whiteboard w,WhiteboardPanel wbp) {
+	public BoardElt(int _UID, whiteboard.Backend w) {
 		UID = _UID;
 		board = w;
-		this.wbp = wbp;
+		wbp = board.getPanel();
 	}
 
-	public whiteboard.Whiteboard getWhiteboard() {
+	public whiteboard.Backend getWhiteboard() {
 		return board;
 	}
 
@@ -107,13 +107,13 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		}
 		switch(b) {
 		case CREATION:
-			this.getWhiteboard().addAction(new whiteboard.CreationAction(this.getUID(), this.getType(), this.getX(), this.getY()));
+			this.getWhiteboard().addAction(new whiteboard.CreationAction(this));
 			break;
 		case DELETION:
-			this.getWhiteboard().addAction(new whiteboard.DeletionAction(this.getUID()));
+			this.getWhiteboard().addAction(new whiteboard.DeletionAction(this));
 			break;
 		case ELT_MOD:
-			this.getWhiteboard().addAction(new whiteboard.ModificationAction(this.getUID()));
+			this.getWhiteboard().addAction(new whiteboard.ModificationAction(this));
 			break;
 		default:
 			break;
@@ -125,7 +125,9 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract void addAction(ActionObject ao);
 
 	public abstract String encode();
-
-	abstract void decode(String obj);
-
+	
+	public static BoardElt decode(String s) {
+		return null;
+		
+	}
 }

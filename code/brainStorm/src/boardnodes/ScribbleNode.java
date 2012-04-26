@@ -1,7 +1,7 @@
 package boardnodes;
 
 import java.awt.BasicStroke;
-import whiteboard.Whiteboard;
+import whiteboard.Backend;
 import GUI.WhiteboardPanel;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -30,8 +30,8 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
 	LinkedList<List<ColoredPoint>> undrawnArea; //the drawn areas that have been undone
 
-	public ScribbleNode(int ID, whiteboard.Whiteboard w,WhiteboardPanel wbp) {
-		super(ID, w,wbp);
+	public ScribbleNode(int ID, whiteboard.Backend w) {
+		super(ID, w);
 		_resizeLock = false;
 		_dragLock = false;
 		setBackground(Color.WHITE);
@@ -41,14 +41,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		addMouseMotionListener(this);
 		setPreferredSize(new Dimension(200,150));
 		setSize(150,200);
-		setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-	}
-
-
-	@Override
-	void decode(String obj) {
-		// TODO Auto-generated method stub
+		setBorder(BorderFactory.createLineBorder(Color.BLACK,7));
 	}
 
 	@Override
@@ -165,7 +158,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			_dragLock = true;
 		}
 		else {
-			drawnArea.add(new LinkedList<ColoredPoint>());
+			LinkedList<ColoredPoint> ret = new LinkedList<ColoredPoint>();
+			ret.add(new ColoredPoint(startPt, Color.BLACK));
+			ColoredPoint endPt = new ColoredPoint(startPt.x+1, startPt.y+1, Color.BLACK);
+			ret.add(endPt);
+			drawnArea.add(ret);
 		}
 	}
 	//the mouse has been released, stop connecting points

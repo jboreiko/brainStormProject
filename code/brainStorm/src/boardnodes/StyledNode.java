@@ -1,7 +1,7 @@
 package boardnodes;
 import java.awt.*;
 import java.util.Stack;
-import whiteboard.Whiteboard;
+import whiteboard.Backend;
 import GUI.WhiteboardPanel;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -36,13 +36,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
 	
-	public StyledNode(int UID, whiteboard.Whiteboard w,WhiteboardPanel wbp){
-		super(UID, w,wbp);
+	public StyledNode(int UID, whiteboard.Backend w){
+		super(UID, w);
 		undos = new Stack<UndoableEdit>();
 		redos = new Stack<UndoableEdit>();
 		_resizeLock = false;
 		_dragLock = false;
-		_wbp = wbp;
 		content = createEditorPane();
 		view = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		view.setPreferredSize(new Dimension(200,150));
@@ -52,10 +51,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		this.setSize(new Dimension(215,165));
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		repaint();
-		view.repaint();
+		
 		revalidate();
 		view.revalidate();
+		repaint();
+		view.repaint();
 	}
 	
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
@@ -77,7 +77,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
-		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		//text.
 		try {
 			text.insertString(0, "\u2022 Make a node", null);
@@ -87,15 +86,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		JTextPane toReturn = new JTextPane(text);
 		
 		return toReturn;
-	}
-	
-
-
-	@Override
-	void decode(String obj) {
 	}
 
 
@@ -242,6 +236,5 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		// TODO Auto-generated method stub
 		
 	}
-
 	
 }

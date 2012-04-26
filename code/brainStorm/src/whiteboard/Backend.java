@@ -11,8 +11,10 @@ import networking.Networking;
 
 import boardnodes.BoardEltType;
 
-public class Whiteboard {
+public class Backend {
+	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
+	private ArrayList<boardnodes.BoardPath> paths;
 	private Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
 	private Networking networking;
@@ -23,7 +25,8 @@ public class Whiteboard {
 	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
 	//TODO: when calling networking.sendAction be sure to check for return false - that indicates either something went wrong (if networking is on) or networking is off
 	
-	public Whiteboard() {
+	public Backend(GUI.WhiteboardPanel _panel) {
+		panel = _panel;
 		pastActions = new Stack<BoardAction>();
 		futureActions = new Stack<BoardAction>();
 		boardElts = new Hashtable<Integer, BoardElt>();
@@ -32,7 +35,10 @@ public class Whiteboard {
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
 		boardElts.put(b.getUID(), b);
-		addAction(new CreationAction(b.getUID(), b.getType(), b.getX(), b.getY()));
+		if(b.getType() == BoardEltType.PATH) {
+			paths.add((boardnodes.BoardPath)b);
+		}
+		addAction(new CreationAction(b));
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -45,25 +51,17 @@ public class Whiteboard {
 	public BoardElt remove(int UID) {
 		BoardElt toReturn = boardElts.remove(UID);
 		if(toReturn!=null) {
-			addAction(new DeletionAction(toReturn.getUID()));
+			addAction(new DeletionAction(toReturn));
 		}
 		return toReturn;
 	}
-	
-	//Returns and removes the board elt with given UID. Returns null if no elt with that UID exists
-	//Does not add a "removal" action to the stack
-	public BoardElt just_remove(int UID) {
-		BoardElt toReturn = boardElts.remove(UID);
-		return toReturn;
-	}
-	
 	
 	//Keeps track of the event that the board element with given UID was just modified, so the whiteboard knows which
 	//	one to ask to undo when necessary
 	public void modifyBoardElt(int UID) {
 		BoardElt b = (BoardElt) boardElts.get(UID);
 		if(b!=null) {
-			addAction(new ModificationAction(UID));
+			addAction(new ModificationAction(b));
 		}
 	}
 	
@@ -96,23 +94,38 @@ public class Whiteboard {
 			return;
 		}
 		BoardAction b = pastActions.pop();
+		BoardElt be;
 		switch(b.getType()) {
 		case ELT_MOD:
 			System.out.println("undoing a modification on node "+b.getTarget());
-			boardElts.get(b.getTarget()).undo();
-			boardElts.get(b.getTarget()).repaint();
+			System.out.println("the hashmap associates "+b.getTarget()+" with "+boardElts.get(b.getTarget()));
+			b.getTarget().undo();
+			b.getTarget().repaint();
+			futureActions.push(b);
 			break;
 		case CREATION:
-			//TODO: handle creatio
+			//undoing a creation means doing a deletion
+			 be = b.getTarget();
+			if(be==null)
+				return;
+			panel.remove(be);
+			boardElts.remove(be.getUID());
+			futureActions.push(new DeletionAction(be));
 			break;
 		case DELETION:
-			//TODO: handle deletion
+			//undoing a deletion means doing a creation
+			be = b.getTarget();
+			if(be==null)
+				return;
+			panel.add(be);
+			boardElts.put(be.getUID(), be);
+			futureActions.push(new CreationAction(be));
 			break;
 		case MOVE:
 			//TODO: handle move
 			break;
 		}
-		futureActions.push(b);
+		panel.repaint();
 	}
 	
 	public void redo() {
@@ -141,6 +154,10 @@ public class Whiteboard {
 		
 	}
 	
+	public GUI.WhiteboardPanel getPanel() {
+		return panel;
+	}
+	
 	/**
 	 * @author aabeshou
 	 * call boardelt.encode on all of the elements in the board, and concatenate them all into one XML string that this will return
@@ -157,7 +174,7 @@ public class Whiteboard {
 		return ret.toString();
 	}
 	
-	public static Whiteboard decode() {
+	public static Backend decode() {
 		return null;
 		//TODO: take in XML/JSON and create a whiteboard object out of it, compelte with all the elements that are in it
 	}

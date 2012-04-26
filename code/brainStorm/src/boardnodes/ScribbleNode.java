@@ -188,7 +188,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void mouseReleased(MouseEvent e) {
 		_resizeLock = false;
 		_dragLock = false;
-		this.notifyWhiteboard(BoardActionType.ELT_MOD);
+		this.notifyBackend(BoardActionType.ELT_MOD);
 	}
 
 

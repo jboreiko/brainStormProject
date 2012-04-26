@@ -194,7 +194,6 @@ public class WhiteboardPanel extends JPanel{
 			System.out.println(size);
 			bp.setSeminal(_addLocation);
 			bp.setTerminal(new Point(_addLocation.x + BoardPath.START_WIDTH, _addLocation.y + BoardPath.START_HEIGHT));
-			bp.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 			//add(bp);
 			_backend.add(bp);
 			break;
@@ -256,13 +255,8 @@ public class WhiteboardPanel extends JPanel{
 			//g2.draw(_rectangles.get(i));
 			//g2.fill(_rectangles.get(i));
 		}
-
-		System.err.println("trying to paint");
 		for(BoardPath b: _backend.getPaths()) {
-			System.err.println("trying to print a line");
-			g2.setColor(Color.BLACK);
-			g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
-			g2.drawLine(b._seminal.x, b._seminal.y, b._terminal.x, b._terminal.y);
+			b.paintComponent(g2);
 		}
 	}
 	public void load(){

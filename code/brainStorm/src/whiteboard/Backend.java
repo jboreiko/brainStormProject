@@ -31,6 +31,7 @@ public class Backend {
 		futureActions = new Stack<BoardAction>();
 		boardElts = new Hashtable<Integer, BoardElt>();
 		paths = new ArrayList<boardnodes.BoardPath>();
+		networking = new Networking();
 	}
 	
 	//Adds the given board elt and adds the "addition" action to the stack
@@ -52,6 +53,9 @@ public class Backend {
 	public BoardElt remove(int UID) {
 		BoardElt toReturn = boardElts.remove(UID);
 		if(toReturn!=null) {
+			if(toReturn.getType()!=BoardEltType.PATH) {
+				panel.remove(toReturn);
+			}
 			addAction(new DeletionAction(toReturn));
 		}
 		return toReturn;
@@ -68,6 +72,7 @@ public class Backend {
 	
 	//Adds the given action to the stack, and erases all future actions because we've started a new "branch"
 	public void addAction(BoardAction ba) {
+		System.err.println("I'm adding an action right now");
 		pastActions.push(ba);
 		futureActions.clear();
 	}
@@ -111,6 +116,9 @@ public class Backend {
 				return;
 			panel.remove(be);
 			boardElts.remove(be.getUID());
+			if(be.getType()==BoardEltType.PATH) {
+				paths.remove(be);
+			}
 			futureActions.push(new DeletionAction(be));
 			break;
 		case DELETION:
@@ -120,6 +128,9 @@ public class Backend {
 				return;
 			panel.add(be);
 			boardElts.put(be.getUID(), be);
+			if(be.getType()==BoardEltType.PATH) {
+				paths.add((boardnodes.BoardPath)be);
+			}
 			futureActions.push(new CreationAction(be));
 			break;
 		case MOVE:
@@ -153,6 +164,10 @@ public class Backend {
 		}
 		pastActions.push(b);
 		
+	}
+	
+	public Networking getNetworking() {
+		return networking;
 	}
 	
 	public GUI.WhiteboardPanel getPanel() {

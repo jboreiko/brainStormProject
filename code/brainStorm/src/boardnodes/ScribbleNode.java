@@ -1,8 +1,6 @@
 package boardnodes;
 
 import java.awt.BasicStroke;
-import whiteboard.Backend;
-import GUI.WhiteboardPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,13 +10,12 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import whiteboard.BoardActionType;
 
@@ -30,6 +27,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
 	LinkedList<List<ColoredPoint>> undrawnArea; //the drawn areas that have been undone
 
+	JPanel _scribbleArea; //the scribble area must be contained in this jpanel so we can delete and drag
+	
+	public final static int DELETE_SQUARE_WIDTH = 7; //the size of the red square signifying a delete
+	
 	public ScribbleNode(int ID, whiteboard.Backend w) {
 		super(ID, w);
 		_resizeLock = false;
@@ -41,7 +42,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		addMouseMotionListener(this);
 		setPreferredSize(new Dimension(200,150));
 		setSize(150,200);
-		setBorder(BorderFactory.createLineBorder(Color.BLACK,7));
+		//setBorder(BorderFactory.createLineBorder(Color.GRAY,7));
 	}
 
 	@Override
@@ -66,6 +67,18 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 				prev = temp;
 			}
 		}
+		//draw the border
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, getWidth(), DELETE_SQUARE_WIDTH);
+		g.fillRect(0, 0, DELETE_SQUARE_WIDTH, getHeight());
+		g.fillRect(getWidth()-DELETE_SQUARE_WIDTH, 0, DELETE_SQUARE_WIDTH, getHeight());
+		g.fillRect(0, getHeight()-DELETE_SQUARE_WIDTH, getWidth(), DELETE_SQUARE_WIDTH);
+		//draw the delete square
+		g.setColor(Color.RED);
+		g.fillRect(0, 0, DELETE_SQUARE_WIDTH, DELETE_SQUARE_WIDTH);
+		//draw the resize square
+		g.setColor(Color.LIGHT_GRAY);
+		g.fillRect(getWidth()-DELETE_SQUARE_WIDTH, getHeight()-DELETE_SQUARE_WIDTH, DELETE_SQUARE_WIDTH, DELETE_SQUARE_WIDTH);
 	}
 
 	@Override
@@ -97,18 +110,18 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		int xoffset =  - (startPt.x - e.getX());
 		int yoffset =  - (startPt.y - e.getY());
 		if(_resizeLock){
-			if(nodeBounds.width + xoffset < 30 && nodeBounds.height + yoffset < 30){
+			if(nodeBounds.width + xoffset < DELETE_SQUARE_WIDTH && nodeBounds.height + yoffset < DELETE_SQUARE_WIDTH){
 				xoffset = 0;
 				yoffset = 0;
 			}
-			else if(nodeBounds.width + xoffset < 30){
+			else if(nodeBounds.width + xoffset < DELETE_SQUARE_WIDTH){
 				xoffset = 0;
 			}
-			else if(nodeBounds.height + yoffset < 30){
+			else if(nodeBounds.height + yoffset < DELETE_SQUARE_WIDTH){
 				yoffset = 0;
 			}
 				System.out.println(startPt);
-				System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
+				System.out.println(e.getX() + "<=====X  a   Y=====>" + e.getY());
 				setBounds(nodeBounds.x,nodeBounds.y,nodeBounds.width + xoffset,nodeBounds.height + yoffset);
 				repaint();
 				revalidate();
@@ -116,7 +129,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		else if(_dragLock){
 			System.out.println(startPt);
-			System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
+			System.out.println(e.getX() + "<=====X   b  Y=====>" + e.getY());
 			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
 			repaint();
 			revalidate();
@@ -138,6 +151,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		System.out.println("("+e.getX() + "," + e.getY() + ")");
+		if (e.getX() < DELETE_SQUARE_WIDTH && e.getY() < DELETE_SQUARE_WIDTH) {
+			System.out.println("DELETE NOW");
+		}
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -151,10 +168,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void mousePressed(MouseEvent e) {
 		wbp.setListFront(this);
 		startPt = new Point(e.getX(),e.getY());
-		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
+		if(e.getX() > this.getWidth()-DELETE_SQUARE_WIDTH && e.getY() > this.getHeight()-DELETE_SQUARE_WIDTH){
 			_resizeLock = true;
 		}
-		else if(e.getX() > this.getWidth()-15 || e.getX() < 15 || e.getY() < 15 || e.getY() > this.getHeight()-15) {
+		else if(e.getX() > this.getWidth()-DELETE_SQUARE_WIDTH|| e.getX() < DELETE_SQUARE_WIDTH || e.getY() < DELETE_SQUARE_WIDTH|| e.getY() > this.getHeight()-DELETE_SQUARE_WIDTH) {
 			_dragLock = true;
 		}
 		else {

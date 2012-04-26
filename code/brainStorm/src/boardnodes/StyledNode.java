@@ -35,7 +35,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
 	
-	public final static int BORDER_WIDTH = 15;
+	public final static int BORDER_WIDTH = 11;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 	
 	public StyledNode(int UID, whiteboard.Backend w){
@@ -169,7 +169,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		// TODO Auto-generated method stub
 		wbp.setListFront(this);
 		startPt = new Point(e.getX(),e.getY());
-		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
+		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
 			_resizeLock = true;
 		}
 		else {

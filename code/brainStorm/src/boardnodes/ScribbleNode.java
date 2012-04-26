@@ -2,6 +2,7 @@ package boardnodes;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -143,6 +144,15 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub		
+		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+		}
+		else if(e.getX() > this.getWidth()-BORDER_WIDTH|| e.getX() < BORDER_WIDTH || e.getY() < BORDER_WIDTH|| e.getY() > this.getHeight()-BORDER_WIDTH) {
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		}
+		else {
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		}
 	}
 
 	@Override
@@ -155,7 +165,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {

@@ -30,6 +30,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
         wb.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
         move.setLocation(SPEED*dx, SPEED*dy);
         startPt.setLocation(pt);
+        wb.repaint();
     }
     @Override public void mousePressed(MouseEvent e) {
         ((JComponent)e.getSource()).setCursor(hc); //label.setCursor(hc);

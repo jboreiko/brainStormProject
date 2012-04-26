@@ -22,17 +22,19 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	public final static int DRAG_SQUARE_SIZE = 5; //the size of the red/green squares
 	public final static Color START_COLOR = new Color(1,0,0,(float).7);
 	public final static Color END_COLOR = new Color(0,1,0,(float).7);
-	BoardElt _start; //where the base of the arrow points
-	BoardElt _end; //where the tip of the arrow points
+	public final static int START_WIDTH = 20;
+	public final static int START_HEIGHT = 20;
+	public BoardElt _start; //where the base of the arrow points
+	public BoardElt _end; //where the tip of the arrow points
 	double _s0, _s1;  //the location on the map of start if _start is null
 	double _e0, _e1; //end location of map is _end is null
 	
 	int _holding; //which end you're currently dragging. 0 for start, 1 for end
 	
-	Point _seminal; //used for painting, see paint(Graphics)
-	Point _terminal;
+	public Point _seminal; //used for painting, see paint(Graphics)
+	public Point _terminal;
 	
-	boolean _mouseIn; //true iff the mouse is in the region of this Path
+	public boolean _mouseIn; //true iff the mouse is in the region of this Path
 	
 	/**/
 	public BoardPath(int ID, Backend wb) {
@@ -43,6 +45,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		_mouseIn = false;
 		_seminal = new Point(0,0);
 		_terminal = new Point(100, 100);
+		type = BoardEltType.PATH;
 	}
 
 	//set the start+end point/nodes
@@ -50,6 +53,8 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	public void setStart(double s0, double s1) {_s0 = s0; _s1 = s1;}
 	public void setEnd(BoardElt e) {_end = e;}
 	public void setEnd(double e0, double e1) {_e0 = e0; _e1 = e1;}
+	public void setSeminal(Point p) { _seminal = p;}
+	public void setTerminal(Point p) {_terminal = p;}
 		
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);

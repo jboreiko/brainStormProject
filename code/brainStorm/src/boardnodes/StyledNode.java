@@ -26,7 +26,6 @@ import boardnodes.BoardEltType;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
 	public static int UIDCounter = 0;
-	final BoardEltType Type = BoardEltType.NODE;
 	private Point startPt,nextPt;
 	JTextPane content;
 	StyledDocument text;
@@ -38,6 +37,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
+		type = BoardEltType.STYLED;
 		undos = new Stack<UndoableEdit>();
 		redos = new Stack<UndoableEdit>();
 		_resizeLock = false;

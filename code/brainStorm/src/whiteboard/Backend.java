@@ -30,6 +30,7 @@ public class Backend {
 		pastActions = new Stack<BoardAction>();
 		futureActions = new Stack<BoardAction>();
 		boardElts = new Hashtable<Integer, BoardElt>();
+		paths = new ArrayList<boardnodes.BoardPath>();
 	}
 	
 	//Adds the given board elt and adds the "addition" action to the stack
@@ -158,6 +159,9 @@ public class Backend {
 		return panel;
 	}
 	
+	public ArrayList<boardnodes.BoardPath> getPaths() {
+		return paths;
+	}
 	/**
 	 * @author aabeshou
 	 * call boardelt.encode on all of the elements in the board, and concatenate them all into one XML string that this will return

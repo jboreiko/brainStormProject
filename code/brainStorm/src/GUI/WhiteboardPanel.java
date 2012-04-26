@@ -34,7 +34,7 @@ public class WhiteboardPanel extends JPanel{
 	private ArrayList<BoardElt> _elements;
 	private Dimension _panelSize;
 	private boolean _contIns;
-	private Backend _board;
+	private Backend _backend;
 	
 	private Point _addLocation; //the location you should add the next BoardElt to
 
@@ -43,7 +43,7 @@ public class WhiteboardPanel extends JPanel{
 	public WhiteboardPanel(){
 		super();
 		_lastAdded = 0;
-		_board = new Backend(this);
+		_backend = new Backend(this);
 		this.setLayout(null);
 		this.setVisible(true);
 		this.setBackground(Color.BLUE);
@@ -56,8 +56,8 @@ public class WhiteboardPanel extends JPanel{
 		_rightClickMenu = initPopupMenu();
 	}
 	
-	public Backend getBoard() {
-		return _board;
+	public Backend getBackend() {
+		return _backend;
 	}
 	
 	public void displayContextMenu(Point display) {
@@ -163,17 +163,17 @@ public class WhiteboardPanel extends JPanel{
 		switch(b) {
 		case STYLED:
 			System.out.println("trying to add a styled");
-			StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _board);
+			StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _backend);
 			_lastAdded = WhiteboardPanel.STYLED;
 			System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 			size = styledNode.getSize();
 			styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 			add(styledNode);
-			_board.add(styledNode);
+			_backend.add(styledNode);
 			break;
 		case SCRIBBLE:
 			System.out.println("trying to add a scribble");
-			ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _board);
+			ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _backend);
 			_lastAdded = WhiteboardPanel.SCRIBBLE;
 			System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 			size = scribbleNode.getSize();
@@ -183,29 +183,31 @@ public class WhiteboardPanel extends JPanel{
 			}
 			System.out.println("wide " + getWidth() + ", height " + getHeight());
 			add(scribbleNode);
-			_board.add(scribbleNode);
+			_backend.add(scribbleNode);
 			break;
 		case PATH:
 			System.out.println("trying to add a path");
 			_lastAdded = WhiteboardPanel.PATH;
-			BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _board);
+			BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _backend);
 			System.out.println("Just created a path");
 			size = bp.getPreferredSize();
 			System.out.println(size);
+			bp.setSeminal(_addLocation);
+			bp.setTerminal(new Point(_addLocation.x + BoardPath.START_WIDTH, _addLocation.y + BoardPath.START_HEIGHT));
 			bp.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-			add(bp);
-			_board.add(bp);
+			//add(bp);
+			_backend.add(bp);
 			break;
 		}
 		repaint();
 	}
 	
 	public void undo() {
-		_board.undo();
+		_backend.undo();
 	}
 	
 	public void redo() {
-		_board.redo();
+		_backend.redo();
 	}
 
 /*	public Dimension getPreferredScrollableViewportSize() {
@@ -253,6 +255,14 @@ public class WhiteboardPanel extends JPanel{
 			_elements.get(i).paintComponents(g2);
 			//g2.draw(_rectangles.get(i));
 			//g2.fill(_rectangles.get(i));
+		}
+
+		System.err.println("trying to paint");
+		for(BoardPath b: _backend.getPaths()) {
+			System.err.println("trying to print a line");
+			g2.setColor(Color.BLACK);
+			g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
+			g2.drawLine(b._seminal.x, b._seminal.y, b._terminal.x, b._terminal.y);
 		}
 	}
 	public void load(){

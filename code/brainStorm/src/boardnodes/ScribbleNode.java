@@ -42,6 +42,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		setPreferredSize(new Dimension(200,150));
 		setSize(150,200);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK,7));
+		type = BoardEltType.SCRIBBLE;
 	}
 
 	@Override

@@ -29,7 +29,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	JPanel _scribbleArea; //the scribble area must be contained in this jpanel so we can delete and drag
 	
-	public final static int BORDER_WIDTH = 7; //the size of the red square signifying a delete
+	public final static int BORDER_WIDTH = 11; //the size of the red square signifying a delete
 	
 	public ScribbleNode(int ID, whiteboard.Backend w) {
 		super(ID, w);

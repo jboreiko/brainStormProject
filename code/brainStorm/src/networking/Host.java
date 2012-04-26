@@ -1,88 +1,163 @@
 package networking;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.util.LinkedList;
+import java.io.*;
+import java.util.*;
+import java.net.*;
 
 import networking.NetworkMessage.Type;
 
-public class Host {
-	ServerSocket server;
-	LinkedList<Socket> clients;
-	int currentFreeId = 1;
-	public Host(int port) {
-		try {
-			server = new ServerSocket(port);
-            server.setSoTimeout(1);
-		} catch (IOException e) {
+/**********************************************************
+ *
+ * @author 
+ *
+ *The entry point of your server back end. Takes in the
+ *port # the server will listen on as a command line param.
+ *Then listens on that port for connecting clients.
+ **********************************************************/
+public class Host extends Thread{
+    private int localport;               //The local port the server will listen on.
+    private ServerSocket serverSocket;   //The socket the server will accept connections on.
+
+    private List<ClientHandler> clients; //The list of currently connected clients.
+    private Queue<ClientInfo> recoveryPriority;
+    private Client localClient;
+    private int hostId = 0;
+    
+    private int openId;
+
+    /**************************************************************************
+     * The constructor must initialize 'serverSocket' and 'clients'.
+     * @param localport - the port the server will listen on
+     * @throws IOException
+     **************************************************************************/
+    public Host(int _localport, String username) throws IOException {
+    	localport = _localport;
+    	serverSocket = new ServerSocket(localport);
+    	clients = new LinkedList<ClientHandler>();
+    	localClient = new Client("localhost", localport, username);
+    	localClient.start();
+    	openId = 1;
+    }
+    
+    public boolean send(NetworkMessage nm) {
+        return localClient.send(nm);
+    }
+    
+    public NetworkMessage receive (Type t) {
+        return localClient.receive(t);
+    }
+    
+    public int getNextOpenId() {
+        return openId++;
+    }
+    
+    /***************************************************************************************
+     * Accept connections and add them to the clients queue.
+     * This function should, in a while loop:
+     * - Accept a connection using ServerSocket.accept()
+     * - Create a new ClientHandler, giving it the Socket that accept() returns.
+     * - Add the ClientHandler to the clients list. This is so that
+     * broadcastMessage() function will be able to access it.
+     * - Start the ClientHandler thread so that it can begin reading any incoming messages.
+      **************************************************************************************/
+    public void run() {
+        Socket clientSocket;
+        ClientHandler handler;
+        /*
+        try {
+			serverSocket = new ServerSocket(localport);
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		clients = new LinkedList<Socket>();
-	}
-
-	public void listen() {
-		while (true) {
-			Socket soc = null;
-			try {
-			    System.out.println("Running through loop.");
-				soc = server.accept();
-				if (soc != null) {
-					//accept new connection
-					System.out.println("New connection received.");
-					soc.setSoTimeout(1);
-					clients.add(soc);
-					Handshake id_request = null;
-					while (id_request == null) {
-						System.out.println("Waiting to receive handshake.");
-						ObjectInputStream ois = new ObjectInputStream(soc.getInputStream());
-						id_request = (Handshake) ois.readObject();
-						//ois.close();
-					};
-
-					if (id_request.sender_id == -1) {
-						System.out.println("Recieved proper handshake, sending it back with id.");
-						id_request = new Handshake(0, currentFreeId++);
-						ObjectOutputStream oos = new ObjectOutputStream(soc.getOutputStream());
-						oos.writeObject(id_request);
-						oos.flush();
-						//oos.close();
-					} else {
-						System.err.println("Fail on handshake");
-					}
-				}
-				
-				for (Socket s : clients) {
-					System.out.println("Checking client.");
-					ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
-					NetworkMessage nm = (NetworkMessage) ois.readObject();
-					if (nm != null) {
-						System.out.println("Object received.");
-						if (nm.type == Type.CHAT) {
-							System.out.println("ChatMessage received.");
-							ChatMessage cm = (ChatMessage) nm;
-							System.out.println("From: " + cm.sender_id + " Message: " + cm.message);
-						}
-					}
-				}
-			} catch (SocketTimeoutException e) {
-
+		*/
+        /*TODO*/
+        while(true)	{
+        	try {
+        	    System.out.println("server: waiting to accept client");
+				clientSocket = serverSocket.accept();
+				handler = new ClientHandler(this, clientSocket);
+				clients.add(handler);
+				System.out.println("server: starting new client handler");
+				handler.start();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
+        }
+    }
+
+    /***************************************************************************
+     * Broadcast a message to everybody currently connected to the server by 
+     * @param message - message to broadcast
+     * looping through the clients list.
+     * Warning: More than one ClientHandler can call this function at a time. 
+    ***************************************************************************/
+    public synchronized void broadcastMessage(NetworkMessage message, ClientHandler client) {
+        /*TODO*/
+        System.out.println("server: broadcasting msg: " + message);
+    	for (ClientHandler ch: clients) {
+    	    if (ch != client) {
+    	        System.out.println("server: sending msg to client: " + ch.id);
+    	        ch.send(message);
+    	    }
+    	}
+    }
+    
+    public synchronized void respondHandshake(Handshake message, ClientHandler clientHandler) {
+        /*TODO*/
+        if (message.sender_id == -1) {
+        	String username = message.client_username;
+            int temp = getNextOpenId();
+            //System.out.println("server: replying to handshake with id: " + temp);
+            clientHandler.setUsernameAndId(username, temp);
+            clientHandler.send(new Handshake(hostId, temp, username));
+            registerClient(clientHandler);
+            System.out.println("server: registered client with id: " + temp + ", uname: " + username);
+        } else {
+            System.out.println("server: client already has received an id ERROR");
+        }
+    }
+
+    private void registerClient(ClientHandler ch) {
+		recoveryPriority.add(new ClientInfo(ch.ip, ch.id, ch.username));
 	}
 
-	public boolean sendMessage(String msg) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	/**************************************************************************
+     * Remove the given client from the clients list.
+     * Warning: More than one ClientHandler can call this function at a time. 
+     * Return whether the client was found or not.
+     **************************************************************************/
+    public synchronized boolean removeClient(ClientHandler client) {
+        /*TODO*/
+    	if (clients.contains(client)) {
+    		return clients.remove(client);
+    	}
+        return false;
+    }
+
+    /*
+    /**************************************************************************
+     * This function just creates the Server and runs it.
+     * @param args - the port you will be listening on
+     ************************************************************************** /
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("usage: Server portnumber");
+            return;
+        }
+
+        int port = Integer.parseInt(args[0]);
+        Host s;
+        try {
+            s = new Host(port);
+        }
+        catch (IOException e) {
+            System.err.println("Unable to start server: " + e);
+            return;
+        }
+
+        s.run();
+    }
+    */
 }

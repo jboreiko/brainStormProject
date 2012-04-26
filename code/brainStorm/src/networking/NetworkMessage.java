@@ -10,7 +10,7 @@ public class NetworkMessage implements Serializable{
 	int sender_id;
 	Type type;
 	protected enum Type {
-		CHAT, HANDSHAKE
+		CHAT, HANDSHAKE, ACTION
 	}
 	protected NetworkMessage(int id, Type _type) {
 		type = _type;
@@ -19,5 +19,13 @@ public class NetworkMessage implements Serializable{
 		} else {
 			sender_id = id;
 		}
+	}
+	
+	public void setSenderID(int _id) {
+	    sender_id = _id;
+	}
+	
+	public String toString() {
+	    return "NetworkMessage, sender: " + sender_id + " type: " + type;
 	}
 }

@@ -4,15 +4,20 @@ package whiteboard;
 //TODO: THIS
 
 public abstract class BoardAction {
-	private BoardElt target;
-	private BoardActionType type;
-	private BoardNodeAttribute nodeAttr = null;
-	private BoardPathAttribute pathAttr = null;
+	protected int target;
+	protected BoardActionType type;
 	
-	public BoardElt getTarget() {
+	public int getTarget() {
 		return target;
 	}
 	
-	public BoardAction(BoardElt target) {
+	public BoardActionType getType() {
+		return type;
 	}
+	
+	public BoardAction(int _target) {
+		target = _target;
+	}
+	
+	public abstract String encode();
 }

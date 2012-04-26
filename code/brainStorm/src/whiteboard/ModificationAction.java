@@ -3,7 +3,7 @@ package whiteboard;
 public class ModificationAction extends BoardAction {
 	
 	public ModificationAction(int target) {
-		super(target);
+		super(target, null);
 		type = BoardActionType.ELT_MOD;
 	}
 

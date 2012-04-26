@@ -35,8 +35,8 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	boolean _mouseIn; //true iff the mouse is in the region of this Path
 	
 	/**/
-	public BoardPath(int ID, Whiteboard wb, WhiteboardPanel wbp) {
-		super(ID, wb, wbp);
+	public BoardPath(int ID, Whiteboard wb) {
+		super(ID, wb);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setBackground(new Color(0,0,0,0));
@@ -75,12 +75,6 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	}
 	public final Point getTerminal() {
 		return _terminal;
-	}
-	
-	@Override
-	void decode(String obj) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

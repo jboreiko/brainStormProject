@@ -34,7 +34,7 @@ public class Whiteboard {
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
 		boardElts.put(b.getUID(), b);
-		addAction(new CreationAction(b.getUID(), b.getType(), b.getX(), b.getY()));
+		addAction(new CreationAction(b.getUID(), b.encode()));
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -47,18 +47,10 @@ public class Whiteboard {
 	public BoardElt remove(int UID) {
 		BoardElt toReturn = boardElts.remove(UID);
 		if(toReturn!=null) {
-			addAction(new DeletionAction(toReturn.getUID()));
+			addAction(new DeletionAction(toReturn.getUID(), toReturn.encode()));
 		}
 		return toReturn;
 	}
-	
-	//Returns and removes the board elt with given UID. Returns null if no elt with that UID exists
-	//Does not add a "removal" action to the stack
-	public BoardElt just_remove(int UID) {
-		BoardElt toReturn = boardElts.remove(UID);
-		return toReturn;
-	}
-	
 	
 	//Keeps track of the event that the board element with given UID was just modified, so the whiteboard knows which
 	//	one to ask to undo when necessary
@@ -98,24 +90,38 @@ public class Whiteboard {
 			return;
 		}
 		BoardAction b = pastActions.pop();
+		BoardElt be;
 		switch(b.getType()) {
 		case ELT_MOD:
 			System.out.println("undoing a modification on node "+b.getTarget());
 			System.out.println("the hashmap associates "+b.getTarget()+" with "+boardElts.get(b.getTarget()));
 			boardElts.get(b.getTarget()).undo();
 			boardElts.get(b.getTarget()).repaint();
+			futureActions.push(b);
 			break;
 		case CREATION:
-			//TODO: handle creatio
+			//undoing a creation means doing a deletion
+			 be = this.boardElts.get(b.getTarget());
+			if(be==null)
+				return;
+			panel.remove(be);
+			boardElts.remove(be.getUID());
+			futureActions.push(new DeletionAction(be.getUID(), be.encode()));
 			break;
 		case DELETION:
-			//TODO: handle deletion
+			//undoing a deletion means doing a creation
+			be = BoardElt.decode(b.getTargetInfo());
+			if(be==null)
+				return;
+			panel.add(be);
+			boardElts.put(be.getUID(), be);
+			futureActions.push(new CreationAction(be.getUID(), b.getTargetInfo()));
 			break;
 		case MOVE:
 			//TODO: handle move
 			break;
 		}
-		futureActions.push(b);
+		panel.repaint();
 	}
 	
 	public void redo() {
@@ -142,6 +148,10 @@ public class Whiteboard {
 		}
 		pastActions.push(b);
 		
+	}
+	
+	public GUI.WhiteboardPanel getPanel() {
+		return panel;
 	}
 	
 	/**

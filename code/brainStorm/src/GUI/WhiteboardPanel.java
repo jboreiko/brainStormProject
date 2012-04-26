@@ -70,14 +70,15 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem styledNodeMenuItem = new JMenuItem("Add Styled Node");
 		styledNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				extendPanel();
+				newElt(BoardEltType.STYLED);
+				/*extendPanel();
 				StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _board,WhiteboardPanel.this);
 				Dimension size = styledNode.getSize();
 				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(styledNode);
 				_board.add(styledNode);
 				_lastAdded = WhiteboardPanel.STYLED;
-				repaint();
+				repaint();*/
 			}
 		});
 		popup.add(styledNodeMenuItem);
@@ -85,15 +86,15 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem drawNodeMenuItem = new JMenuItem("Add Scribble Node");
 		drawNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				extendPanel();
-				_lastAdded = WhiteboardPanel.SCRIBBLE;
+				newElt(BoardEltType.SCRIBBLE);
+				/*_lastAdded = WhiteboardPanel.SCRIBBLE;
 				ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _board,WhiteboardPanel.this);
 				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter+" that should be equal to "+scribbleNode.getUID());
 				Dimension size = scribbleNode.getSize();
 				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 				add(scribbleNode);
 				_board.add(scribbleNode);
-				repaint();
+				repaint();*/
 			}
 		});
 		popup.add(drawNodeMenuItem);
@@ -101,14 +102,7 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem addPathItem = new JMenuItem("Add Path");
 		addPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath p = new BoardPath(++WhiteboardPanel.UIDCounter, _board, WhiteboardPanel.this);
-				System.out.println("adding a path");
-				Dimension size = p.getSize();
-				p.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-				add(p);
-				_board.add(p);
-				_lastAdded = WhiteboardPanel.PATH;
-				repaint();
+				newElt(BoardEltType.PATH);
 			}
 		});
 		popup.add(addPathItem);
@@ -151,38 +145,60 @@ public class WhiteboardPanel extends JPanel{
 				
 			}
 			else if(_lastAdded == WhiteboardPanel.SCRIBBLE){
-				ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _board, this);
-				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
-				Dimension size = scribbleNode.getSize();
-				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-				if (_addLocation.x + size.width > this.getWidth() || _addLocation.y + size.height > this.getHeight()) {
-					System.out.println("Extended past our bounds");
-				}
-				System.out.println("wide " + getWidth() + ", height " + getHeight());
-				add(scribbleNode);
-				_board.add(scribbleNode);
-				repaint();
+				newElt(BoardEltType.SCRIBBLE);
 			}
 			else if(_lastAdded == WhiteboardPanel.STYLED){
-				StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _board,this);
-				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
-				Dimension size = styledNode.getSize();
-				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-				add(styledNode);
-				_board.add(styledNode);
-				repaint();
+				newElt(BoardEltType.STYLED);
 			} else if (_lastAdded == WhiteboardPanel.PATH) {
-				BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _board, this);
-				System.out.println("Just created a path");
-				Dimension size = bp.getPreferredSize();
-				System.out.println(size);
-				bp.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-				add(bp);
-				_board.add(bp);
-				repaint();
+				newElt(BoardEltType.PATH);
 			}
 		}
 		repaint();
+	}
+	
+	private void newElt(BoardEltType b) {
+		extendPanel();
+		Dimension size;
+		switch(b) {
+		case STYLED:
+			System.out.println("trying to add a styled");
+			StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _board);
+			_lastAdded = WhiteboardPanel.STYLED;
+			System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
+			size = styledNode.getSize();
+			styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+			add(styledNode);
+			_board.add(styledNode);
+			repaint();
+			break;
+		case SCRIBBLE:
+			System.out.println("trying to add a scribble");
+			ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _board);
+			_lastAdded = WhiteboardPanel.SCRIBBLE;
+			System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
+			size = scribbleNode.getSize();
+			scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+			if (_addLocation.x + size.width > this.getWidth() || _addLocation.y + size.height > this.getHeight()) {
+				System.out.println("Extended past our bounds");
+			}
+			System.out.println("wide " + getWidth() + ", height " + getHeight());
+			add(scribbleNode);
+			_board.add(scribbleNode);
+			repaint();
+			break;
+		case PATH:
+			System.out.println("trying to add a path");
+			_lastAdded = WhiteboardPanel.PATH;
+			BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _board);
+			System.out.println("Just created a path");
+			size = bp.getPreferredSize();
+			System.out.println(size);
+			bp.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+			add(bp);
+			_board.add(bp);
+			repaint();
+			break;
+		}
 	}
 	
 	public void undo() {

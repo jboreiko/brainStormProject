@@ -34,12 +34,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	WhiteboardPanel _wbp;
 	boolean _resizeLock;
 	
-	public StyledNode(int UID, whiteboard.Whiteboard w,WhiteboardPanel wbp){
-		super(UID, w,wbp);
+	public StyledNode(int UID, whiteboard.Whiteboard w){
+		super(UID, w);
 		undos = new Stack<UndoableEdit>();
 		redos = new Stack<UndoableEdit>();
 		_resizeLock = false;
-		_wbp = wbp;
 		content = createEditorPane();
 		JScrollPane view = 
 			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -74,7 +73,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
-		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		//text.
 		try {
 			text.insertString(0, "\u2022 Make a node", null);
@@ -84,16 +82,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		JTextPane toReturn = new JTextPane(text);
 		toReturn.setPreferredSize(new Dimension(200,150));
 		
 		return toReturn;
-	}
-	
-
-
-	@Override
-	void decode(String obj) {
 	}
 
 
@@ -210,6 +203,5 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		// TODO Auto-generated method stub
 		
 	}
-
 	
 }

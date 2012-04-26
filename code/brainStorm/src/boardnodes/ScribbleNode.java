@@ -27,8 +27,8 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
 	LinkedList<List<ColoredPoint>> undrawnArea; //the drawn areas that have been undone
 
-	public ScribbleNode(int ID, whiteboard.Whiteboard w,WhiteboardPanel wbp) {
-		super(ID, w,wbp);
+	public ScribbleNode(int ID, whiteboard.Whiteboard w) {
+		super(ID, w);
 		setBackground(Color.WHITE);
 		drawnArea = new LinkedList<List<ColoredPoint>>();
 		undrawnArea = new LinkedList<List<ColoredPoint>>();
@@ -38,12 +38,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		setSize(150,200);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-	}
-
-
-	@Override
-	void decode(String obj) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

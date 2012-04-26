@@ -20,7 +20,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	private double y;
 	private String textBody;
 	private static int ID_Last;
-	protected WhiteboardPanel wbp;
 	public BoardEltType Type;
 	//the whiteboard that this is a part of
 	private whiteboard.Whiteboard board;
@@ -34,10 +33,9 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract BoardElt clone();
 	public abstract void setPos(java.awt.Point p);
 
-	public BoardElt(int _UID, whiteboard.Whiteboard w,WhiteboardPanel wbp) {
+	public BoardElt(int _UID, whiteboard.Whiteboard w) {
 		UID = _UID;
 		board = w;
-		this.wbp = wbp;
 	}
 
 	public whiteboard.Whiteboard getWhiteboard() {
@@ -107,10 +105,10 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		}
 		switch(b) {
 		case CREATION:
-			this.getWhiteboard().addAction(new whiteboard.CreationAction(this.getUID(), this.getType(), this.getX(), this.getY()));
+			this.getWhiteboard().addAction(new whiteboard.CreationAction(this.getUID(), this.encode()));
 			break;
 		case DELETION:
-			this.getWhiteboard().addAction(new whiteboard.DeletionAction(this.getUID()));
+			this.getWhiteboard().addAction(new whiteboard.DeletionAction(this.getUID(), this.encode()));
 			break;
 		case ELT_MOD:
 			this.getWhiteboard().addAction(new whiteboard.ModificationAction(this.getUID()));
@@ -125,7 +123,9 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract void addAction(ActionObject ao);
 
 	public abstract String encode();
-
-	abstract void decode(String obj);
-
+	
+	public static BoardElt decode(String s) {
+		return null;
+		
+	}
 }

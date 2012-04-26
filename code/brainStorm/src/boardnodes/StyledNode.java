@@ -26,15 +26,20 @@ import boardnodes.BoardEltType;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
 	final BoardEltType Type = BoardEltType.NODE;
+	public Point startPt,nextPt;
 	JTextPane content;
 	StyledDocument text;
 	Stack<UndoableEdit> undos;
 	Stack<UndoableEdit> redos;
+	WhiteboardPanel _wbp;
+	boolean _resizeLock;
 	
 	public StyledNode(int UID, whiteboard.Whiteboard w,WhiteboardPanel wbp){
 		super(UID, w,wbp);
 		undos = new Stack<UndoableEdit>();
 		redos = new Stack<UndoableEdit>();
+		_resizeLock = false;
+		_wbp = wbp;
 		content = createEditorPane();
 		JScrollPane view = 
 			new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -176,20 +181,27 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
+		startPt = new Point(e.getX(),e.getY());
+		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
+			_resizeLock = true;
+		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+		_resizeLock = false;
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
-		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
-			System.out.println("BOTTOM RIGHT CORNER");
-			
+		if(_resizeLock){
+			System.out.println(startPt);
+			System.out.println(e.getX() + "<====X     Y=====>" + e.getY());
+			Rectangle currentLocation = getBounds();
+			setBounds(currentLocation.x,currentLocation.y,currentLocation.width - (startPt.x - e.getX()),currentLocation.height - (startPt.y - e.getY()));
+			startPt.setLocation(e.getX(),e.getY());
 		}
 	}
 

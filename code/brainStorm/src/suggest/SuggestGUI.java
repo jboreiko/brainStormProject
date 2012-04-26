@@ -50,7 +50,7 @@ public class SuggestGUI extends JPanel {
 		JScrollPane wikiScrollPane = new JScrollPane(wikioutput);
 		wikiScrollPane.setVerticalScrollBarPolicy(
 		                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		wikiScrollPane.setPreferredSize(new Dimension(400, 250));
+		wikiScrollPane.setPreferredSize(new Dimension(340, 600));
 		wikiPanel.add(wikiScrollPane);
 		
 		JPanel dictPanel = new JPanel();
@@ -61,7 +61,7 @@ public class SuggestGUI extends JPanel {
 		JScrollPane dictScrollPane = new JScrollPane(dictoutput);
 		dictScrollPane.setVerticalScrollBarPolicy(
 		                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		dictScrollPane.setPreferredSize(new Dimension(400, 250));
+		dictScrollPane.setPreferredSize(new Dimension(340, 600));
 		dictPanel.add(dictScrollPane);
 		
 		JPanel duckPanel = new JPanel();
@@ -72,7 +72,7 @@ public class SuggestGUI extends JPanel {
 		JScrollPane duckScrollPane = new JScrollPane(duckoutput);
 		duckScrollPane.setVerticalScrollBarPolicy(
 		                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		duckScrollPane.setPreferredSize(new Dimension(400, 250));
+		duckScrollPane.setPreferredSize(new Dimension(340, 600));
 		duckPanel.add(duckScrollPane);
 		
 		JTabbedPane tabbedPane = new JTabbedPane();

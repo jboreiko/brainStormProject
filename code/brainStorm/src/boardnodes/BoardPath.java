@@ -21,13 +21,13 @@ import whiteboard.BoardActionType;
 
 
 public class BoardPath extends BoardElt implements MouseListener, MouseMotionListener{
-	public final static int DRAG_RADIUS = 10; //the size of the zone you can click to start dragging
+	public final static int DRAG_RADIUS = 15; //the size of the zone you can click to start dragging
 	public final static int DRAG_SQUARE_RADIUS = DRAG_RADIUS-4; //the size of the marker of the zone you can click to start dragging (needs to be a bit smaller)
 	public final static Color START_COLOR = new Color(Color.GREEN.getRed(),Color.GREEN.getGreen(),Color.GREEN.getBlue(),210);
 	public final static Color END_COLOR = new Color(Color.YELLOW.getRed(),Color.YELLOW.getGreen(),Color.YELLOW.getBlue(),210);
 	public final static Color DELETE_COLOR = Color.RED;
-	public final static int START_WIDTH = 20;
-	public final static int START_HEIGHT = 20;
+	public final static int START_WIDTH = 60;
+	public final static int START_HEIGHT = 60;
 	public BoardElt _start; //where the base of the arrow points
 	public BoardElt _end; //where the tip of the arrow points
 	double _s0, _s1;  //the location on the map of start if _start is null

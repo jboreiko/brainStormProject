@@ -35,7 +35,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
 	
-	public final static int BORDER_WIDTH = 11;
+	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 	
 	public StyledNode(int UID, whiteboard.Backend w){

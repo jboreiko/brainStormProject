@@ -99,7 +99,7 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem addPathItem = new JMenuItem("Add Path");
 		addPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath p = new BoardPath(++WhiteboardPanel.UIDCounter, _board);
+				BoardPath p = new BoardPath(++WhiteboardPanel.UIDCounter, _board, WhiteboardPanel.this);
 				System.out.println("adding a path");
 				Dimension size = p.getSize();
 				p.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
@@ -170,7 +170,7 @@ public class WhiteboardPanel extends JPanel{
 				_board.add(styledNode);
 				repaint();
 			} else if (_lastAdded == WhiteboardPanel.PATH) {
-				BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _board);
+				BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _board, this);
 				System.out.println("Just created a path");
 				Dimension size = bp.getPreferredSize();
 				System.out.println(size);
@@ -244,11 +244,4 @@ public class WhiteboardPanel extends JPanel{
 		_contIns = contIns;
 	}
 	
-	public void notifyChangePath(BoardPath bp) {
-		int index = _rectangles.indexOf(bp);
-		if (index == -1) {
-			System.out.println("Path changed on non-existing path. Shouldn't happen");
-		}
-		
-	}
 }

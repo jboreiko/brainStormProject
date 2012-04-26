@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -132,7 +133,14 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		System.out.println("Seminal is at (" + _seminal.x + "," + _seminal.y + " and terminal at (" + _terminal.x + "," + _terminal.y +")");
 		//now set the bounds of the JPanel to just barely contain the path
 		setSize(Math.abs(_terminal.x - _seminal.x + DRAG_SQUARE_SIZE), Math.abs(_terminal.y - _seminal.y + DRAG_SQUARE_SIZE));
-		wbp.notifyChangePath(this);
+		Rectangle curLoc = getBounds();
+		if (_seminal.x <= _terminal.x && _seminal.y <= _terminal.y) {
+			setBounds(curLoc.x + _seminal.x, curLoc.y + _seminal.y, (_terminal.x - _seminal.x) + DRAG_SQUARE_SIZE, (_terminal.y - _seminal.y) + DRAG_SQUARE_SIZE);
+			_terminal.x -= _seminal.x;
+			_terminal.y -= _seminal.y;
+			_seminal.x = 0;
+			_seminal.y = 0;
+		}
 		repaint();
 	}
 

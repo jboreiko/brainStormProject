@@ -134,15 +134,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
-	@Override
-	public int getUID() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-
+	
 	@Override
 	public void setPos(Point p) {
 		// TODO Auto-generated method stub

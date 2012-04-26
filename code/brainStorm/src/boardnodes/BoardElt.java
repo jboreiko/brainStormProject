@@ -28,7 +28,9 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	protected static int nextUID = 0;
 
 	private BoardEltType type;
-	public abstract int getUID();
+	public int getUID() {
+		return UID;
+	}
 	public abstract BoardElt clone();
 	public abstract void setPos(java.awt.Point p);
 

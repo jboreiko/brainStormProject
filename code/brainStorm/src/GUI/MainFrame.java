@@ -99,7 +99,8 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				//whiteboard.newProject
 				String projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
-				if(projectName == null){
+				if(projectName==null) {
+					System.out.println("project creation was cancelled");
 					return;
 				}
 				while(true){
@@ -227,9 +228,14 @@ public class MainFrame extends JFrame {
 		_undo.getAccessibleContext().setAccessibleDescription("Undoes an action");
 		_undo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(_tabbedPane.getSelectedIndex());
-				System.out.println(_tabbedPane.getSelectedComponent());
-				JOptionPane.showMessageDialog(null, "You clicked the Undo menu");
+				//CLICKING UNDO METHOD
+				WhiteboardPanel selectedPane = _whiteboards.get(_tabbedPane.getSelectedIndex());
+				if(selectedPane==null) {
+					System.out.println("no pane is selected!");
+					return;
+				}				
+				selectedPane.undo();
+				//JOptionPane.showMessageDialog(null, "You clicked the Undo menu");
 			}
 		});
 		_edit.add(_undo);
@@ -242,8 +248,13 @@ public class MainFrame extends JFrame {
 		_redo.getAccessibleContext().setAccessibleDescription("Redoes an action");
 		_redo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				_activeBoardPanel.getBoard().redo();
-				JOptionPane.showMessageDialog(null, "You clicked the Redo menu");
+				//CLICKING REDO METHOD
+				WhiteboardPanel selectedPane = _whiteboards.get(_tabbedPane.getSelectedIndex());
+				if(selectedPane==null) {
+					System.out.println("no pane is selected!");
+					return;
+				}				
+				selectedPane.redo();
 			}
 		});
 		_edit.add(_redo);

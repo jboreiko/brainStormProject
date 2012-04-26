@@ -2,6 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="lib/argo-small-2.23.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/swilcoxo/course/cs032/brainStormProject/code/brainStorm/lib/commons-beanutils-1.8.3.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/swilcoxo/course/cs032/brainStormProject/code/brainStorm/lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/swilcoxo/course/cs032/brainStormProject/code/brainStorm/lib/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/swilcoxo/course/cs032/brainStormProject/code/brainStorm/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/swilcoxo/course/cs032/brainStormProject/code/brainStorm/lib/ezmorph-1.0.6.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/swilcoxo/course/cs032/brainStormProject/code/brainStorm/lib/json-lib-2.4-jdk15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

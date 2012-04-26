@@ -19,17 +19,19 @@ public class QueryService {
 	
 	//private LinkedBlockingQueue<String> workQueue;
 	private ExecutorService workers = Executors.newFixedThreadPool(5);
+	private ResultParser _parser;
 
 	public QueryService() {
 		//workQueue = blockingQueue;
+		_parser = new ResultParser();
 	}
 	
-	public Future<List<String>> submit(String query, int i) {
+	public Future<String> submit(String query, int i) {
 		
 		return workers.submit(new Query(query, i));
 	}
 	
-	private class Query implements Callable<List<String>> {
+	private class Query implements Callable<String> {
 		private String _query;
 		private int _number;
 		
@@ -43,7 +45,7 @@ public class QueryService {
 		}
 
 		@Override
-		public List<String> call() throws Exception {
+		public String call() throws Exception {
 			String requestUrl = "";
 			switch(_number) {
 			case 0:
@@ -72,43 +74,39 @@ public class QueryService {
 				break;
 				
 			}
-			List<String> response = new ArrayList<String>();
+			String response = "";
 			//String requestUrl = "http://www.google.co.in/#hl=en&source=hp&q=java&btnG=Google+Search&m eta=&aq=f&oq"+query+"&fp=c5b9ba6cbe6cba1e";
 			//String requestUrl = "http://www.google.com/search?q=" + query;
 			
 			URL url;
+			BufferedReader reader = null;
+			String result = "No Results Returned.";
 			try {
 				url = new URL(requestUrl);
 				URLConnection urlConn = url.openConnection();
 				urlConn.setDoOutput(false);
 				
-				BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				//response.add(_number);
+				reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 		        String line = "";
 		        if (_number > 1) {
-		        	String str = "";
 		        	while ((line = reader.readLine()) != null) {
-		        		//System.out.println(line);
-		        		str += line;
-		        		
+		        		response += line;
 		        	}
-		        	response.add(str);
 		        }
 		        else {
-		        	response.add(reader.readLine());
+		        	response = reader.readLine();
 		        }
-		        
-		        reader.close();
-		        //String[] strings = (String[]) response.toArray();
-		        //System.out.println("IN ARRAY:  " + strings[1]);
-			//System.out.println(query);
-			//output.setText(query);
+		        result = _parser.parse(response, _number);
+
 			} catch (MalformedURLException e1) {
 				e1.printStackTrace();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			return response;
+			finally {
+				reader.close();
+			}
+			return result;
 		}
 		
 	}

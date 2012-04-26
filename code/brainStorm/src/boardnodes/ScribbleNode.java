@@ -124,14 +124,16 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 				System.out.println(startPt);
 				System.out.println(e.getX() + "<=====X  a   Y=====>" + e.getY());
 				setBounds(nodeBounds.x,nodeBounds.y,nodeBounds.width + xoffset,nodeBounds.height + yoffset);
-				repaint();
-				revalidate();
-				startPt.setLocation(e.getX(),e.getY());
+			wbp.extendPanel(getBounds());
+			repaint();
+			revalidate();
+			startPt.setLocation(e.getX(),e.getY());
 		}
 		else if(_dragLock){
 			System.out.println(startPt);
 			System.out.println(e.getX() + "<=====X   b  Y=====>" + e.getY());
 			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
+			wbp.extendPanel(getBounds());
 			repaint();
 			revalidate();
 		}
@@ -154,7 +156,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void mouseClicked(MouseEvent e) {
 		System.out.println("("+e.getX() + "," + e.getY() + ")");
 		if (e.getX() < DELETE_SQUARE_WIDTH && e.getY() < DELETE_SQUARE_WIDTH) {
-			System.out.println("DELETE NOW");
+			backend.remove(this.getUID());
 		}
 	}
 	@Override

@@ -110,15 +110,20 @@ public class WhiteboardPanel extends JPanel{
 		
 		return popup;
 	}
-	public void extendPanel(){
-		if(_addLocation.x > _panelSize.width - 200){
-			Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
+	
+	/**
+	 * 
+	 * @param obtrusion		the shape that may or may not extend beyond the bounds of this panel
+	 */
+	public void extendPanel(Rectangle obtrusion){
+		if(obtrusion.x + obtrusion.width > _panelSize.width){ //extends past the right side
+			Dimension newSize = new Dimension(obtrusion.x + obtrusion.width,_panelSize.height);
 			this.setPreferredSize(newSize);
 			this.setSize(newSize);
 			_panelSize = newSize;
 		}
-		if(_addLocation.y > _panelSize.height - 200){
-			Dimension newSize = new Dimension(_panelSize.width,_panelSize.height + 200);
+		if(obtrusion.y + obtrusion.height > _panelSize.height){ //extends down past the bottom
+			Dimension newSize = new Dimension(_panelSize.width, obtrusion.y + obtrusion.height);
 			this.setPreferredSize(newSize);
 			this.setSize(newSize);
 			_panelSize = newSize;
@@ -141,7 +146,7 @@ public class WhiteboardPanel extends JPanel{
 	public void addNode(Point p){
 		if(_contIns){
 			_addLocation = p;
-			extendPanel();
+//			extendPanel();
 			if(_lastAdded == 0){
 				
 			}
@@ -158,7 +163,7 @@ public class WhiteboardPanel extends JPanel{
 	}
 	
 	private void newElt(BoardEltType b) {
-		extendPanel();
+		//extendPanel(); //taken out when extendPanel changed to accept rect
 		Dimension size;
 		switch(b) {
 		case STYLED:
@@ -168,8 +173,9 @@ public class WhiteboardPanel extends JPanel{
 			System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 			size = styledNode.getSize();
 			styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-			add(styledNode);
+			add(styledNode,0);
 			_backend.add(styledNode);
+			extendPanel(styledNode.getBounds());
 			break;
 		case SCRIBBLE:
 			System.out.println("trying to add a scribble");
@@ -182,8 +188,9 @@ public class WhiteboardPanel extends JPanel{
 				System.out.println("Extended past our bounds");
 			}
 			System.out.println("wide " + getWidth() + ", height " + getHeight());
-			add(scribbleNode);
+			add(scribbleNode,0);
 			_backend.add(scribbleNode);
+			extendPanel(scribbleNode.getBounds());
 			break;
 		case PATH:
 			System.out.println("trying to add a path");
@@ -197,6 +204,7 @@ public class WhiteboardPanel extends JPanel{
 			bp.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 			//add(bp);
 			_backend.add(bp);
+			extendPanel(bp.getBounds());
 			break;
 		}
 		repaint();

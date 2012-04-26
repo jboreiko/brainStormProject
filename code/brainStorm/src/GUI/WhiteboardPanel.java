@@ -27,6 +27,7 @@ public class WhiteboardPanel extends JPanel{
 	public static int UIDCounter = 0;
 	public static final int STYLED = 1;
 	public static final int SCRIBBLE = 2;
+	public static final int PATH = 3;
 	private int _lastAdded;
 	private ArrayList<BoardElt> _rectangles;
 	private Dimension _panelSize;
@@ -95,6 +96,21 @@ public class WhiteboardPanel extends JPanel{
 		});
 		popup.add(drawNodeMenuItem);
 		
+		JMenuItem addPathItem = new JMenuItem("Add Path");
+		addPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath p = new BoardPath(++WhiteboardPanel.UIDCounter, _board);
+				System.out.println("adding a path");
+				Dimension size = p.getSize();
+				p.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(p);
+				_board.add(p);
+				_lastAdded = WhiteboardPanel.PATH;
+				repaint();
+			}
+		});
+		popup.add(addPathItem);
+		
 		return popup;
 	}
 	public void addNode(Point p){
@@ -134,6 +150,10 @@ public class WhiteboardPanel extends JPanel{
 				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 				Dimension size = scribbleNode.getSize();
 				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				if (_addLocation.x + size.width > this.getWidth() || _addLocation.y + size.height > this.getHeight()) {
+					System.out.println("Extended past our bounds");
+				}
+				System.out.println("wide " + getWidth() + ", height " + getHeight());
 				add(scribbleNode);
 				_board.add(scribbleNode);
 				repaint();
@@ -146,8 +166,18 @@ public class WhiteboardPanel extends JPanel{
 				add(styledNode);
 				_board.add(styledNode);
 				repaint();
+			} else if (_lastAdded == WhiteboardPanel.PATH) {
+				BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _board);
+				System.out.println("Just created a path");
+				Dimension size = bp.getPreferredSize();
+				System.out.println(size);
+				bp.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
+				add(bp);
+				_board.add(bp);
+				repaint();
 			}
 		}
+		repaint();
 	}
 	
 	public void undo() {

@@ -21,7 +21,7 @@ import boardnodes.BoardEltType;
 
 public class StyledNode extends BoardElt {
 	final BoardEltType Type = BoardEltType.NODE;
-	JTextArea content;
+	JTextPane content;
 	StyledDocument text;
 	
 	Stack<UndoableEdit> undos;
@@ -41,6 +41,7 @@ public class StyledNode extends BoardElt {
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
+			undos.push(e.getEdit());
 			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
 					if(text.getText(text.getLength()-1, 1).equals("\n")) {
@@ -54,7 +55,7 @@ public class StyledNode extends BoardElt {
 		}
 	}
 	
-	private JTextArea createEditorPane() {
+	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		//text.
@@ -66,7 +67,7 @@ public class StyledNode extends BoardElt {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JTextArea toReturn = new JTextArea(text);
+		JTextPane toReturn = new JTextPane(text);
 		toReturn.setPreferredSize(new Dimension(200,150));
 		
 		return toReturn;
@@ -95,6 +96,8 @@ public class StyledNode extends BoardElt {
 
 	@Override
 	public void redo() {
+		if (redos.empty()) 
+			return;
 		UndoableEdit e = redos.pop();
 		if (e.canRedo()) {
 			e.redo();
@@ -107,6 +110,8 @@ public class StyledNode extends BoardElt {
 
 	@Override
 	public void undo() {
+		if (undos.empty()) 
+			return;
 		UndoableEdit e = undos.pop();
 		if (e.canUndo()) {
 			e.undo();

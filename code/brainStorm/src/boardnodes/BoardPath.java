@@ -1,5 +1,6 @@
 package boardnodes;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,6 +11,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.JFrame;
+
+import whiteboard.Whiteboard;
 
 
 public class BoardPath extends BoardElt implements MouseListener, MouseMotionListener{
@@ -28,15 +31,16 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	
 	boolean _mouseIn; //true iff the mouse is in the region of this Path
 	
-	
 	/**/
-	public BoardPath(int ID) {
-		super(ID);
+	public BoardPath(int ID, Whiteboard wb) {
+		super(ID, wb);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		_mouseIn = false;
+		_seminal = new Point(0,0);
+		_terminal = new Point(100, 100);
 	}
-	
+
 	//set the start+end point/nodes
 	public void setStart(BoardElt s) {_start = s;}
 	public void setStart(double s0, double s1) {_s0 = s0; _s1 = s1;}
@@ -45,7 +49,10 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
+		System.out.println("Painting a path");
 		Graphics2D g = (Graphics2D) graphics;
+		g.setColor(Color.BLACK);
+		g.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
 		g.drawLine(_seminal.x, _seminal.y, _terminal.x, _terminal.y);
 		if (_mouseIn) {
 			g.setColor(START_COLOR);
@@ -57,6 +64,13 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	
 	public Dimension getPreferredSize() {
 		return new Dimension(_terminal.x - _seminal.x, _terminal.y - _seminal.y);
+	}
+	
+	public final Point getSeminal() {
+		return _seminal;
+	}
+	public final Point getTerminal() {
+		return _terminal;
 	}
 	
 	@Override
@@ -113,6 +127,10 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 			_terminal.x = e.getX();
 			_terminal.y = e.getY();
 		}
+		System.out.println("Seminal is at (" + _seminal.x + "," + _seminal.y + " and terminal at (" + _terminal.x + "," + _terminal.y +")");
+		//now set the bounds of the JPanel to just barely contain the path
+		setSize(Math.abs(_terminal.x - _seminal.x + DRAG_SQUARE_SIZE), Math.abs(_terminal.y - _seminal.y + DRAG_SQUARE_SIZE));
+		_board.notifyChangePath(this);
 		repaint();
 	}
 
@@ -121,7 +139,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		// TODO Auto-generated method stub
 	}	
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		BoardPath b = new BoardPath(234);
 		b._seminal = new Point(0,0);
 		b._terminal = new Point(50,50);
@@ -130,7 +148,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		display.pack();
 		display.setVisible(true);
 		display.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
+	}*/
 
 	@Override
 	public void redo() {

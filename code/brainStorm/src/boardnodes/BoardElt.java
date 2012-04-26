@@ -22,7 +22,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	private static int ID_Last;
 	public BoardEltType Type;
 	//the whiteboard that this is a part of
-	private whiteboard.Backend board;
+	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
 
 	protected static int nextUID = 0;
@@ -36,12 +36,12 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 
 	public BoardElt(int _UID, whiteboard.Backend w) {
 		UID = _UID;
-		board = w;
-		wbp = board.getPanel();
+		backend = w;
+		wbp = backend.getPanel();
 	}
 
 	public whiteboard.Backend getWhiteboard() {
-		return board;
+		return backend;
 	}
 
 	public BoardEltType getType() {
@@ -100,7 +100,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 
 	public abstract void redo();
 
-	protected void notifyWhiteboard(BoardActionType b) {
+	protected void notifyBackend(BoardActionType b) {
 		if(this.getWhiteboard()==null) {
 			System.out.println("whiteboard reference is null - cannot notify it");
 			return;

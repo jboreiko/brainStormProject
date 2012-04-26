@@ -78,7 +78,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 					e1.printStackTrace();
 				}
 			}
-			notifyWhiteboard(BoardActionType.ELT_MOD);
+			notifyBackend(BoardActionType.ELT_MOD);
 		}
 	}
 	

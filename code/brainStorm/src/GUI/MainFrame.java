@@ -76,6 +76,7 @@ public class MainFrame extends JFrame {
 		
 		_suggestPanel = new SuggestGUI(interfaceSize);
 		_interfacePane.add(_suggestPanel);
+		
         add(_tabbedPane, BorderLayout.CENTER);
 		add(_interfacePane, BorderLayout.WEST);
 	}

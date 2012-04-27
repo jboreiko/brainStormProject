@@ -344,7 +344,6 @@ public class Backend {
 
 	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
 		BoardElt toReturn = null;
-<<<<<<< HEAD
 	    switch (e.getType()) {
 	    case PATH:
 	        if(!boardElts.containsKey(e.getUID())) {
@@ -373,35 +372,6 @@ public class Backend {
 	    panel.repaint();
         return toReturn;
     }
-=======
-		switch (e.getType()) {
-		case PATH:
-			if(!boardElts.containsKey(e.getUID())) {
-				toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
-				toReturn.ofSerialized(((SerializedBoardPath) e));
-				addFromNetwork(toReturn);
-			} else {
-				boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
-			}
-			break;
-		case SCRIBBLE:
-			System.out.println("receiving a scribble!");
-			if(!boardElts.containsKey(e.getUID())) {
-				System.out.println("adding a scribble!");
-				toReturn = new ScribbleNode(e.getUID(), this);
-				toReturn.ofSerialized(((SerializedScribbleNode) e));
-				addFromNetwork(toReturn);
-				panel.add(toReturn);
-			} else {
-				boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
-			}
-			break;
-		default:
-			break;
-		}
-		panel.repaint();
-		return toReturn;
-	}
 
 	private BoardElt receiveNetworkDeletionObject(SerializedBoardElt e) {
 		BoardElt toReturn = null;
@@ -423,7 +393,6 @@ public class Backend {
 		panel.repaint();
 		return boardElts.get(e.getUID());
 	}
->>>>>>> c2148409c1c2450dfa96ed0d3b473c1a4277a864
 
 	public void setStartUID(int id) {
 		System.out.println("setting start id to "+id);

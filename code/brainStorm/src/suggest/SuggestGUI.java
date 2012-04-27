@@ -32,6 +32,7 @@ public class SuggestGUI extends JPanel {
 	private JPanel _networkPanel;
 	private JTextField _usernameField;
 	private JTextField _ipField;
+	private JPanel _findPanel;
 	private Networking _net;
 	
 	public SuggestGUI(Dimension interfaceSize) {
@@ -39,15 +40,19 @@ public class SuggestGUI extends JPanel {
 		
 		buildSuggestTab();
 		buildNetworkTab();
+		buildFindTab();
 		buildChatTab();
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
-		ImageIcon wiki = new ImageIcon("./lib/question.jpeg");
-		tabbedPane.addTab("Suggestions", wiki, _suggestPanel, "Get Suggestions");
+		ImageIcon suggest = new ImageIcon("./lib/question.jpeg");
+		tabbedPane.addTab("Suggestions", suggest, _suggestPanel, "Get Suggestions");
 		
-		ImageIcon google = new ImageIcon("./lib/web.jpeg");
-		tabbedPane.addTab("Networking", google, _networkPanel, "Set Up Networking");
+		ImageIcon network = new ImageIcon("./lib/web.jpeg");
+		tabbedPane.addTab("Networking", network, _networkPanel, "Set Up Networking");
+		
+		ImageIcon find = new ImageIcon("./lib/find.jpeg");
+		tabbedPane.addTab("Find", find, _findPanel, "Find Stuff");
 		
 		this.add(tabbedPane);
 		this.setPreferredSize(interfaceSize);
@@ -59,6 +64,21 @@ public class SuggestGUI extends JPanel {
 		_net = net;
 	}
 	
+	private void buildFindTab() {
+		_findPanel = new JPanel();
+		JPanel searchPanel = new JPanel();
+		JTextField searchField = new JTextField(25);
+		JPanel buttonPanel = new JPanel();
+		JButton searchButton = new JButton("Find it");
+		searchPanel.add(searchField, BorderLayout.CENTER);
+		buttonPanel.add(searchButton);
+		_findPanel.setLayout(new FlowLayout());
+		_findPanel.add(searchPanel);
+		_findPanel.add(buttonPanel);
+	}
+
+
+
 	public boolean networkingSet() {
 		return _net!=null;
 	}

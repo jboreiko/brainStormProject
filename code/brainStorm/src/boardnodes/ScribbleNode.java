@@ -162,26 +162,23 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 				setBounds(previousBounds.x, previousBounds.y, getBounds().width, e.getY());
 			}
 			wbp.extendPanel(getBounds());
-			repaint();
-			revalidate();
 			startPt.setLocation(e.getX(),e.getY());
 		}
 		else if(_dragLock){
 			if (previousBounds.x + dx >= 0 && previousBounds.y + dy >= 0)
 				setBounds(previousBounds.x + dx,previousBounds.y + dy,previousBounds.width,previousBounds.height);
 			wbp.extendPanel(getBounds());
-			repaint();
-			revalidate();
 		}
 		else{ //we're drawing
 			if (e.getModifiers() == 16) { //left click
 				_pendingStroke.add(new ColoredPoint(e.getPoint(), Color.BLACK));
-				repaint();
 			} else if (e.getModifiers() == 4) { //right click
 				_pendingStroke.add(new ColoredPoint(e.getPoint(), Color.WHITE));
-				repaint();
 			}
 		}
+		System.out.println("DRAGGING");
+		repaint();
+		revalidate();
 	}
 	//the mouse has been released, stop connecting points
 	@Override
@@ -245,6 +242,18 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 				prev = temp;
 			}
 		}
+		//draw the line currently being drawn
+		if (!(_pendingStroke == null)){
+			Iterator<ColoredPoint> it = _pendingStroke.iterator();
+			if (!it.hasNext()) return;
+			ColoredPoint prev = it.next();
+			while(it.hasNext()) {
+				ColoredPoint temp = it.next();
+				g.setColor(temp.c);
+				g.drawLine(prev.x, prev.y, temp.x, temp.y);
+				prev = temp;
+			}
+		}
 		//draw the border
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, getWidth(), BORDER_WIDTH);
@@ -257,17 +266,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		//draw the resize square
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
-		//draw the line currently being drawn
-		if (_pendingStroke == null) return;
-		Iterator<ColoredPoint> it = _pendingStroke.iterator();
-		if (!it.hasNext()) return;
-		ColoredPoint prev = it.next();
-		while(it.hasNext()) {
-			ColoredPoint temp = it.next();
-			g.setColor(temp.c);
-			g.drawLine(prev.x, prev.y, temp.x, temp.y);
-			prev = temp;
-		}
 	}
 	
 	private class ScribbleNodeEdit {

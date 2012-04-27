@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -23,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -51,9 +54,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	WhiteboardPanel _wbp;
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
-	JMenu _styleMenu, _colorMenu;
+	JMenu _styleMenu, _colorMenu, _fontSizeMenu;
 	JPopupMenu _fontMenu;
-	int i= 0;
 
 	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
@@ -70,7 +72,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	    	JMenuItem fontItem = new JMenuItem(fontName);
 	    	fontItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					content.setFont(new Font(fontName,Font.PLAIN, 12));
+					content.setFont(new Font(fontName,Font.PLAIN, content.getFont().getSize()));
 				}
 			});
 		    _styleMenu.add(fontItem);
@@ -92,6 +94,49 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			});
 		    _colorMenu.add(fontItem);
 	    }
+	    
+	    //Different Sizes
+		_fontSizeMenu = new JMenu("Size");
+    	final JTextField fontItem = new JTextField();
+    	fontItem.setPreferredSize(new Dimension(100,40));
+    	fontItem.addKeyListener(new KeyListener() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if(e.getKeyChar() == e.VK_ENTER){
+					System.out.println("ENTER");
+					int fontSize = 12;
+					try{
+						fontSize = Integer.parseInt(fontItem.getText());
+						if(fontSize > 72){
+							System.err.println("72 is max text size!");
+						}
+						else{
+							content.setFont(new Font(content.getFont().getName(),Font.PLAIN, fontSize));
+						}
+			    	}
+			    	catch(Exception ex){
+			    		System.err.println("TYPE AN INT!");
+			    	}
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	    _fontSizeMenu.add(fontItem);
+	    
+	    _fontMenu.add(_fontSizeMenu);
+	    _fontMenu.addSeparator();
 	    _fontMenu.add(_styleMenu);
 	    _fontMenu.addSeparator();
 	    _fontMenu.add(_colorMenu);
@@ -151,7 +196,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			@Override
 			public void focusGained(FocusEvent e) {
 				// TODO Auto-generated method stub
-				
+				System.out.println("GAINED FOCUS");
 			}
 
 			@Override
@@ -189,6 +234,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			    	_fontMenu.show(StyledNode.this,e.getX(),e.getY());
 			    }
 				wbp.setListFront(StyledNode.this);
+				content.grabFocus();
 				StyledNode.this.repaint();
 				
 			}

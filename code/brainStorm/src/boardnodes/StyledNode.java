@@ -40,8 +40,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	private Point startPt,nextPt;
 	JTextPane content;
 	StyledDocument text;
-	Stack<UndoableEdit> undos;
-	Stack<UndoableEdit> redos;
+	Stack<StyledNodeEdit> undos;
+	Stack<StyledNodeEdit> redos;
 	WhiteboardPanel _wbp;
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
@@ -49,7 +49,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	JPopupMenu _fontMenu;
 	int i= 0;
 	
-	public final static int BORDER_WIDTH = 11;
+	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 	
 	public StyledNode(int UID, whiteboard.Backend w){
@@ -92,18 +92,15 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	    
 		type = BoardEltType.STYLED;
 		setLayout(null);
-		undos = new Stack<UndoableEdit>();
-		redos = new Stack<UndoableEdit>();
+		undos = new Stack<StyledNodeEdit>();
+		redos = new Stack<StyledNodeEdit>();
 		_resizeLock = false;
 		_dragLock = false;
 		content = createEditorPane();
 		view = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		view.setPreferredSize(DEFAULT_SIZE);
 		
-		System.out.println("Y is : " + view.getHeight() + "  X is : " + view.getWidth());
-		System.out.println("SCrollpane's location in parent is: " + view.getBounds());
 		view.setBounds(BORDER_WIDTH, BORDER_WIDTH, DEFAULT_SIZE.width, DEFAULT_SIZE.height);
-		System.out.println("SCrollpane's location in parent is: " + view.getBounds());
 		this.add(view);
 		this.setSize(new Dimension(DEFAULT_SIZE.width + BORDER_WIDTH*2, DEFAULT_SIZE.height + BORDER_WIDTH*2));
 		addMouseListener(this);
@@ -118,7 +115,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
-			undos.push(e.getEdit());
+			undos.push(new StyledNodeEdit(e.getEdit()));
 			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
 					if(text.getText(text.getLength()-1, 1).equals("\n")) {
@@ -134,13 +131,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
-		//text.
 		try {
 			text.insertString(0, "\u2022 Make a node", null);
 			text.insertString(text.getLength(), "\n\u2022 Fill it in", null);
-			//if (text.)
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
@@ -198,26 +192,46 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public void redo() {
 		if (redos.empty()) 
 			return;
-		UndoableEdit e = redos.pop();
-		if (e.canRedo()) {
-			e.redo();
-			undos.push(e);
-		} else {
-			System.out.println("Could not redo " + e);
+		StyledNodeEdit f = redos.pop();
+		if (f.type == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.content;
+			if (e.canRedo()) {
+				e.redo();
+				undos.push(f);
+			} else {
+				System.out.println("Could not redo " + e);
+			}
+		} else if (f.type == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.content;
+			undos.push(new StyledNodeEdit(new Rectangle(getBounds())));
+			setBounds(r);
+			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
 		}
+		revalidate();
+		repaint();
 	}
 	
 	@Override
 	public void undo() {
 		if (undos.empty()) 
 			return;
-		UndoableEdit e = undos.pop();
-		if (e.canUndo()) {
-			e.undo();
-			redos.push(e);
-		} else {
-			System.out.println("Could not undo " + e);
+		StyledNodeEdit f = undos.pop();
+		if (f.type == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.content;
+			if (e.canUndo()) {
+				e.undo();
+				redos.push(f);
+			} else {
+				System.out.println("Could not undo " + e);
+			}
+		} else if (f.type == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.content;
+			redos.push(new StyledNodeEdit(new Rectangle(getBounds())));
+			setBounds(r);
+			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
 		}
+		revalidate();
+		repaint();
 	}
 	
 	@Override
@@ -237,7 +251,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
-			System.out.println("Deleting " + this.getUID());
 			backend.remove(this.getUID());
 		}
 	}
@@ -248,10 +261,9 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub	
 	}
-	@Override
+
+	Rectangle boundsBeforeMove;
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-	    
 		wbp.setListFront(this);
 		content.grabFocus();
 		startPt = new Point(e.getX(),e.getY());
@@ -261,23 +273,27 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		else {
 			_dragLock = true;
 		}
+		boundsBeforeMove = getBounds();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (_resizeLock || _dragLock) {
+			System.out.println("releasing lock " + _resizeLock + _dragLock);
+			undos.push(new StyledNodeEdit(boundsBeforeMove));
+			notifyBackend(BoardActionType.ELT_MOD);
+			System.out.println(undos.size());
+		}
 		_resizeLock = false;
 		_dragLock = false;
 	}
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		System.out.println(e.getPoint());
 		int dx = e.getX() - startPt.x;
 		int dy = e.getY() - startPt.y;
 		int screenX = e.getX() + getBounds().x;
 		int screenY = e.getY() + getBounds().y;
-		System.out.println("screenX,Y: " + screenX+" " + screenY);
 		Rectangle previousBounds = getBounds();
 		Rectangle prevView = view.getBounds();
 		if(_resizeLock){
@@ -298,12 +314,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			//if (screenX>= 0 && screenY>= 0)
 			//	setBounds(screenX, screenY, previousBounds.width, previousBounds.height);
 		}
-		/*else if(_dragLock){
-			System.out.println(startPt);
-			System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
-			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
-			//view.setBounds(viewBounds.x + xoffset,viewBounds.y + yoffset,viewBounds.width,viewBounds.height);
-		}*/
 		wbp.extendPanel(getBounds());
 		repaint();
 		revalidate();
@@ -311,7 +321,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub		
 		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
 		}
@@ -320,9 +329,26 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 		
 	}
-	
+	public class StyledNodeEdit {
+		private Object content;
+		private StyledNodeEditType type;
+		//the added edit
+		public StyledNodeEdit(UndoableEdit e) {
+			content = e;
+			type = StyledNodeEditType.TEXT;
+		}
+		//@param r		the old location of this node
+		public StyledNodeEdit(Rectangle r) {
+			content = r;
+			type = StyledNodeEditType.DRAG;
+		}
+	}
+	private enum StyledNodeEditType {
+		DRAG, TEXT
+	}
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
+		view.repaint();
 		Graphics2D g = (Graphics2D) graphics;
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0,0,getWidth(), getHeight());
@@ -331,6 +357,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+		
+		
 	}
 	
 }

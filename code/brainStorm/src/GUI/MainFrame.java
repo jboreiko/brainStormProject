@@ -35,6 +35,7 @@ import java.awt.event.*;
  */
 
 public class MainFrame extends JFrame {
+	protected static final int SCROLL_INCREMENT = 16;
 	private JTabbedPane _tabbedPane;
 	private JMenuItem _newProject, _save, _close, _exit, _load, _undo, _redo, _join;
 	private JMenu _file, _edit;
@@ -123,6 +124,8 @@ public class MainFrame extends JFrame {
 					    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
 						JScrollPane scrollPane = new JScrollPane(wb,v,h);
 						//interesting stuff
+						scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
+						scrollPane.getHorizontalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
 						ViewportDragScrollListener l = new ViewportDragScrollListener(wb);
 						JViewport vp = scrollPane.getViewport();
 						vp.addMouseMotionListener(l);

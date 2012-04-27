@@ -21,6 +21,8 @@ import whiteboard.BoardActionType;
 
 
 public class BoardPath extends BoardElt implements MouseListener, MouseMotionListener{
+	public final static int ARROW_LENGTH = 15;
+	public final static double ARROW_ANGLE = 3*Math.PI/4;
 	public final static int DRAG_RADIUS = 15; //the size of the zone you can click to start dragging
 	public final static int DRAG_SQUARE_RADIUS = DRAG_RADIUS-4; //the size of the marker of the zone you can click to start dragging (needs to be a bit smaller)
 	public final static Color START_COLOR = new Color(Color.GREEN.getRed(),Color.GREEN.getGreen(),Color.GREEN.getBlue(),210);
@@ -37,7 +39,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	private boolean _terminalDrag;
 	private Stack<ActionObject> pastPositions;
 	private Stack<ActionObject> futurePositions;
-	
+	private BoardPathType pathType;
 	
 	int _holding; //which end you're currently dragging. 0 for start, 1 for end
 	
@@ -60,6 +62,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		futurePositions = new Stack<ActionObject>();
 		type = BoardEltType.PATH;
 		_highlighted = false;
+		pathType = BoardPathType.ARROW;
 	}
 
 	//set the start+end point/nodes
@@ -76,6 +79,18 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		g2.setColor(Color.BLACK);
 		g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
 		g2.drawLine(_seminal.x, _seminal.y, _terminal.x, _terminal.y);
+		if(pathType == BoardPathType.ARROW) {		
+			Point point1 = new Point(_terminal.x, _terminal.y);
+			Point point2 = new Point(_terminal.x, _terminal.y);
+			double angle = Math.atan2(_terminal.y-_seminal.y, _terminal.x-_seminal.x);
+			point1.x+=ARROW_LENGTH*(Math.cos(ARROW_ANGLE+angle));
+			point1.y+=ARROW_LENGTH*(Math.sin(ARROW_ANGLE+angle));
+			point2.x+=ARROW_LENGTH*(Math.cos(ARROW_ANGLE-angle));
+			point2.y+=ARROW_LENGTH*(Math.sin(ARROW_ANGLE-angle));
+			g2.drawLine(_terminal.x, _terminal.y, point1.x, point1.y);
+			g2.drawLine(_terminal.x, _terminal.y, point2.x, point2.y);
+		}
+		
 		if(_highlighted) {			
 			g2.setColor(BoardPath.START_COLOR);
 			g2.fillRect(_seminal.x-DRAG_SQUARE_RADIUS/2, _seminal.y-DRAG_SQUARE_RADIUS/2, DRAG_SQUARE_RADIUS, DRAG_SQUARE_RADIUS);

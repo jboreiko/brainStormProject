@@ -272,6 +272,7 @@ public class WhiteboardPanel extends JPanel{
 			if(element.getUID() == ((BoardElt)this.getComponent(i)).getUID()){
 				remove(this.getComponent(i));
 				add(element,i);
+				repaint();
 			}
 		}
 	}
@@ -291,6 +292,6 @@ public class WhiteboardPanel extends JPanel{
 	public void setListFront(BoardElt element){
 		remove(element);
 		add(element, 0);
-		repaint();
+		repaint(0)
 	}
 }

@@ -1,6 +1,7 @@
 package whiteboard;
 
 import java.awt.Point;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -13,7 +14,7 @@ import boardnodes.BoardPath;
 import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
-import boardnodes.SerializedScribbleNode;
+//import boardnodes.SerializedScribbleNode;
 
 public class Backend {
 	private GUI.WhiteboardPanel panel;
@@ -108,17 +109,22 @@ public class Backend {
 
 	//Adds the given action to the stack, and erases all future actions because we've started a new "branch"
 	public void addAction(BoardAction ba) {
-		pastActions.push(ba);
-		futureActions.clear();
-		if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE) {
-			networking.sendAction(new BoardEltExchange(ba.getTarget().toSerialized(), ba.getType()));
-		}
+		addActionHelper(ba, false);
 	}
 
 	//does same thing as above except doesnt send it as a message across
 	public void addActionFromNetwork(BoardAction ba) {
+		addActionHelper(ba, true);
+	}
+	
+	private void addActionHelper(BoardAction ba, boolean fromNetwork) {
 		pastActions.push(ba);
 		futureActions.clear();
+		if(!fromNetwork) {
+			if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE) {
+				networking.sendAction(new BoardEltExchange(ba.getTarget().toSerialized(), ba.getType()));
+			}
+		}
 	}
 
 	//Copies the given element (i.e. sets the clipboard)
@@ -138,12 +144,22 @@ public class Backend {
 	}
 
 	public void undo() {
+		undoHelper(false);
+	}
+	
+	public void undoFromNetwork() {
+		undoHelper(true);
+	}
+	
+	private void undoHelper(boolean fromNetwork) {
+
 		//get the top of the action stack, handle it, and push it to the future actions stack for redo
 		if(pastActions.empty()) {
 			System.out.println("no actions to undo!");
 			return;
 		}
-		//networking.sendAction(new BoardEltExchange(null, BoardActionType.UNDO));
+		if(!fromNetwork)
+			networking.sendAction(new BoardEltExchange(null, BoardActionType.UNDO));
 		BoardAction b = pastActions.pop();
 		BoardElt be;
 		switch(b.getType()) {
@@ -185,12 +201,21 @@ public class Backend {
 	}
 
 	public void redo() {
+		redoHelper(false);
+	}
+	
+	public void redoFromNetwork() {
+		redoHelper(true);
+	}
+	
+	private void redoHelper(boolean fromNetwork) {
 		//get the top of the action stack, handle it, and push it to the past actions stack for undo
 		if(futureActions.empty()) {
 			System.out.println("no actions to redo!");
 			return;
 		}
-	    //networking.sendAction(new BoardEltExchange(null, BoardActionType.REDO));
+		if(!fromNetwork)
+			networking.sendAction(new BoardEltExchange(null, BoardActionType.REDO));
 		BoardElt be;
 		BoardAction b = futureActions.pop();
 		switch(b.getType()) {
@@ -284,18 +309,21 @@ public class Backend {
 		switch (type) {
 		case CREATION:
 			action = new CreationAction(receiveNetworkCreationObject(serializedElt));
+			addActionFromNetwork(action);
 			break;
 		case ELT_MOD:
 			action = new ModificationAction(receiveNetworkModificationObject(serializedElt));
+			addActionFromNetwork(action);
 			break;
 		case DELETION:
 		    action = new DeletionAction(receiveNetworkDeletionObject(serializedElt));
+			addActionFromNetwork(action);
 		    break;
 		case REDO:
-		    //redoFromNetwork();
+		    redoFromNetwork();
 		    break;
 		case UNDO:
-		    //undoFromNetwork();
+		    undoFromNetwork();
 		    break;
 		}
 		/*
@@ -311,48 +339,48 @@ public class Backend {
 			}
 		}
 		 */
-		addActionFromNetwork(action);
 		this.getPanel().repaint();
 	}
 
 	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
 		BoardElt toReturn = null;
-		switch (e.getType()) {
-		case PATH:
-			if(!boardElts.containsKey(e.getUID())) {
-				toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
-				toReturn.ofSerialized(((SerializedBoardPath) e));
-				addFromNetwork(toReturn);
-			} else {
-				boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
-			}
-			break;
-		case SCRIBBLE:
-			System.out.println("receiving a scribble!");
-			if(!boardElts.containsKey(e.getUID())) {
-				System.out.println("adding a scribble!");
-				toReturn = new ScribbleNode(e.getUID(), this);
-				toReturn.ofSerialized(((SerializedScribbleNode) e));
-				addFromNetwork(toReturn);
-				panel.add(toReturn);
-			} else {
-				boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
-			}
-			break;
-		default:
-			break;
-		}
-		panel.repaint();
-		return toReturn;
-	}
+	    switch (e.getType()) {
+	    case PATH:
+	        if(!boardElts.containsKey(e.getUID())) {
+	        	toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
+	        	toReturn.ofSerialized(((SerializedBoardPath) e));
+	        	toReturn._mouseListener = _mouseListener;
+	        	boardElts.put(toReturn.getUID(), toReturn);
+	        	System.out.println("adding "+toReturn.getUID());
+	        	paths.add((BoardPath) toReturn);
+	        } else {
+	        	boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
+	        }
+	        break;
+	    case SCRIBBLE:
+	    	 /*if(!boardElts.containsKey(e.getUID())) {
+		        	toReturn = new ScribbleNode(e.getUID(), this);
+		        	toReturn.ofSerialized(((SerializedScribbleNode) e));
+		        	toReturn._mouseListener = _mouseListener;
+		        	boardElts.put(toReturn.getUID(), toReturn);
+		        	System.out.println("adding "+toReturn.getUID());
+		        } else {
+		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
+		        }
+	        break;*/
+	    }
+	    panel.repaint();
+        return toReturn;
+    }
 
 	private BoardElt receiveNetworkDeletionObject(SerializedBoardElt e) {
 		BoardElt toReturn = null;
 		if(boardElts.containsKey(e.getUID())) {
 			toReturn = boardElts.remove(e.getUID());
-			panel.remove(toReturn);
 			if(e.getType()==BoardEltType.PATH)
-				paths.remove(boardElts.get(e.getUID()));
+				paths.remove(toReturn);
+			else
+				panel.remove(toReturn);
 		}
 		panel.repaint();
 		return toReturn;

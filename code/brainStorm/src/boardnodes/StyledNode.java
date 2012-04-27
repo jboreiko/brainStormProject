@@ -104,7 +104,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			public void keyPressed(KeyEvent e) {
 				// TODO Auto-generated method stub
 				if(e.getKeyChar() == e.VK_ENTER){
-					System.out.println("ENTER");
 					int fontSize = 12;
 					try{
 						fontSize = Integer.parseInt(fontItem.getText());
@@ -427,7 +426,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		g.fillRect(0,0,getWidth(), getHeight());
 		
 		g.setColor(Color.DARK_GRAY);
-		g.fillRoundRect(0,0,getWidth(), getHeight(),10,10);
+		g.fillRect(0,0,getWidth(), getHeight());
 		g.setColor(Color.RED);
 		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
 

@@ -255,9 +255,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		UID = sn.UID;
 		setBounds(sn.bounds);
 		undos = sn.undos;
-		redos = sn.redos;
-		repaint();
+		redos = sn.redos;	
 	}
+	
 	@Override
 	public SerializedBoardElt toSerialized() {
 		SerializedScribbleNode toReturn = new SerializedScribbleNode();

@@ -143,6 +143,7 @@ public class Backend {
 			System.out.println("no actions to undo!");
 			return;
 		}
+		//networking.sendAction(new BoardEltExchange(null, BoardActionType.UNDO));
 		BoardAction b = pastActions.pop();
 		BoardElt be;
 		switch(b.getType()) {
@@ -189,6 +190,7 @@ public class Backend {
 			System.out.println("no actions to redo!");
 			return;
 		}
+	    //networking.sendAction(new BoardEltExchange(null, BoardActionType.REDO));
 		BoardElt be;
 		BoardAction b = futureActions.pop();
 		switch(b.getType()) {
@@ -287,8 +289,14 @@ public class Backend {
 			action = new ModificationAction(receiveNetworkModificationObject(serializedElt));
 			break;
 		case DELETION:
-			action = new DeletionAction(receiveNetworkDeletionObject(serializedElt));
-			break;
+		    action = new DeletionAction(receiveNetworkDeletionObject(serializedElt));
+		    break;
+		case REDO:
+		    //redoFromNetwork();
+		    break;
+		case UNDO:
+		    //undoFromNetwork();
+		    break;
 		}
 		/*
 		if (nodeToReplace.getType() != BoardEltType.PATH) {

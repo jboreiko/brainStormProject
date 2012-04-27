@@ -8,6 +8,7 @@ public class Handshake extends NetworkMessage{
 	Integer client_id;
 	String	client_username;
 	int START_UID;
+	
 	public Handshake(int id, Integer _client_id, String _username) {
 		super(id, Type.HANDSHAKE);
 		client_id = _client_id;

@@ -292,6 +292,6 @@ public class WhiteboardPanel extends JPanel{
 	public void setListFront(BoardElt element){
 		remove(element);
 		add(element, 0);
-		repaint(0)
+		repaint();
 	}
 }

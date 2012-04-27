@@ -1,19 +1,16 @@
 package boardnodes;
 
-import javax.swing.JComponent;
+import java.io.Serializable;
 
-import whiteboard.Backend;
-import GUI.ViewportDragScrollListener;
-import GUI.WhiteboardPanel;
 import javax.swing.JPanel;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 
 import whiteboard.BoardActionType;
+import GUI.ViewportDragScrollListener;
+import GUI.WhiteboardPanel;
 
 /*The parent class for all Board Elements,
  * Paths and BoardNodes*/
-public abstract class BoardElt extends JPanel implements Cloneable{
+public abstract class BoardElt extends JPanel implements Cloneable, Serializable{
 	//the unique identifier of this BoardElt
 	private int UID;
 	//position on the board

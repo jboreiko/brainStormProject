@@ -284,7 +284,7 @@ class Client extends Thread{
 					e.printStackTrace();
 				}
 				if (message != null) {
-					//System.out.println(message);
+					System.out.println("client: received message of type " + message.type);
 					if (message.type == Type.ACTION) {
 						actionReceived.offer((ActionMessage) message);
 					} else if (message.type == Type.CHAT) {

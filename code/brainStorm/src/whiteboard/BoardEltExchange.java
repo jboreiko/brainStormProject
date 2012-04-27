@@ -9,8 +9,8 @@ public class BoardEltExchange implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private SerializedBoardElt affectedNode;
-	private BoardActionType actionCommitted;
+	private transient SerializedBoardElt affectedNode;
+	private transient BoardActionType actionCommitted;
 	
 	public BoardEltExchange(SerializedBoardElt e, BoardActionType a) {
 		affectedNode = e;

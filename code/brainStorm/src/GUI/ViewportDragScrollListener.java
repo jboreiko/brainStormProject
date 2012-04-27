@@ -10,7 +10,7 @@ import java.awt.*;
 import java.util.Iterator;
 
 public class ViewportDragScrollListener implements MouseListener,MouseMotionListener, HierarchyListener{
-	private static final int SPEED = 4;
+	private static final int SPEED = 25;
 	private final Cursor dc;
 	private final Cursor hc = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 	private final WhiteboardPanel wb;

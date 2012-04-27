@@ -5,9 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import boardnodes.ScribbleNode.ScribbleNodeEditType;
-import boardnodes.ScribbleNode.ScribbleNodeEdit;
-
 public class SerializedScribbleNode extends SerializedBoardElt {
 
 	/**
@@ -16,8 +13,9 @@ public class SerializedScribbleNode extends SerializedBoardElt {
 	private static final long serialVersionUID = 8416218992109699688L;
 	public LinkedList<List<ColoredPoint>> drawnArea;
 	public LinkedList<List<ColoredPoint>> undrawnArea;
-	Stack<ScribbleNodeEdit> undos;
-	Stack<ScribbleNodeEdit> redos;
+	public Stack<ScribbleNodeEdit> undos;
+	public Stack<ScribbleNodeEdit> redos;
+	public Rectangle bounds;
 	
 	public SerializedScribbleNode() {
 		type = BoardEltType.SCRIBBLE;

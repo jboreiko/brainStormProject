@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.awt.Point;
 
 class ColoredPoint extends Point {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6627884708785373974L;
 	public Color c;
 	public ColoredPoint(int x, int y, Color c) {
 		super(x,y);

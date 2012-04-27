@@ -91,7 +91,6 @@ public class Backend {
 	
 	//Adds the given action to the stack, and erases all future actions because we've started a new "branch"
 	public void addAction(BoardAction ba) {
-		System.err.println("I'm adding an action right now");
 		pastActions.push(ba);
 		futureActions.clear();
 		if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE) {
@@ -101,7 +100,6 @@ public class Backend {
 	
 	//does same thing as above except doesnt send it as a message across
 	public void addActionFromNetwork(BoardAction ba) {
-		System.err.println("I'm adding an action right now");
 		pastActions.push(ba);
 		futureActions.clear();
 	}
@@ -134,7 +132,7 @@ public class Backend {
 		case ELT_MOD:
 //			boardElts   
 //			System.out.println("undoing a modification on node "+b.getTarget());
-			System.out.println("the hashmap associates "+b.getTarget()+" with "+boardElts.get(b.getTarget()));
+			//System.out.println("the hashmap associates "+b.getTarget()+" with "+boardElts.get(b.getTarget()));
 			b.getTarget().undo();
 			b.getTarget().repaint();
 			futureActions.push(b);

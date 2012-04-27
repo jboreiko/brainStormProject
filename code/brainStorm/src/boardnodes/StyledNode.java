@@ -381,7 +381,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			startPt.setLocation(e.getX(), e.getY());
 		} else if (_dragLock) {
 
-			//if (previousBounds.x + dx >= 0 && previousBounds.y + dy >= 0)
+			if (previousBounds.x + dx >= 0 && previousBounds.y + dy >= 0)
 			setBounds(previousBounds.x + dx, previousBounds.y + dy, previousBounds.width, previousBounds.height);
 			//if (screenX>= 0 && screenY>= 0)
 			//	setBounds(screenX, screenY, previousBounds.width, previousBounds.height);

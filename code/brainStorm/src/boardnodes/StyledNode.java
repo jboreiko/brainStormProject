@@ -434,8 +434,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
 		Graphics2D g = (Graphics2D) graphics;
-		g.setColor(Color.DARK_GRAY);
+		//paint background for rounded
+		g.setColor(Color.GRAY);
 		g.fillRect(0,0,getWidth(), getHeight());
+		
+		g.setColor(Color.DARK_GRAY);
+		g.fillRoundRect(0,0,getWidth(), getHeight(),10,10);
 		g.setColor(Color.RED);
 		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
 

@@ -1,11 +1,9 @@
 package whiteboard;
 
-import java.io.Serializable;
-
 //Represents an action on the board.
 //TODO: THIS
 
-public abstract class BoardAction implements Serializable{
+public abstract class BoardAction{
 	protected BoardActionType type;
 	protected boardnodes.BoardElt target;
 	

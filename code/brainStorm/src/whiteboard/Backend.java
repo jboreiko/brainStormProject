@@ -14,7 +14,7 @@ import boardnodes.BoardPath;
 import boardnodes.SerializedBoardElt;
 import boardnodes.BoardPath.SerializedBoardPath;
 
-public class Backend implements Serializable{
+public class Backend {
 	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
 	private ArrayList<boardnodes.BoardPath> paths;

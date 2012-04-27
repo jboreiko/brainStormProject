@@ -1,8 +1,6 @@
 package boardnodes;
 import java.awt.*;
 import java.util.Stack;
-import whiteboard.Backend;
-import GUI.ViewportDragScrollListener;
 import GUI.WhiteboardPanel;
 
 import java.awt.event.ActionEvent;
@@ -14,21 +12,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.Serializable;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
@@ -40,11 +30,10 @@ import whiteboard.BoardActionType;
 
 import boardnodes.BoardEltType;
 
-public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener, Serializable {
+public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -161595885786250168L;
 	public static int UIDCounter = 0;
 	private Point startPt,nextPt;
 	JTextPane content;
@@ -401,7 +390,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 
 	}
-	public class StyledNodeEdit {
+	
+	public static class StyledNodeEdit {
 		private Object content;
 		private StyledNodeEditType type;
 		//the added edit
@@ -415,6 +405,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			type = StyledNodeEditType.DRAG;
 		}
 	}
+	
 	private enum StyledNodeEditType {
 		DRAG, TEXT
 	}
@@ -438,14 +429,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void ofSerialized(SerializedBoardElt b) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public SerializedBoardElt toSerialized() {
-		// TODO Auto-generated method stub
-		return null;
+		return new SerializedStyledNode(this);
 	}
 
 }

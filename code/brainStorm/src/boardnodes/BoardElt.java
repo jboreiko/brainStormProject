@@ -1,7 +1,5 @@
 package boardnodes;
 
-import java.io.Serializable;
-
 import javax.swing.JPanel;
 
 import whiteboard.BoardActionType;

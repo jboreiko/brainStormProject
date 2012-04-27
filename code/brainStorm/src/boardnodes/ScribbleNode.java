@@ -30,10 +30,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	boolean _resizeLock,_dragLock;
 	Point startPt;
 	public final static int POINT_WIDTH = 3;
-	public final static ColoredPoint BREAK_POINT = new ColoredPoint(-1,-1, Color.WHITE);
 	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
 	LinkedList<List<ColoredPoint>> undrawnArea; //the drawn areas that have been undone
-	List<ColoredPoint> _pendingStroke; //the last or currently-being-drawn List of points
+	List<ColoredPoint> _pendingStroke; //the last or currentldy-being-drawn List of points
 	Stack<ScribbleNodeEdit> undos;
 	Stack<ScribbleNodeEdit> redos;
 
@@ -57,15 +56,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		type = BoardEltType.SCRIBBLE;
 		//setBorder(BorderFactory.createLineBorder(Color.GRAY,7));
 	}
-
-	@Override
-	public String encode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(300,400);
@@ -178,6 +168,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		System.out.println("DRAGGING");
 		repaint();
+		backend.getPanel().repaint();
 		revalidate();
 	}
 	//the mouse has been released, stop connecting points
@@ -207,17 +198,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		return null;
 	}
 
-
-	@Override
-	public Point getPos() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setPos(Point p) {
-		//TODO
-	}
 	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub
 	}
@@ -273,7 +253,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
 	}
 	
-	private class ScribbleNodeEdit {
+	public class ScribbleNodeEdit {
 		Object content;
 		ScribbleNodeEditType type;
 		public ScribbleNodeEdit(List<ColoredPoint> stroke) {
@@ -285,5 +265,24 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			content=  r;
 		}
 	}
-	private enum ScribbleNodeEditType { DRAW,DRAG}
+	public enum ScribbleNodeEditType { DRAW,DRAG}
+	@Override
+	public void ofSerialized(SerializedBoardElt b) {
+		SerializedScribbleNode sn = (SerializedScribbleNode) b;
+		UID = sn.UID;
+		drawnArea = sn.drawnArea;
+		undrawnArea = sn.undrawnArea;
+		undos = sn.undos;
+		redos = sn.redos;		
+	}
+	@Override
+	public SerializedBoardElt toSerialized() {
+		SerializedScribbleNode toReturn = new SerializedScribbleNode();
+		toReturn.UID = UID;
+		toReturn.drawnArea = drawnArea;
+		toReturn.undrawnArea = undrawnArea;
+		toReturn.undos = undos;
+		toReturn.redos = redos;
+		return toReturn;
+	}
 }

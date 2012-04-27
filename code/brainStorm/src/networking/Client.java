@@ -297,6 +297,8 @@ class Client extends Thread{
 						chatReceived.offer((ChatMessage) message);
 					} else if (message.type == Type.HANDSHAKE) {
 						clientId = ((Handshake) message).client_id;
+						System.out.println("client: udpate start uid to: "+((Handshake) message).getStartUID());
+						_net.getBackend().setStartUID(((Handshake) message).getStartUID());
 						System.out.println("client: update id to: " + clientId);
 						parent.isRegistered.release();
 					}

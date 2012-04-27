@@ -18,6 +18,8 @@ public class Host extends Thread{
     private int localport;               //The local port the server will listen on.
     private ServerSocket serverSocket;   //The socket the server will accept connections on.
 
+    private static int START_UID = 0;
+    private static final int ELTS_PER_CLIENT = 5000;
     private List<ClientHandler> clients; //The list of currently connected clients.
     private Queue<ClientInfo> recoveryPriority;
     public Client localClient;
@@ -112,7 +114,8 @@ public class Host extends Thread{
             int temp = getNextOpenId();
             //System.out.println("server: replying to handshake with id: " + temp);
             clientHandler.setUsernameAndId(username, temp);
-            clientHandler.send(new Handshake(hostId, temp, username));
+            START_UID += ELTS_PER_CLIENT;
+            clientHandler.send(new Handshake(hostId, temp, username, START_UID));
             registerClient(clientHandler);
             System.out.println("server: registered client with id: " + temp + ", uname: " + username);
         } else {

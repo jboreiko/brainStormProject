@@ -34,6 +34,9 @@ public class Networking {
 		}
 	}
 	
+	public Backend getBackend() {
+		return backend;
+	}
 	public void setSuggestPanel(SuggestGUI suggest) {
 		_suggestPanel = suggest;
 	}

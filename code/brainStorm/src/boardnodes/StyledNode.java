@@ -250,11 +250,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 
 	@Override
-	public String encode() {
-		return null;
-	}
-
-	@Override
 	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub		
 	}
@@ -310,15 +305,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		// TODO Auto-generated method stub
 		return null;
 	}
-	@Override
-	public Point getPos() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public void setPos(Point p) {
-		// TODO Auto-generated method stub	
-	}
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
@@ -327,24 +314,24 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		if(_mouseListener!=null) {
+		/*if(_mouseListener!=null) {
 			System.out.println("asdfa");
 			if(_mouseListener.draggedPath!=null) {
 				System.out.println("whoo");
 				_mouseListener.draggedPath._snapSeminal = this;
 			}
-		}
+		}*/
 		System.out.println("ENTERED");
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
-		if(_mouseListener!=null) {
+		/*if(_mouseListener!=null) {
 			System.out.println("asdfa");
 			if(_mouseListener.draggedPath!=null) {
 				System.out.println("whoo");
 				_mouseListener.draggedPath._snapSeminal = null;
 			}
-		}
+		}*/
 	}
 
 	Rectangle boundsBeforeMove;
@@ -401,6 +388,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 		wbp.extendPanel(getBounds());
 		repaint();
+		wbp.repaint();
 		revalidate();
 	}
 
@@ -447,6 +435,18 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
 		
 		
+	}
+
+	@Override
+	public void ofSerialized(SerializedBoardElt b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public SerializedBoardElt toSerialized() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

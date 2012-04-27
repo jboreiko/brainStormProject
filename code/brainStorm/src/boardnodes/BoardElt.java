@@ -12,10 +12,8 @@ import GUI.WhiteboardPanel;
  * Paths and BoardNodes*/
 public abstract class BoardElt extends JPanel implements Cloneable{
 	//the unique identifier of this BoardElt
-	private int UID;
+	protected int UID;
 	//position on the board
-	private double x;
-	private double y;
 	private String textBody;
 	private static int ID_Last;
 	public BoardEltType Type;
@@ -31,7 +29,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		return UID;
 	}
 	public abstract BoardElt clone();
-	public abstract void setPos(java.awt.Point p);
 
 	public BoardElt(int _UID, whiteboard.Backend w) {
 		UID = _UID;
@@ -47,9 +44,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		return type;
 	}
 
-	public abstract java.awt.Point getPos();
-
-
 	public int containsText(String q) {
 		return getText().toLowerCase().indexOf(q.toLowerCase());
 	}	
@@ -64,23 +58,15 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	/*@param x the x location
 	 * @param y the y location
 	 * @return a BoardElt at the specified ID and location (x,y)*/
-	public BoardElt(int ID, double x, double y) {
+	public BoardElt(int ID, int x, int y) {
 		UID = ID;
-		setPosition(x,y);
+		this.setLocation(x, y);
 	}
 
 	/*Set the initial point our */
 	static void setStartingUID(int idStart) {
 		ID_Last = idStart;
 	}
-
-	/*@param x the new x location
-	 * @param y the new y location*/
-	void setPosition(double x, double y) {
-		this.x = x;
-		this.y = y;
-	}
-
 	/*@return the body of this node as a String*/
 	String getText() {
 		return textBody;
@@ -116,16 +102,11 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		default:
 			break;
 		}
-		
-
 	}
 
 	public abstract void addAction(ActionObject ao);
-
-	public abstract String encode();
 	
-	public static BoardElt decode(String s) {
-		return null;
-		
-	}
+	public abstract SerializedBoardElt toSerialized();
+	
+	public abstract void ofSerialized(SerializedBoardElt b);
 }

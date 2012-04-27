@@ -171,6 +171,11 @@ public class WhiteboardPanel extends JPanel{
 		//repaint();
 	}
 	
+	public void setStartUID(int id) {
+		WhiteboardPanel.UIDCounter = id;
+		System.out.println("uid counter is now "+WhiteboardPanel.UIDCounter);
+	}
+	
 	//boardpathtype only has to be specified when adding a path
 	private void newElt(BoardEltType b, BoardPathType bpt) {
 		//extendPanel(); //taken out when extendPanel changed to accept rect
@@ -207,7 +212,7 @@ public class WhiteboardPanel extends JPanel{
 			_lastAdded = WhiteboardPanel.PATH;
 			_lastPathType = bpt;
 			BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _backend);
-			System.out.println("Just created a path");
+			System.out.println("Just created a path "+bp.getUID());
 			size = bp.getPreferredSize();
 			System.out.println(size);
 			bp.setPathType(bpt);

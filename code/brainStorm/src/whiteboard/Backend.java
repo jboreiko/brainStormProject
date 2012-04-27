@@ -10,8 +10,10 @@ import GUI.ViewportDragScrollListener;
 import boardnodes.BoardElt;
 import boardnodes.BoardEltType;
 import boardnodes.BoardPath;
+import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
+import boardnodes.SerializedScribbleNode;
 
 public class Backend {
 	private GUI.WhiteboardPanel panel;
@@ -45,9 +47,9 @@ public class Backend {
 	    addAction(committed);
 		if(b.getType() == BoardEltType.PATH) {
 			paths.add((boardnodes.BoardPath)b);
-			networking.sendAction(new BoardEltExchange(((BoardPath) b).getSerializedSelf(), BoardActionType.CREATION));
-		} else {
-		    //networking.sendAction(new BoardEltExchange(BoardActionType.CREATION, b.));
+			networking.sendAction(new BoardEltExchange(((BoardPath) b).toSerialized(), BoardActionType.CREATION));
+		} else if (b.getType() == BoardEltType.SCRIBBLE){
+			networking.sendAction(new BoardEltExchange(((ScribbleNode) b).toSerialized(), BoardActionType.CREATION));
 		}
 	}
 	
@@ -92,6 +94,16 @@ public class Backend {
 		System.err.println("I'm adding an action right now");
 		pastActions.push(ba);
 		futureActions.clear();
+		if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE) {
+			networking.sendAction(new BoardEltExchange(ba.getTarget().toSerialized(), BoardActionType.CREATION));
+		}
+	}
+	
+	//does same thing as above except doesnt send it as a message across
+	public void addActionFromNetwork(BoardAction ba) {
+		System.err.println("I'm adding an action right now");
+		pastActions.push(ba);
+		futureActions.clear();
 	}
 	
 	//Copies the given element (i.e. sets the clipboard)
@@ -101,7 +113,7 @@ public class Backend {
 	
 	public void paste(Point pos) {
 		BoardElt toPaste = clipboard.clone();
-		toPaste.setPos(pos);
+		toPaste.setLocation(pos);
 		add(toPaste);
 	}
 	
@@ -225,13 +237,7 @@ public class Backend {
 	 * An XML string encoding the whiteboard.
 	 */
 	public String encode() {
-		StringBuilder ret = new StringBuilder();
-		//ret.append(Encoding.WHITEBOARD_OPEN);
-		for(BoardElt b: boardElts.values()) {
-			ret.append(b.encode());
-		}
-		//ret.append(Encoding.WHITEBOARD_CLOSE);
-		return ret.toString();
+		return null;
 	}
 	
 	public static Backend decode() {
@@ -289,26 +295,45 @@ public class Backend {
 			}
 		}
 		*/
-		addAction(action);
+		addActionFromNetwork(action);
 		this.getPanel().repaint();
 	}
 	
 	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
-	    BoardElt toReturn = null;
+		BoardElt toReturn = null;
 	    switch (e.getType()) {
 	    case PATH:
-	        toReturn = new BoardPath(e.getUID(), this);
-	        ((BoardPath) toReturn).becomeState((SerializedBoardPath) e);
-	        toReturn._mouseListener = _mouseListener;
-	        boardElts.put(toReturn.getUID(), toReturn);
-	        paths.add((BoardPath) toReturn);
+	        if(!boardElts.containsKey(e.getUID())) {
+	        	toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
+	        	toReturn.ofSerialized(((SerializedBoardPath) e));
+	        	toReturn._mouseListener = _mouseListener;
+	        	boardElts.put(toReturn.getUID(), toReturn);
+	        	System.out.println("adding "+toReturn.getUID());
+	        	paths.add((BoardPath) toReturn);
+	        } else {
+	        	boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
+	        }
 	        break;
-	    default:
+	    case SCRIBBLE:
+	    	 if(!boardElts.containsKey(e.getUID())) {
+		        	toReturn = new ScribbleNode(e.getUID(), this);
+		        	toReturn.ofSerialized(((SerializedScribbleNode) e));
+		        	toReturn._mouseListener = _mouseListener;
+		        	boardElts.put(toReturn.getUID(), toReturn);
+		        	System.out.println("adding "+toReturn.getUID());
+		        } else {
+		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
+		        }
 	        break;
 	    }
+	    panel.repaint();
         return toReturn;
     }
 
+	public void setStartUID(int id) {
+		System.out.println("setting start id to "+id);
+		panel.setStartUID(id);
+	}
     public ArrayList<BoardElt> getElts() {
 		return new ArrayList<BoardElt>(boardElts.values());
 	}

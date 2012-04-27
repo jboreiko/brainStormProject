@@ -20,11 +20,11 @@ import whiteboard.Backend;
 import whiteboard.BoardActionType;
 
 
-public class BoardPath extends BoardElt implements MouseListener, MouseMotionListener{
+public class BoardPath extends BoardElt {
 	public final static int ARROW_LENGTH = 15;
 	public final static double ARROW_ANGLE = Math.PI/4;
 	public final static int DRAG_RADIUS = 15; //the size of the zone you can click to start dragging
-	public final static int DRAG_SQUARE_RADIUS = DRAG_RADIUS-4; //the size of the marker of the zone you can click to start dragging (needs to be a bit smaller)
+	public final static int DRAG_SQUARE_RADIUS = DRAG_RADIUS/2; //the size of the marker of the zone you can click to start dragging (needs to be a bit smaller)
 	final static BasicStroke dashedStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f}, 0.0f);
 	final static BasicStroke normalStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	public final static Color START_COLOR = new Color(Color.GREEN.getRed(),Color.GREEN.getGreen(),Color.GREEN.getBlue(),210);
@@ -32,34 +32,26 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	public final static Color DELETE_COLOR = Color.RED;
 	public final static int START_WIDTH = 60;
 	public final static int START_HEIGHT = 60;
-	public BoardElt _start; //where the base of the arrow points
-	public BoardElt _end; //where the tip of the arrow points
 	
 	public BoardElt _snapSeminal;
 	public BoardElt _snapTerminal;
 	public double _snapAngle;
 	
-	double _s0, _s1;  //the location on the map of start if _start is null
-	double _e0, _e1; //end location of map is _end is null
 	private boolean _highlighted;
 	private boolean _seminalDrag;
 	private boolean _terminalDrag;
 	private Stack<ActionObject> pastPositions;
 	private Stack<ActionObject> futurePositions;
 	private BoardPathType pathType;
-	
-	int _holding; //which end you're currently dragging. 0 for start, 1 for end
-	
+
 	public Point _seminal; //used for painting, see paint(Graphics)
 	public Point _terminal;
-	public Point _oldSeminal; //used for dragging
-	public Point _oldTerminal;
+	private Point _oldSeminal; //used for dragging
+	private Point _oldTerminal;
 	
 	/**/
 	public BoardPath(int ID, Backend wb) {
 		super(ID, wb);
-		addMouseListener(this);
-		addMouseMotionListener(this);
 		setBackground(new Color(0,0,0,0));
 		_seminal = new Point(0,0);
 		_terminal = new Point(100, 100);
@@ -72,10 +64,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	}
 
 	//set the start+end point/nodes
-	public void setStart(BoardElt s) {_start = s;}
-	public void setStart(double s0, double s1) {_s0 = s0; _s1 = s1;}
-	public void setEnd(BoardElt e) {_end = e;}
-	public void setEnd(double e0, double e1) {_e0 = e0; _e1 = e1;}
+	
 	public void setSeminal(Point p) { _seminal = p;}
 	public void setTerminal(Point p) {_terminal = p;}
 	public void setPathType(BoardPathType b) { pathType = b;}	
@@ -126,88 +115,6 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	public void delete() {
 		backend.remove(this.getUID());
 	}
-	
-
-	@Override
-	public String encode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
-	@Override
-	public void mousePressed(MouseEvent e) {
-		double startDist = (e.getX() - _seminal.x)*(e.getX() - _seminal.x) + (e.getY() - _seminal.y)*(e.getY() - _seminal.y);
-		double endDist = (e.getX() - _terminal.x)*(e.getX() - _terminal.x) + (e.getY() - _terminal.y)*(e.getY() - _terminal.y);
-		if (startDist < endDist) { //change the start dot location
-			_holding = 0;
-		} else {
-			_holding = 1;
-		}
-	}
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-
-	//change the location of the start/end point (whichever is closest)
-	@Override
-	public void mouseDragged(MouseEvent f) {
-		Point e = new Point(f.getX(), f.getY());
-		if (_holding == 0) { //change the start dot location
-			_seminal.x = e.x;
-			_seminal.y = e.y;
-		} else {
-			_terminal.x = e.x;
-			_terminal.y = e.y;
-		}
-		System.out.println("Seminal is at (" + _seminal.x + "," + _seminal.y + " and terminal at (" + _terminal.x + "," + _terminal.y +")");
-		//now set the bounds of the JPanel to just barely contain the path
-		setSize(Math.abs(_terminal.x - _seminal.x), Math.abs(_terminal.y - _seminal.y));
-		Rectangle curLoc = getBounds();
-		setBounds(curLoc.x + Math.min(_seminal.x, _terminal.x), curLoc.y + Math.min(_seminal.y, _terminal.y),
-			Math.abs(_terminal.x - _seminal.x), Math.abs(_terminal.y-_seminal.y));
-		if (_terminal.x > _seminal.x){
-			_terminal.x -= _seminal.x;
-		} else {
-			_seminal.x -= _terminal.x;
-		}
-		if (_terminal.y > _seminal.y){
-			_terminal.y -= _seminal.y;
-		} else {
-			_seminal.y -= _terminal.y;
-		}
-		if (_seminal.x <= _terminal.x) 
-			_seminal.x = 0;
-		else 
-			_terminal.x = 0;
-		if (_seminal.y <= _terminal.y)
-			_seminal.y = 0;
-		else 
-			_terminal.y = 0;
-		repaint();
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}	
-	
-	/*public static void main(String[] args) {
-		BoardPath b = new BoardPath(234);
-		b._seminal = new Point(0,0);
-		b._terminal = new Point(50,50);
-		JFrame display = new JFrame("Boardpath test");
-		display.add(b);
-		display.pack();
-		display.setVisible(true);
-		display.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}*/
-
 	@Override
 	public boolean contains(int x, int y) {
 		return isNearSeminal(x,y)||isNearTerminal(x,y)||isNearDelete(x,y);
@@ -302,56 +209,44 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		futurePositions.push(ao);
 	}
 	
-	public SerializedBoardElt getSerializedSelf() {
-	    return new SerializedBoardPath(_seminal, _terminal, pathType);
+	public SerializedBoardElt toSerialized() {
+		SerializedBoardPath toReturn = new SerializedBoardPath();
+		toReturn.UID = UID;
+		toReturn._stroke = pathType;
+		toReturn._snapSeminal = _snapSeminal==null?-1:_snapSeminal.getUID();
+		toReturn._snapTerminal = _snapTerminal==null?-1:_snapTerminal.getUID();
+		toReturn._snapAngle = _snapAngle;
+		toReturn._seminal = _seminal;
+		toReturn._terminal = _terminal;
+		toReturn.pastPositions = pastPositions;
+		toReturn.futurePositions = futurePositions;
+		return toReturn;
 	}
 	
-	public void becomeState(SerializedBoardPath future) {
-	    _seminal = future._start;
-	    _terminal = future._end;
+	public void ofSerialized(SerializedBoardElt _future) {
+		SerializedBoardPath future = (SerializedBoardPath) _future;
+		UID = _future.getUID();
+	    _seminal = future._seminal;
+	    _terminal = future._terminal;
 	    pastPositions.push(new ActionObject(new Point[]{(Point)_oldSeminal.clone(), (Point)_oldTerminal.clone()}));
 	    _oldSeminal = new Point(_seminal);
 	    _oldTerminal = new Point(_terminal);
 	    setPathType(future._stroke);
 	}
 
+	
 	@Override
 	public BoardElt clone() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Point getPos() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override
 	public int getUID() {
-		// TODO Auto-generated method stub
-		return 0;
+		return UID;
 	}
 
-	@Override
-	public void setPos(Point p) {
-		//TODO: auto-generated method stub
-	}
-	
 	@Override
 	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 }

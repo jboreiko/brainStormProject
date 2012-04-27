@@ -123,5 +123,15 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		Point offset = ((JViewport)e.getSource()).getViewPosition();
+		Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
+		for(BoardPath p: wb.getBackend().getPaths()) {
+			if(p.contains(loc.x, loc.y)) {
+				p.setHighlighted(true);
+			} else {
+				p.setHighlighted(false);
+			}
+		}
+		wb.repaint();
 	}
 }

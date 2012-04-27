@@ -77,16 +77,17 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	    final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
 	    		Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW};
 	    for(int i=0;i<colorNames.length;i+=1){
-	    	final String colorName = colorNames[i];
-	    	JMenuItem fontItem = new JMenuItem(colorName);
+	    	final Color color = colors[i];
+	    	JMenuItem fontItem = new JMenuItem(colorNames[i]);
 	    	fontItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					content.setForeground(Color.getColor(colorName));
+					content.setForeground(color);
 				}
 			});
 		    _colorMenu.add(fontItem);
 	    }
-	    
+	    _fontMenu.add(_styleMenu);
+	    _fontMenu.addSeparator();
 	    _fontMenu.add(_colorMenu);
 	    
 	    
@@ -115,6 +116,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
+			System.out.println("DOCUMENT LISTENER SAYS UID IS " + getUID());
 			undos.push(new StyledNodeEdit(e.getEdit()));
 			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
@@ -161,6 +163,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			@Override
 			public void mousePressed(MouseEvent e) {
 				// TODO Auto-generated method stub
+				System.out.println(getUID());
 			    if (e.getModifiers() == 4) {
 			    	_fontMenu.show(StyledNode.this,e.getX(),e.getY());
 			    }
@@ -348,7 +351,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
-		view.repaint();
 		Graphics2D g = (Graphics2D) graphics;
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0,0,getWidth(), getHeight());

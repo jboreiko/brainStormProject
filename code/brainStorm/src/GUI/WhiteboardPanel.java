@@ -31,7 +31,6 @@ public class WhiteboardPanel extends JPanel{
 	public static final int SCRIBBLE = 2;
 	public static final int PATH = 3;
 	private int _lastAdded;
-	private ArrayList<BoardElt> _elements;
 	private boolean _contIns;
 	private Backend _backend;
 	
@@ -47,9 +46,7 @@ public class WhiteboardPanel extends JPanel{
 		this.setVisible(true);
 		this.setBackground(Color.GRAY);
 		_contIns = true;
-		_elements = new ArrayList<BoardElt>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		setPreferredSize(new Dimension(screenSize.width, screenSize.height-100));
 		_rightClickMenu = initPopupMenu();
 	}
 	
@@ -125,7 +122,7 @@ public class WhiteboardPanel extends JPanel{
 			this.setPreferredSize(newSize);
 			this.setSize(newSize);
 		}
-		if(obtrusion.x < this.getBounds().x){
+		/*if(obtrusion.x < this.getBounds().x){
 			//SOME KIND OF TRANSLATION HERE
 			System.out.println(obtrusion.x);
 			System.out.println(this.getBounds().x);
@@ -140,7 +137,7 @@ public class WhiteboardPanel extends JPanel{
 			this.setPreferredSize(new Dimension(getWidth(),getHeight() + 10));
 			this.setBounds(this.getX(),this.getY(),panelWidth,panelHeight);
 			this.repaint();
-		}
+		}*/
 	}
 	public void addNode(Point p){
 		if(_contIns){
@@ -257,11 +254,6 @@ public class WhiteboardPanel extends JPanel{
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
-		for(int i=0;i<_elements.size();i++){
-			_elements.get(i).paintComponents(g2);
-			//g2.draw(_rectangles.get(i));
-			//g2.fill(_rectangles.get(i));
-		}
 		for(BoardPath b: _backend.getPaths()) {
 			b.paintComponent(g2);
 		}

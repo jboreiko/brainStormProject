@@ -18,7 +18,6 @@ import java.util.Stack;
 
 import javax.swing.JPanel;
 
-import boardnodes.StyledNode.StyledNodeEdit;
 
 import whiteboard.BoardActionType;
 

@@ -68,7 +68,7 @@ public class MainFrame extends JFrame {
 		
 		getContentPane().add(_tabbedPane,BorderLayout.CENTER);
 		_interfacePane = new InterfacePanel(_whiteboards);
-		Dimension interfaceSize = new Dimension(350, 2000);//250,2000);
+		Dimension interfaceSize = new Dimension(350, screenSize.height);
 		_interfacePane.setPreferredSize(interfaceSize);
 		_interfacePane.setSize(interfaceSize);
 		//_interfacePane.setLayout(new GridLayout(10,0));

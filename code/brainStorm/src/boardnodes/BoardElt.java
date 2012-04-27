@@ -3,6 +3,7 @@ package boardnodes;
 import javax.swing.JComponent;
 
 import whiteboard.Backend;
+import GUI.ViewportDragScrollListener;
 import GUI.WhiteboardPanel;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
@@ -24,6 +25,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	//the whiteboard that this is a part of
 	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
+	public ViewportDragScrollListener _mouseListener;
 
 	protected static int nextUID = 0;
 
@@ -86,7 +88,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	String getText() {
 		return textBody;
 	}
-
 
 	/*Assigns this BoardElt's text to input
 	 * @param toSet - what to make this Element store

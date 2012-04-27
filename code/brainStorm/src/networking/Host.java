@@ -35,6 +35,7 @@ public class Host extends Thread{
     	serverSocket = new ServerSocket(localport);
     	clients = new LinkedList<ClientHandler>();
     	localClient = new Client("localhost", localport, username);
+    	recoveryPriority = new LinkedList<ClientInfo>();
     	localClient.start();
     	openId = 1;
     }

@@ -1,6 +1,8 @@
 package whiteboard;
 
 import java.awt.Point;
+
+import GUI.ViewportDragScrollListener;
 import boardnodes.BoardElt;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +21,7 @@ public class Backend {
 	private Stack<BoardAction> futureActions;
 	private Networking networking;
 	private BoardElt clipboard;
-	
+	public ViewportDragScrollListener _mouseListener;
 	
 	//TODO: make every method that adds an action just add the action and then call executeaction on it (every method
 	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
@@ -32,14 +34,17 @@ public class Backend {
 		boardElts = new Hashtable<Integer, BoardElt>();
 		paths = new ArrayList<boardnodes.BoardPath>();
 		networking = new Networking();
+		networking.setBackend(this);
 	}
 	
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
+		b._mouseListener = _mouseListener;
 		boardElts.put(b.getUID(), b);
 		if(b.getType() == BoardEltType.PATH) {
 			paths.add((boardnodes.BoardPath)b);
 		}
+		networking.sendAction(b);
 		addAction(new CreationAction(b));
 	}
 	
@@ -115,10 +120,11 @@ public class Backend {
 			 be = b.getTarget();
 			if(be==null)
 				return;
-			panel.remove(be);
 			boardElts.remove(be.getUID());
 			if(be.getType()==BoardEltType.PATH) {
 				paths.remove(be);
+			} else {
+				panel.remove(be);
 			}
 			futureActions.push(new CreationAction(be));
 			break;
@@ -127,10 +133,11 @@ public class Backend {
 			be = b.getTarget();
 			if(be==null)
 				return;
-			panel.add(be);
 			boardElts.put(be.getUID(), be);
 			if(be.getType()==BoardEltType.PATH) {
 				paths.add((boardnodes.BoardPath)be);
+			} else {
+				panel.add(be);
 			}
 			futureActions.push(new DeletionAction(be));
 			break;
@@ -160,10 +167,11 @@ public class Backend {
 			be = b.getTarget();
 			if(be==null)
 				return;
-			panel.add(be);
 			boardElts.put(be.getUID(), be);
 			if(be.getType()==BoardEltType.PATH) {
 				paths.add((boardnodes.BoardPath)be);
+			} else {
+				panel.add(be);
 			}
 			pastActions.push(new CreationAction(be));
 			break;			
@@ -172,10 +180,11 @@ public class Backend {
 			be = b.getTarget();
 			if(be==null)
 				return;
-			panel.remove(be);
 			boardElts.remove(be.getUID());
 			if(be.getType()==BoardEltType.PATH) {
 				paths.remove(be);
+			} else {
+				panel.remove(be);
 			}
 			pastActions.push(new DeletionAction(be));
 			break;

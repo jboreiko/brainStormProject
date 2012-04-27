@@ -2,6 +2,7 @@ package boardnodes;
 import java.awt.*;
 import java.util.Stack;
 import whiteboard.Backend;
+import GUI.ViewportDragScrollListener;
 import GUI.WhiteboardPanel;
 
 import java.awt.event.ActionEvent;
@@ -11,6 +12,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.Serializable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -35,7 +37,11 @@ import whiteboard.BoardActionType;
 
 import boardnodes.BoardEltType;
 
-public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
+public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -161595885786250168L;
 	public static int UIDCounter = 0;
 	private Point startPt,nextPt;
 	JTextPane content;
@@ -48,10 +54,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	JMenu _styleMenu, _colorMenu;
 	JPopupMenu _fontMenu;
 	int i= 0;
-	
+
 	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
-	
+
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
 		_fontMenu = new JPopupMenu();
@@ -99,20 +105,19 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		_dragLock = false;
 		content = createEditorPane();
 		view = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		view.setPreferredSize(DEFAULT_SIZE);
-		
+
 		view.setBounds(BORDER_WIDTH, BORDER_WIDTH, DEFAULT_SIZE.width, DEFAULT_SIZE.height);
 		this.add(view);
 		this.setSize(new Dimension(DEFAULT_SIZE.width + BORDER_WIDTH*2, DEFAULT_SIZE.height + BORDER_WIDTH*2));
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		
+
 		revalidate();
 		view.revalidate();
 		repaint();
 		view.repaint();
 	}
-	
+
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
@@ -130,7 +135,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			notifyBackend(BoardActionType.ELT_MOD);
 		}
 	}
-	
+
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
 		try {
@@ -185,7 +190,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public String encode() {
 		return null;
 	}
-	
+
 	@Override
 	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub		
@@ -213,7 +218,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		revalidate();
 		repaint();
 	}
-	
+
 	@Override
 	public void undo() {
 		if (undos.empty()) 
@@ -236,7 +241,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		revalidate();
 		repaint();
 	}
-	
+
 	@Override
 	public BoardElt clone() {
 		// TODO Auto-generated method stub
@@ -259,10 +264,24 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
+		if(_mouseListener!=null) {
+			System.out.println("asdfa");
+			if(_mouseListener.draggedPath!=null) {
+				System.out.println("whoo");
+				_mouseListener.draggedPath._snapSeminal = this;
+			}
+		}
+		System.out.println("ENTERED");
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub	
+		if(_mouseListener!=null) {
+			System.out.println("asdfa");
+			if(_mouseListener.draggedPath!=null) {
+				System.out.println("whoo");
+				_mouseListener.draggedPath._snapSeminal = null;
+			}
+		}
 	}
 
 	Rectangle boundsBeforeMove;
@@ -290,7 +309,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		_resizeLock = false;
 		_dragLock = false;
 	}
-	
+
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		int dx = e.getX() - startPt.x;
@@ -330,7 +349,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		else if(e.getX() > this.getWidth()-BORDER_WIDTH|| e.getX() < BORDER_WIDTH || e.getY() < BORDER_WIDTH|| e.getY() > this.getHeight()-BORDER_WIDTH) {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		}
-		
+
 	}
 	public class StyledNodeEdit {
 		private Object content;
@@ -356,11 +375,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		g.fillRect(0,0,getWidth(), getHeight());
 		g.setColor(Color.RED);
 		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
-		
+
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
 		
 		
 	}
-	
+
 }

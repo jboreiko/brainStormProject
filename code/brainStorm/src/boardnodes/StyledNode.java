@@ -104,6 +104,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			public void keyPressed(KeyEvent e) {
 				// TODO Auto-generated method stub
 				if(e.getKeyChar() == e.VK_ENTER){
+					System.out.println("ENTER");
 					int fontSize = 12;
 					try{
 						fontSize = Integer.parseInt(fontItem.getText());
@@ -263,16 +264,16 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		if (redos.empty()) 
 			return;
 		StyledNodeEdit f = redos.pop();
-		if (f.type == StyledNodeEditType.TEXT) {
-			UndoableEdit e = (UndoableEdit) f.content;
+		if (f.getType() == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.getContent();
 			if (e.canRedo()) {
 				e.redo();
 				undos.push(f);
 			} else {
 				System.out.println("Could not redo " + e);
 			}
-		} else if (f.type == StyledNodeEditType.DRAG) {
-			Rectangle r = (Rectangle) f.content;
+		} else if (f.getType() == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.getContent();
 			undos.push(new StyledNodeEdit(new Rectangle(getBounds())));
 			setBounds(r);
 			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
@@ -286,16 +287,16 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		if (undos.empty()) 
 			return;
 		StyledNodeEdit f = undos.pop();
-		if (f.type == StyledNodeEditType.TEXT) {
-			UndoableEdit e = (UndoableEdit) f.content;
+		if (f.getType() == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.getContent();
 			if (e.canUndo()) {
 				e.undo();
 				redos.push(f);
 			} else {
 				System.out.println("Could not undo " + e);
 			}
-		} else if (f.type == StyledNodeEditType.DRAG) {
-			Rectangle r = (Rectangle) f.content;
+		} else if (f.getType() == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.getContent();
 			redos.push(new StyledNodeEdit(new Rectangle(getBounds())));
 			setBounds(r);
 			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
@@ -406,23 +407,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 
 	}
-	public class StyledNodeEdit {
-		private Object content;
-		private StyledNodeEditType type;
-		//the added edit
-		public StyledNodeEdit(UndoableEdit e) {
-			content = e;
-			type = StyledNodeEditType.TEXT;
-		}
-		//@param r		the old location of this node
-		public StyledNodeEdit(Rectangle r) {
-			content = r;
-			type = StyledNodeEditType.DRAG;
-		}
-	}
-	private enum StyledNodeEditType {
-		DRAG, TEXT
-	}
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
 		Graphics2D g = (Graphics2D) graphics;
@@ -431,7 +415,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		g.fillRect(0,0,getWidth(), getHeight());
 		
 		g.setColor(Color.DARK_GRAY);
-		g.fillRect(0,0,getWidth(), getHeight());
+		g.fillRoundRect(0,0,getWidth(), getHeight(),10,10);
 		g.setColor(Color.RED);
 		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
 

@@ -130,12 +130,16 @@ public class WhiteboardPanel extends JPanel{
 			System.out.println(obtrusion.x);
 			System.out.println(this.getBounds().x);
 			panelWidth = panelWidth - obtrusion.x;
-			this.setBounds(-100,this.getY(),panelWidth,panelHeight);
+			this.setPreferredSize(new Dimension(getWidth() + 10,getHeight()));
+			this.setBounds(this.getX(),this.getY(),panelWidth,panelHeight);
+			this.repaint();
 		}
 		if(obtrusion.y < this.getBounds().y){
 			//SOME KIND OF TRANSLATION HERE
 			panelHeight = panelHeight - obtrusion.x;
-			this.setBounds(this.getX(),-100,panelWidth,panelHeight);
+			this.setPreferredSize(new Dimension(getWidth(),getHeight() + 10));
+			this.setBounds(this.getX(),this.getY(),panelWidth,panelHeight);
+			this.repaint();
 		}
 	}
 	public void addNode(Point p){

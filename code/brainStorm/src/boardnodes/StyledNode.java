@@ -3,16 +3,27 @@ import java.awt.*;
 import java.util.Stack;
 import whiteboard.Backend;
 import GUI.WhiteboardPanel;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
@@ -34,12 +45,51 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	WhiteboardPanel _wbp;
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
+	JMenu _styleMenu, _colorMenu;
+	JPopupMenu _fontMenu;
+	int i= 0;
 	
 	public final static int BORDER_WIDTH = 11;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 	
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
+		_fontMenu = new JPopupMenu();
+		//Different Styles of Typing
+		_styleMenu = new JMenu("Styles");
+	    final String fonts[] = 
+	        {"Abberancy","Arial","Courier New","Dialog","FreeSerif","Impact","SansSerif","Times New Roman","Verdana"};
+	    for(int i=0;i<fonts.length;i+=1){
+	    	final String fontName = fonts[i];
+	    	JMenuItem fontItem = new JMenuItem(fontName);
+	    	fontItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					content.setFont(new Font(fontName,Font.PLAIN, 12));
+				}
+			});
+		    _styleMenu.add(fontItem);
+	    }
+	    
+	    //Different Colors
+		_colorMenu = new JMenu("Colors");
+	    final String colorNames[] = 
+	        {"BLACK","BLUE","CYAN","DARK_GRAY","GRAY","LIGHT_GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW"};
+	    final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
+	    		Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW};
+	    for(int i=0;i<colorNames.length;i+=1){
+	    	final String colorName = colorNames[i];
+	    	JMenuItem fontItem = new JMenuItem(colorName);
+	    	fontItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					content.setForeground(Color.getColor(colorName));
+				}
+			});
+		    _colorMenu.add(fontItem);
+	    }
+	    
+	    _fontMenu.add(_colorMenu);
+	    
+	    
 		type = BoardEltType.STYLED;
 		setLayout(null);
 		undos = new Stack<UndoableEdit>();
@@ -95,7 +145,42 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		JTextPane toReturn = new JTextPane(text);
-		
+		toReturn.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+			    if (e.getModifiers() == 4) {
+			    	_fontMenu.show(StyledNode.this,e.getX(),e.getY());
+			    }
+				wbp.setListFront(StyledNode.this);
+				StyledNode.this.repaint();
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		return toReturn;
 	}
 
@@ -158,7 +243,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		System.out.println("ENTERED");
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
@@ -167,7 +251,9 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
+	    
 		wbp.setListFront(this);
+		content.grabFocus();
 		startPt = new Point(e.getX(),e.getY());
 		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
 			_resizeLock = true;

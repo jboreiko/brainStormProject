@@ -110,6 +110,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 						fontSize = Integer.parseInt(fontItem.getText());
 						if(fontSize > 72){
 							System.err.println("72 is max text size!");
+							fontSize = 72;
+						}
+						if(fontSize<6) {
+							System.err.println("6 is min text size!");
+							fontSize = 6;
 						}
 						else{
 							content.setFont(new Font(content.getFont().getName(),Font.PLAIN, fontSize));

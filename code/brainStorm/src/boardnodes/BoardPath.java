@@ -302,22 +302,8 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		futurePositions.push(ao);
 	}
 	
-	public class SerializedBoardPath extends SerializedBoardElt {
-	    /**
-         * 
-         */
-        private static final long serialVersionUID = -4310196162247409269L;
-        public Point _start;
-	    public Point _end;
-	    public SerializedBoardPath(Point start, Point end) {
-	        _start = start;
-	        _end = end;
-	        type = BoardEltType.PATH;
-	    }
-	}
-	
 	public SerializedBoardElt getSerializedSelf() {
-	    return new SerializedBoardPath(_seminal, _terminal);
+	    return new SerializedBoardPath(_seminal, _terminal, pathType);
 	}
 	
 	public void becomeState(SerializedBoardPath future) {
@@ -326,6 +312,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	    pastPositions.push(new ActionObject(new Point[]{(Point)_oldSeminal.clone(), (Point)_oldTerminal.clone()}));
 	    _oldSeminal = new Point(_seminal);
 	    _oldTerminal = new Point(_terminal);
+	    setPathType(future._stroke);
 	}
 
 	@Override

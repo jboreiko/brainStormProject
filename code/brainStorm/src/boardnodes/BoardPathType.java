@@ -1,5 +1,7 @@
 package boardnodes;
 
-public enum BoardPathType {
+import java.io.Serializable;
+
+public enum BoardPathType implements Serializable{
 	NORMAL, ARROW, DOTTED, DOTTED_ARROW;
 }

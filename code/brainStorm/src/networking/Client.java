@@ -288,6 +288,7 @@ class Client extends Thread{
 				if (message != null) {
 					System.out.println("client: received message of type " + message.type);
 					if (message.type == Type.ACTION) {
+					    _net.backend.receiveNetworkedObject(((ActionMessage) message).action);
 						actionReceived.offer((ActionMessage) message);
 					} else if (message.type == Type.CHAT) {
 						System.out.println("client: received chat message: " + ((ChatMessage) message).text);

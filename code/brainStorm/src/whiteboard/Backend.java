@@ -1,7 +1,6 @@
 package whiteboard;
 
 import java.awt.Point;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -12,7 +11,7 @@ import boardnodes.BoardElt;
 import boardnodes.BoardEltType;
 import boardnodes.BoardPath;
 import boardnodes.SerializedBoardElt;
-import boardnodes.BoardPath.SerializedBoardPath;
+import boardnodes.SerializedBoardPath;
 
 public class Backend {
 	private GUI.WhiteboardPanel panel;
@@ -261,6 +260,7 @@ public class Backend {
 	 * @param receivedAction
 	 */
 	public void receiveNetworkedObject(Object receivedAction) {
+	    System.out.println("backend: received callback from networking");
 		BoardEltExchange bex = (BoardEltExchange) receivedAction;
 		SerializedBoardElt serializedElt = bex.getNode();
 		BoardActionType type = bex.getAction();
@@ -290,6 +290,7 @@ public class Backend {
 		}
 		*/
 		addAction(action);
+		this.getPanel().repaint();
 	}
 	
 	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {

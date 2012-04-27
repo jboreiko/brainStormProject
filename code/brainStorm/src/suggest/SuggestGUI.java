@@ -3,6 +3,7 @@ package suggest;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 
 import networking.Networking;
 
@@ -34,6 +36,8 @@ public class SuggestGUI extends JPanel {
 	private JTextField _ipField;
 	private JPanel _findPanel;
 	private Networking _net;
+	private JTextArea _chatLog;
+	private JTextArea _chatMessage;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -41,7 +45,6 @@ public class SuggestGUI extends JPanel {
 		buildSuggestTab();
 		buildNetworkTab();
 		buildFindTab();
-		buildChatTab();
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
@@ -62,6 +65,7 @@ public class SuggestGUI extends JPanel {
 	
 	public void setNetworking(Networking net) {
 		_net = net;
+		_net.setSuggestPanel(this);
 	}
 	
 	private void buildFindTab() {
@@ -81,9 +85,6 @@ public class SuggestGUI extends JPanel {
 
 	public boolean networkingSet() {
 		return _net!=null;
-	}
-	private void buildChatTab() {
-		
 	}
 
 
@@ -111,6 +112,7 @@ public class SuggestGUI extends JPanel {
 					// check for bad connection boolean
 					if (_net != null) {
 						_net.becomeHost(_usernameField.getText());
+						_chatMessage.grabFocus();
 					} else {
 						System.out.println("suggest: networking is null, has not be set");
 					}
@@ -142,12 +144,48 @@ public class SuggestGUI extends JPanel {
 					//
 					if (_net != null) {
 						_net.becomeClient(_ipField.getText(), _usernameField.getText());
+						_chatMessage.grabFocus();
 					} else {
 						System.out.println("suggest: networking is null, has not be set");
 					}
 				}
 			}
 		});
+		
+		JPanel chatPanel = new JPanel();
+		_chatLog = new JTextArea(20, 50);
+		_chatLog.setEditable(false);
+		_chatLog.setLineWrap(true);
+		_chatLog.setWrapStyleWord(true);
+		Font font = new Font("Verdana", Font.BOLD, 14);
+		_chatLog.setFont(font);
+		_chatLog.setText("  CHAT: \n");
+		JScrollPane chatScrollPane = new JScrollPane(_chatLog);
+		chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		chatScrollPane.setPreferredSize(new Dimension(340, 600));
+		chatPanel.add(chatScrollPane);
+		JPanel messagePanel = new JPanel();
+		_chatMessage = new JTextArea(2, 20);
+		_chatMessage.setEditable(true);
+		_chatMessage.setLineWrap(true);
+		_chatMessage.setWrapStyleWord(true);
+		JButton sendMessageButton = new JButton("Send");
+		sendMessageButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String text = _chatMessage.getText();
+				_chatMessage.setText("");
+				_chatLog.append("Me:  ");
+				_chatLog.append(text + "\n");
+				_chatMessage.grabFocus();
+				_net.sendMessage(text);
+			}
+		});
+		messagePanel.add(_chatMessage,BorderLayout.WEST);
+		messagePanel.add(sendMessageButton, BorderLayout.EAST);
+		//chatPanel.add(_chatLog, BorderLayout.NORTH);
+		//chatPanel.add(messagePanel, BorderLayout.SOUTH);
 		
 		_networkPanel.setLayout(new FlowLayout());
 		usernamePanel.add(usernamelabel,BorderLayout.WEST);
@@ -165,11 +203,16 @@ public class SuggestGUI extends JPanel {
 		//_networkPanel.add(holderPanel, BorderLayout.CENTER);
 		_networkPanel.add(clientPanel);
 		_networkPanel.add(joinPanel);
+		_networkPanel.add(chatPanel);
+		_networkPanel.add(messagePanel);
 		
 	}
-
-
-
+	
+	public void newMessage(String username, String message) {
+		System.out.println("newmessage called");
+		_chatLog.append(username + ":  " + message + "\n");
+	}
+	
 	private void buildSuggestTab() {
 		_suggestPanel = new JPanel();
 		JPanel inputpanel = new JPanel();

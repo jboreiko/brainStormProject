@@ -23,6 +23,7 @@ class Client extends Thread{
 	private LinkedBlockingQueue<ChatMessage> chatReceived; 
 	private LinkedBlockingQueue<ActionMessage> actionReceived;
 	private Lock isRegistered;
+	private Networking _net;
 
 	/*
 	 * These constants are the port number and host name for your server. For
@@ -36,7 +37,7 @@ class Client extends Thread{
 	 */
 	private int port = 1337;
 	private String addrName = "localhost";
-	private String username;
+	public String username;
 
 	/**********************************************************
 	 * TODO: Initializes the private variables
@@ -45,7 +46,7 @@ class Client extends Thread{
 	 * @throws IOException 
 	 * @throws UnknownHostException 
 	 **********************************************************/
-	public Client(String _hostIp, int _port, String _username) throws IOException {
+	public Client(String _hostIp, int _port, String _username, Networking net) throws IOException {
 		//init private i-vars here
 		//userName = _userName;
 
@@ -61,6 +62,7 @@ class Client extends Thread{
 		clientId = -1;
 		username = _username;
 		socket = null;
+		_net = net;
 		
 		socket = createSocket();
 	}
@@ -289,6 +291,8 @@ class Client extends Thread{
 						actionReceived.offer((ActionMessage) message);
 					} else if (message.type == Type.CHAT) {
 						System.out.println("client: received chat message: " + ((ChatMessage) message).text);
+						ChatMessage chatMsg = (ChatMessage) message;
+						_net._suggestPanel.newMessage(chatMsg.uname, chatMsg.text);
 						chatReceived.offer((ChatMessage) message);
 					} else if (message.type == Type.HANDSHAKE) {
 						clientId = ((Handshake) message).client_id;

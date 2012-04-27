@@ -20,7 +20,7 @@ public class Host extends Thread{
 
     private List<ClientHandler> clients; //The list of currently connected clients.
     private Queue<ClientInfo> recoveryPriority;
-    private Client localClient;
+    public Client localClient;
     private int hostId = 0;
     
     private int openId;
@@ -30,11 +30,11 @@ public class Host extends Thread{
      * @param localport - the port the server will listen on
      * @throws IOException
      **************************************************************************/
-    public Host(int _localport, String username) throws IOException {
+    public Host(int _localport, String username, Networking net) throws IOException {
     	localport = _localport;
     	serverSocket = new ServerSocket(localport);
     	clients = new LinkedList<ClientHandler>();
-    	localClient = new Client("localhost", localport, username);
+    	localClient = new Client("localhost", localport, username, net);
     	recoveryPriority = new LinkedList<ClientInfo>();
     	localClient.start();
     	openId = 1;

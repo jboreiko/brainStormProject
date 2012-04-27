@@ -2,6 +2,8 @@ package networking;
 
 import java.io.IOException;
 
+import suggest.SuggestGUI;
+
 import whiteboard.Backend;
 
 import networking.NetworkMessage.Type;
@@ -12,6 +14,7 @@ public class Networking {
 	Client client;
 	Host host;
 	Backend backend;
+	SuggestGUI _suggestPanel;
 	//NetworkReceiver receiver;
 	Thread receiverThread;
 
@@ -31,6 +34,10 @@ public class Networking {
 		}
 	}
 	
+	public void setSuggestPanel(SuggestGUI suggest) {
+		_suggestPanel = suggest;
+	}
+	
 	public void startReceiving() {
 		//receiver = new NetworkReceiver();
 		//receiver.backend = backend;
@@ -41,7 +48,7 @@ public class Networking {
 	public boolean becomeHost(String username) {
 		currentState = State.HOST;
 		try {
-			host = new Host(DEFAULT_PORT, username);
+			host = new Host(DEFAULT_PORT, username, this);
 		} catch (IOException e) {
 			System.out.println("server: failed to create socket listener and connect client");
 			return false;
@@ -53,7 +60,7 @@ public class Networking {
 	public boolean becomeClient(String hostIp, String username) {
 		currentState = State.CLIENT;
 		try {
-			client = new Client(hostIp, DEFAULT_PORT, username);
+			client = new Client(hostIp, DEFAULT_PORT, username, this);
 		} catch (IOException e) {
 			System.out.println("client: failed to connect socket");
 			return false;
@@ -66,9 +73,9 @@ public class Networking {
 	public boolean sendMessage(String msg) {
 		boolean ret = false;
 		if (currentState == State.CLIENT) {
-			ret = client.send(new ChatMessage(msg));
+			ret = client.send(new ChatMessage(client.clientId, msg, client.username));
 		} else if (currentState == State.HOST) {
-			ret = host.send(new ChatMessage(msg));
+			ret = host.send(new ChatMessage(host.localClient.clientId, msg, host.localClient.username));
 		}
 		return ret;
 	}
@@ -85,6 +92,7 @@ public class Networking {
 	//This is blocking!!
 	public String receiveChatMessage() {        
 		String ret = "";
+		System.out.println("received message");
 		if (currentState == State.CLIENT) {
 			ret = ((ChatMessage) client.receive(Type.CHAT)).text;
 		} else if (currentState == State.HOST) {
@@ -97,9 +105,9 @@ public class Networking {
 	public Object receiveActionMessage() {
 		Object ret = null;
 		if (currentState == State.CLIENT) {
-			ret = ((ActionMessage) client.receive(Type.CHAT)).action;
+			ret = ((ActionMessage) client.receive(Type.ACTION)).action;
 		} else if (currentState == State.HOST) {
-			ret = ((ActionMessage) host.receive(Type.CHAT)).action;
+			ret = ((ActionMessage) host.receive(Type.ACTION)).action;
 		}
 		System.out.println(ret);
 		return ret;

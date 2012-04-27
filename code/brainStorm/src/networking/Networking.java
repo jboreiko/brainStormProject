@@ -35,7 +35,7 @@ public class Networking {
 		//receiver = new NetworkReceiver();
 		//receiver.backend = backend;
 		//receiverThread = new Thread(receiver);
-		receiverThread.start();
+		//receiverThread.start();
 	}
 
 	public boolean becomeHost(String username) {
@@ -59,7 +59,7 @@ public class Networking {
 			return false;
 		}
 		client.start();
-		startReceiving();
+		//startReceiving();
 		return (client != null);
 	}
 

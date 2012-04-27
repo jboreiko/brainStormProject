@@ -1,19 +1,18 @@
 package whiteboard;
 
 import java.awt.Point;
-
-import GUI.ViewportDragScrollListener;
-import boardnodes.BoardElt;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Stack;
 
 import networking.Networking;
-
+import GUI.ViewportDragScrollListener;
+import boardnodes.BoardElt;
 import boardnodes.BoardEltType;
+import boardnodes.BoardPath;
 
-public class Backend {
+public class Backend implements Serializable{
 	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
 	private ArrayList<boardnodes.BoardPath> paths;
@@ -44,8 +43,9 @@ public class Backend {
 		if(b.getType() == BoardEltType.PATH) {
 			paths.add((boardnodes.BoardPath)b);
 		}
-		networking.sendAction(b);
-		addAction(new CreationAction(b));
+		BoardAction committed = new CreationAction(b);
+		addAction(committed);
+		networking.sendAction(new BoardEltExchange(b,committed));
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -61,7 +61,12 @@ public class Backend {
 			if(toReturn.getType()!=BoardEltType.PATH) {
 				panel.remove(toReturn);
 			}
-			addAction(new DeletionAction(toReturn));
+			BoardAction committed = new DeletionAction(toReturn);
+			addAction(committed);
+			if (lookup(UID) != null)
+				networking.sendAction(new BoardEltExchange(lookup(UID), committed));
+			else  
+				System.err.println("Couldn't find UID of remove and tried to send " + UID);
 		}
 		panel.repaint();
 		return toReturn;
@@ -72,7 +77,9 @@ public class Backend {
 	public void modifyBoardElt(int UID) {
 		BoardElt b = (BoardElt) boardElts.get(UID);
 		if(b!=null) {
-			addAction(new ModificationAction(b));
+			BoardAction committed = new ModificationAction(b);
+			addAction(committed);
+			networking.sendAction(new BoardEltExchange(b,committed));
 		}
 	}
 	
@@ -109,7 +116,8 @@ public class Backend {
 		BoardElt be;
 		switch(b.getType()) {
 		case ELT_MOD:
-			System.out.println("undoing a modification on node "+b.getTarget());
+//			boardElts   
+//			System.out.println("undoing a modification on node "+b.getTarget());
 			System.out.println("the hashmap associates "+b.getTarget()+" with "+boardElts.get(b.getTarget()));
 			b.getTarget().undo();
 			b.getTarget().repaint();
@@ -237,6 +245,31 @@ public class Backend {
 			}
 		}
 		return toReturn;
+	}
+	
+	/**callback for when the networking object associated with
+	 * this backend has received a new Object reflecting a change 
+	 * in the state of the hosted Whiteboard.
+	 * We simply replace our outdated object with the one
+	 * contained in this BoardEltExchange object
+	 * 
+	 * @param receivedAction
+	 */
+	public void receiveNetworkedObject(Object receivedAction) {
+		BoardEltExchange bex = (BoardEltExchange) receivedAction;
+		BoardElt nodeToReplace = bex.getNode();
+		BoardAction action = bex.getAction();
+		if (nodeToReplace.Type != BoardEltType.PATH)
+			panel.updateMember(nodeToReplace);
+		else {
+			for (int i = 0 ; i < paths.size(); i++) {
+				if (paths.get(i).getUID() == nodeToReplace.getUID()) {
+					paths.set(i, (BoardPath)nodeToReplace);
+					break;
+				}
+			}
+		}
+		addAction(action);
 	}
 	
 	public ArrayList<BoardElt> getElts() {

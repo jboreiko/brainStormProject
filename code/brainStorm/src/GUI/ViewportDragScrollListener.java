@@ -1,15 +1,22 @@
 package GUI;
 
-import javax.swing.*;
-
-import boardnodes.BoardElt;
-import boardnodes.BoardPath;
-
-import java.awt.event.*;
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.io.Serializable;
 import java.util.Iterator;
 
-public class ViewportDragScrollListener implements MouseListener,MouseMotionListener, HierarchyListener{
+import javax.swing.JComponent;
+import javax.swing.JViewport;
+
+import boardnodes.BoardPath;
+
+public class ViewportDragScrollListener implements MouseListener,MouseMotionListener, HierarchyListener, Serializable{
 	private static final int SPEED = 25;
 	private final Cursor dc;
 	private final Cursor hc = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);

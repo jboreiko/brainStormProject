@@ -12,7 +12,7 @@ public class Networking {
 	Client client;
 	Host host;
 	Backend backend;
-	NetworkReceiver receiver;
+	//NetworkReceiver receiver;
 	Thread receiverThread;
 
 	private enum State {
@@ -32,9 +32,9 @@ public class Networking {
 	}
 	
 	public void startReceiving() {
-		receiver = new NetworkReceiver();
-		receiver.backend = backend;
-		receiverThread = new Thread(receiver);
+		//receiver = new NetworkReceiver();
+		//receiver.backend = backend;
+		//receiverThread = new Thread(receiver);
 		receiverThread.start();
 	}
 

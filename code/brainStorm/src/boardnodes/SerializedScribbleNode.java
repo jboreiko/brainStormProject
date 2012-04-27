@@ -18,6 +18,8 @@ public class SerializedScribbleNode extends SerializedBoardElt {
 	public LinkedList<List<ColoredPoint>> undrawnArea;
 	Stack<ScribbleNodeEdit> undos;
 	Stack<ScribbleNodeEdit> redos;
+	public int x;
+	public int y;
 	
 	public SerializedScribbleNode() {
 		type = BoardEltType.SCRIBBLE;

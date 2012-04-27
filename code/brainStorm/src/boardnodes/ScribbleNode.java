@@ -30,8 +30,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	boolean _resizeLock,_dragLock;
 	Point startPt;
 	public final static int POINT_WIDTH = 3;
-	LinkedList<List<ColoredPoint>> drawnArea; //the points that have been drawn
-	LinkedList<List<ColoredPoint>> undrawnArea; //the drawn areas that have been undone
 	List<ColoredPoint> _pendingStroke; //the last or currentldy-being-drawn List of points
 	Stack<ScribbleNodeEdit> undos;
 	Stack<ScribbleNodeEdit> redos;
@@ -45,8 +43,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		_resizeLock = false;
 		_dragLock = false;
 		setBackground(Color.WHITE);
-		drawnArea = new LinkedList<List<ColoredPoint>>();
-		undrawnArea = new LinkedList<List<ColoredPoint>>();
 		undos = new Stack<ScribbleNodeEdit>();
 		redos = new Stack<ScribbleNodeEdit>();
 		addMouseListener(this);
@@ -210,7 +206,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		g.setColor(Color.WHITE);
 		g.fillRect(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight() - 2*BORDER_WIDTH);
 		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
+		System.out.println("I have "+undos.size());
 		for (ScribbleNodeEdit edit : undos) {
 			if (edit.type != ScribbleNodeEditType.DRAW) { //only draw the DRAW objects
 				continue;
@@ -270,8 +266,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void ofSerialized(SerializedBoardElt b) {
 		SerializedScribbleNode sn = (SerializedScribbleNode) b;
 		UID = sn.UID;
-		drawnArea = sn.drawnArea;
-		undrawnArea = sn.undrawnArea;
+		setLocation(sn.x, sn.y);
 		undos = sn.undos;
 		redos = sn.redos;	
 	}
@@ -280,8 +275,8 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public SerializedBoardElt toSerialized() {
 		SerializedScribbleNode toReturn = new SerializedScribbleNode();
 		toReturn.UID = UID;
-		toReturn.drawnArea = drawnArea;
-		toReturn.undrawnArea = undrawnArea;
+		toReturn.x = getX();
+		toReturn.y = getY();
 		toReturn.undos = undos;
 		toReturn.redos = redos;
 		return toReturn;

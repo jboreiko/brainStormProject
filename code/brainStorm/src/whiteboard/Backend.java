@@ -49,8 +49,16 @@ public class Backend {
 			paths.add((boardnodes.BoardPath)b);
 			networking.sendAction(new BoardEltExchange(((BoardPath) b).toSerialized(), BoardActionType.CREATION));
 		} else if (b.getType() == BoardEltType.SCRIBBLE){
+			System.out.println("sending a scribble!");
 			networking.sendAction(new BoardEltExchange(((ScribbleNode) b).toSerialized(), BoardActionType.CREATION));
 		}
+	}
+	public void addFromNetwork(BoardElt b) {
+		b._mouseListener = _mouseListener;
+		boardElts.put(b.getUID(), b);
+		if(b.getType() == BoardEltType.PATH)
+			paths.add((boardnodes.BoardPath)b);
+		
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -68,6 +76,22 @@ public class Backend {
 			}
 			BoardAction committed = new DeletionAction(toReturn);
 			addAction(committed);
+			if (lookup(UID) != null) {
+				//networking.sendAction(new BoardEltExchange(lookup(UID), committed));
+			} else  {
+				System.err.println("Couldn't find UID of remove and tried to send " + UID);
+			}
+		}
+		panel.repaint();
+		return toReturn;
+	}
+	
+	public BoardElt removeFromNetwork(int UID) {
+		BoardElt toReturn = boardElts.remove(UID);
+		if(toReturn!=null) {
+			if(toReturn.getType()!=BoardEltType.PATH) {
+				panel.remove(toReturn);
+			}
 			if (lookup(UID) != null) {
 				//networking.sendAction(new BoardEltExchange(lookup(UID), committed));
 			} else  {
@@ -128,6 +152,7 @@ public class Backend {
 			System.out.println("no actions to undo!");
 			return;
 		}
+		//networking.sendAction(new BoardEltExchange(null, BoardActionType.UNDO));
 		BoardAction b = pastActions.pop();
 		BoardElt be;
 		switch(b.getType()) {
@@ -165,9 +190,6 @@ public class Backend {
 			}
 			futureActions.push(new DeletionAction(be));
 			break;
-		case MOVE:
-			//TODO: handle move
-			break;
 		}
 		panel.repaint();
 	}
@@ -178,6 +200,7 @@ public class Backend {
 			System.out.println("no actions to redo!");
 			return;
 		}
+	    //networking.sendAction(new BoardEltExchange(null, BoardActionType.REDO));
 		BoardElt be;
 		BoardAction b = futureActions.pop();
 		switch(b.getType()) {
@@ -211,9 +234,6 @@ public class Backend {
 				panel.remove(be);
 			}
 			pastActions.push(new DeletionAction(be));
-			break;
-		case MOVE:
-			//TODO: handle move
 			break;
 		}
 		panel.repaint();
@@ -281,6 +301,12 @@ public class Backend {
 		case DELETION:
 		    //action = new DelectionAction();
 		    break;
+		case REDO:
+		    redo();
+		    break;
+		case UNDO:
+		    undo();
+		    break;
 		}
 		/*
 		if (nodeToReplace.getType() != BoardEltType.PATH) {
@@ -300,6 +326,66 @@ public class Backend {
 	}
 	
 	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
+		BoardElt toReturn = null;
+	    switch (e.getType()) {
+	    case PATH:
+	        if(!boardElts.containsKey(e.getUID())) {
+	        	toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
+	        	toReturn.ofSerialized(((SerializedBoardPath) e));
+	        	addFromNetwork(toReturn);
+	        } else {
+	        	boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
+	        }
+	        break;
+	    case SCRIBBLE:
+	    	System.out.println("receiving a scribble!");
+	    	 if(!boardElts.containsKey(e.getUID())) {
+	    		 System.out.println("adding a scribble!");
+		        	toReturn = new ScribbleNode(e.getUID(), this);
+		        	toReturn.ofSerialized(((SerializedScribbleNode) e));
+		        	addFromNetwork(toReturn);
+		        	panel.add(toReturn);
+		        } else {
+		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
+		        }
+	        break;
+	    default:
+	    	break;
+	    }
+	    panel.repaint();
+        return toReturn;
+    }
+	
+	private BoardElt receiveNetworkDeletionObject(SerializedBoardElt e) {
+		BoardElt toReturn = null;
+	    switch (e.getType()) {
+	    case PATH:
+	        if(!boardElts.containsKey(e.getUID())) {
+	        	toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
+	        	toReturn.ofSerialized(((SerializedBoardPath) e));
+	        	toReturn._mouseListener = _mouseListener;
+	        	boardElts.put(toReturn.getUID(), toReturn);
+	        	System.out.println("adding "+toReturn.getUID());
+	        	paths.add((BoardPath) toReturn);
+	        }
+	        break;
+	    case SCRIBBLE:
+	    	 if(!boardElts.containsKey(e.getUID())) {
+		        	toReturn = new ScribbleNode(e.getUID(), this);
+		        	toReturn.ofSerialized(((SerializedScribbleNode) e));
+		        	toReturn._mouseListener = _mouseListener;
+		        	boardElts.put(toReturn.getUID(), toReturn);
+		        	System.out.println("adding "+toReturn.getUID());
+		        } else {
+		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
+		        }
+	        break;
+	    }
+	    panel.repaint();
+        return toReturn;
+    }
+	
+	private BoardElt receiveNetworkModificationObject(SerializedBoardElt e) {
 		BoardElt toReturn = null;
 	    switch (e.getType()) {
 	    case PATH:

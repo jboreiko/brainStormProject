@@ -206,7 +206,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		g.setColor(Color.WHITE);
 		g.fillRect(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight() - 2*BORDER_WIDTH);
 		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		System.out.println("I have "+undos.size());
 		for (ScribbleNodeEdit edit : undos) {
 			if (edit.type != ScribbleNodeEditType.DRAW) { //only draw the DRAW objects
 				continue;

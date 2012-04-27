@@ -225,14 +225,13 @@ class Client extends Thread{
 						writer.writeObject(message);
 						writer.flush();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("client: host has disconnected");
+						return;
 					}
 				} else {
 					System.err.println("Writing thread has quit!");
 					break;
 				}
-				/* TODO */
 			}
 		}
 

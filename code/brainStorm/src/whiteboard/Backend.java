@@ -1,6 +1,7 @@
 package whiteboard;
 
 import java.awt.Point;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -13,7 +14,7 @@ import boardnodes.BoardPath;
 import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
-import boardnodes.SerializedScribbleNode;
+//import boardnodes.SerializedScribbleNode;
 
 public class Backend {
 	private GUI.WhiteboardPanel panel;
@@ -343,34 +344,34 @@ public class Backend {
 
 	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
 		BoardElt toReturn = null;
-		switch (e.getType()) {
-		case PATH:
-			if(!boardElts.containsKey(e.getUID())) {
-				toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
-				toReturn.ofSerialized(((SerializedBoardPath) e));
-				addFromNetwork(toReturn);
-			} else {
-				boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
-			}
-			break;
-		case SCRIBBLE:
-			System.out.println("receiving a scribble!");
-			if(!boardElts.containsKey(e.getUID())) {
-				System.out.println("adding a scribble!");
-				toReturn = new ScribbleNode(e.getUID(), this);
-				toReturn.ofSerialized(((SerializedScribbleNode) e));
-				addFromNetwork(toReturn);
-				panel.add(toReturn);
-			} else {
-				boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
-			}
-			break;
-		default:
-			break;
-		}
-		panel.repaint();
-		return toReturn;
-	}
+	    switch (e.getType()) {
+	    case PATH:
+	        if(!boardElts.containsKey(e.getUID())) {
+	        	toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
+	        	toReturn.ofSerialized(((SerializedBoardPath) e));
+	        	toReturn._mouseListener = _mouseListener;
+	        	boardElts.put(toReturn.getUID(), toReturn);
+	        	System.out.println("adding "+toReturn.getUID());
+	        	paths.add((BoardPath) toReturn);
+	        } else {
+	        	boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
+	        }
+	        break;
+	    case SCRIBBLE:
+	    	 /*if(!boardElts.containsKey(e.getUID())) {
+		        	toReturn = new ScribbleNode(e.getUID(), this);
+		        	toReturn.ofSerialized(((SerializedScribbleNode) e));
+		        	toReturn._mouseListener = _mouseListener;
+		        	boardElts.put(toReturn.getUID(), toReturn);
+		        	System.out.println("adding "+toReturn.getUID());
+		        } else {
+		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
+		        }
+	        break;*/
+	    }
+	    panel.repaint();
+        return toReturn;
+    }
 
 	private BoardElt receiveNetworkDeletionObject(SerializedBoardElt e) {
 		BoardElt toReturn = null;

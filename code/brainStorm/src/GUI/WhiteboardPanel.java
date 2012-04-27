@@ -267,6 +267,14 @@ public class WhiteboardPanel extends JPanel{
 	public void setIncrement(int pixels){
 		_increment = pixels;
 	}*/
+	public void updateMember(BoardElt element){
+		for(int i = 0; i<this.getComponentCount();i++){
+			if(element.getUID() == ((BoardElt)this.getComponent(i)).getUID()){
+				remove(this.getComponent(i));
+				add(element,i);
+			}
+		}
+	}
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;

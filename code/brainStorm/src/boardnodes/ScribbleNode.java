@@ -217,6 +217,5 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	}
 	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub
-
 	}
 }

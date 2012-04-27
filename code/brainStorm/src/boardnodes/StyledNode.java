@@ -50,10 +50,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		view = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		view.setPreferredSize(DEFAULT_SIZE);
 		
-		System.out.println("Y is : " + view.getHeight() + "  X is : " + view.getWidth());
-		System.out.println("SCrollpane's location in parent is: " + view.getBounds());
 		view.setBounds(BORDER_WIDTH, BORDER_WIDTH, DEFAULT_SIZE.width, DEFAULT_SIZE.height);
-		System.out.println("SCrollpane's location in parent is: " + view.getBounds());
 		this.add(view);
 		this.setSize(new Dimension(DEFAULT_SIZE.width + BORDER_WIDTH*2, DEFAULT_SIZE.height + BORDER_WIDTH*2));
 		addMouseListener(this);
@@ -84,13 +81,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
-		//text.
 		try {
 			text.insertString(0, "\u2022 Make a node", null);
 			text.insertString(text.getLength(), "\n\u2022 Fill it in", null);
-			//if (text.)
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
@@ -126,8 +120,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			Rectangle r = (Rectangle) f.content;
 			undos.push(new StyledNodeEdit(new Rectangle(getBounds())));
 			setBounds(r);
+			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
 		}
-			
+		revalidate();
+		repaint();
 	}
 	
 	@Override
@@ -147,7 +143,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			Rectangle r = (Rectangle) f.content;
 			redos.push(new StyledNodeEdit(new Rectangle(getBounds())));
 			setBounds(r);
+			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
 		}
+		revalidate();
+		repaint();
 	}
 	
 	@Override
@@ -167,21 +166,19 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
-			System.out.println("Deleting " + this.getUID());
 			backend.remove(this.getUID());
 		}
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		System.out.println("ENTERED");
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub	
 	}
-	@Override
+
+	Rectangle boundsBeforeMove;
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
 		wbp.setListFront(this);
 		startPt = new Point(e.getX(),e.getY());
 		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
@@ -190,23 +187,27 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		else {
 			_dragLock = true;
 		}
+		boundsBeforeMove = getBounds();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (_resizeLock || _dragLock) {
+			System.out.println("releasing lock " + _resizeLock + _dragLock);
+			undos.push(new StyledNodeEdit(boundsBeforeMove));
+			notifyBackend(BoardActionType.ELT_MOD);
+			System.out.println(undos.size());
+		}
 		_resizeLock = false;
 		_dragLock = false;
 	}
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		System.out.println(e.getPoint());
 		int dx = e.getX() - startPt.x;
 		int dy = e.getY() - startPt.y;
 		int screenX = e.getX() + getBounds().x;
 		int screenY = e.getY() + getBounds().y;
-		System.out.println("screenX,Y: " + screenX+" " + screenY);
 		Rectangle previousBounds = getBounds();
 		Rectangle prevView = view.getBounds();
 		if(_resizeLock){
@@ -222,17 +223,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			startPt.setLocation(e.getX(), e.getY());
 		} else if (_dragLock) {
 
-			if (previousBounds.x + dx >= 0 && previousBounds.y + dy >= 0)
+			if (previousBounds.x + dx >= 0 && previousBounds.y + dy >= 0) {
 				setBounds(previousBounds.x + dx, previousBounds.y + dy, previousBounds.width, previousBounds.height);
-			//if (screenX>= 0 && screenY>= 0)
-			//	setBounds(screenX, screenY, previousBounds.width, previousBounds.height);
+			}
 		}
-		/*else if(_dragLock){
-			System.out.println(startPt);
-			System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
-			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
-			//view.setBounds(viewBounds.x + xoffset,viewBounds.y + yoffset,viewBounds.width,viewBounds.height);
-		}*/
 		wbp.extendPanel(getBounds());
 		repaint();
 		revalidate();
@@ -240,7 +234,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub		
 		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
 		}
@@ -268,6 +261,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
+		view.repaint();
 		Graphics2D g = (Graphics2D) graphics;
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0,0,getWidth(), getHeight());
@@ -276,6 +270,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+		
+		
 	}
 	
 }

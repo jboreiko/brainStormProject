@@ -146,6 +146,22 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		}
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		JTextPane toReturn = new JTextPane(text);
+		toReturn.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				content.revalidate();
+			}
+			
+
+		});
 		toReturn.addMouseListener(new MouseListener() {
 
 			@Override
@@ -183,6 +199,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				
 			}
 		});
+		toReturn.grabFocus();
 		return toReturn;
 	}
 

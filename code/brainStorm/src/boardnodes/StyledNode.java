@@ -2,17 +2,33 @@ package boardnodes;
 import java.awt.*;
 import java.util.Stack;
 import whiteboard.Backend;
+import GUI.ViewportDragScrollListener;
 import GUI.WhiteboardPanel;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.Serializable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
@@ -24,44 +40,134 @@ import whiteboard.BoardActionType;
 
 import boardnodes.BoardEltType;
 
-public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
+public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -161595885786250168L;
 	public static int UIDCounter = 0;
-	final BoardEltType Type = BoardEltType.NODE;
 	private Point startPt,nextPt;
 	JTextPane content;
 	StyledDocument text;
-	Stack<UndoableEdit> undos;
-	Stack<UndoableEdit> redos;
+	Stack<StyledNodeEdit> undos;
+	Stack<StyledNodeEdit> redos;
 	WhiteboardPanel _wbp;
 	JScrollPane view;
 	boolean _resizeLock,_dragLock;
-	
+	JMenu _styleMenu, _colorMenu, _fontSizeMenu;
+	JPopupMenu _fontMenu;
+
+	public final static int BORDER_WIDTH = 10;
+	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
+
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
-		undos = new Stack<UndoableEdit>();
-		redos = new Stack<UndoableEdit>();
+		_fontMenu = new JPopupMenu();
+		//Different Styles of Typing
+		_styleMenu = new JMenu("Styles");
+	    final String fonts[] = 
+	        {"Abberancy","Arial","Courier New","Dialog","FreeSerif","Impact","SansSerif","Times New Roman","Verdana"};
+	    for(int i=0;i<fonts.length;i+=1){
+	    	final String fontName = fonts[i];
+	    	JMenuItem fontItem = new JMenuItem(fontName);
+	    	fontItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					content.setFont(new Font(fontName,Font.PLAIN, content.getFont().getSize()));
+				}
+			});
+		    _styleMenu.add(fontItem);
+	    }
+	    
+	    //Different Colors
+		_colorMenu = new JMenu("Colors");
+	    final String colorNames[] = 
+	        {"BLACK","BLUE","CYAN","DARK_GRAY","GRAY","LIGHT_GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW"};
+	    final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
+	    		Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW};
+	    for(int i=0;i<colorNames.length;i+=1){
+	    	final Color color = colors[i];
+	    	JMenuItem fontItem = new JMenuItem(colorNames[i]);
+	    	fontItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					content.setForeground(color);
+				}
+			});
+		    _colorMenu.add(fontItem);
+	    }
+	    
+	    //Different Sizes
+		_fontSizeMenu = new JMenu("Size");
+    	final JTextField fontItem = new JTextField();
+    	fontItem.setPreferredSize(new Dimension(100,40));
+    	fontItem.addKeyListener(new KeyListener() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if(e.getKeyChar() == e.VK_ENTER){
+					System.out.println("ENTER");
+					int fontSize = 12;
+					try{
+						fontSize = Integer.parseInt(fontItem.getText());
+						if(fontSize > 72){
+							System.err.println("72 is max text size!");
+						}
+						else{
+							content.setFont(new Font(content.getFont().getName(),Font.PLAIN, fontSize));
+						}
+			    	}
+			    	catch(Exception ex){
+			    		System.err.println("TYPE AN INT!");
+			    	}
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	    _fontSizeMenu.add(fontItem);
+	    
+	    _fontMenu.add(_fontSizeMenu);
+	    _fontMenu.addSeparator();
+	    _fontMenu.add(_styleMenu);
+	    _fontMenu.addSeparator();
+	    _fontMenu.add(_colorMenu);
+	    
+	    
+		type = BoardEltType.STYLED;
+		setLayout(null);
+		undos = new Stack<StyledNodeEdit>();
+		redos = new Stack<StyledNodeEdit>();
 		_resizeLock = false;
 		_dragLock = false;
 		content = createEditorPane();
 		view = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		view.setPreferredSize(new Dimension(200,150));
-		
-		System.out.println("Y is : " + view.getHeight() + "  X is : " + view.getWidth());
+
+		view.setBounds(BORDER_WIDTH, BORDER_WIDTH, DEFAULT_SIZE.width, DEFAULT_SIZE.height);
 		this.add(view);
-		this.setSize(new Dimension(215,165));
+		this.setSize(new Dimension(DEFAULT_SIZE.width + BORDER_WIDTH*2, DEFAULT_SIZE.height + BORDER_WIDTH*2));
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		
+
 		revalidate();
 		view.revalidate();
 		repaint();
 		view.repaint();
 	}
-	
+
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
-			undos.push(e.getEdit());
+			System.out.println("DOCUMENT LISTENER SAYS UID IS " + getUID());
+			undos.push(new StyledNodeEdit(e.getEdit()));
 			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
 					if(text.getText(text.getLength()-1, 1).equals("\n")) {
@@ -71,170 +177,272 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 					e1.printStackTrace();
 				}
 			}
-			notifyWhiteboard(BoardActionType.ELT_MOD);
+			notifyBackend(BoardActionType.ELT_MOD);
 		}
 	}
-	
+
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
-		//text.
 		try {
 			text.insertString(0, "\u2022 Make a node", null);
 			text.insertString(text.getLength(), "\n\u2022 Fill it in", null);
-			//if (text.)
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		JTextPane toReturn = new JTextPane(text);
-		
+		toReturn.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("GAINED FOCUS");
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				content.revalidate();
+			}
+			
+
+		});
+		toReturn.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println(getUID());
+			    if (e.getModifiers() == 4) {
+			    	_fontMenu.show(StyledNode.this,e.getX(),e.getY());
+			    }
+				wbp.setListFront(StyledNode.this);
+				content.grabFocus();
+				StyledNode.this.repaint();
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		toReturn.grabFocus();
 		return toReturn;
 	}
-
 
 	@Override
 	public String encode() {
 		return null;
 	}
-	
 
 	@Override
 	public void addAction(ActionObject ao) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
-
 
 	@Override
 	public void redo() {
 		if (redos.empty()) 
 			return;
-		UndoableEdit e = redos.pop();
-		if (e.canRedo()) {
-			e.redo();
-			undos.push(e);
-		} else {
-			System.out.println("Could not redo " + e);
+		StyledNodeEdit f = redos.pop();
+		if (f.type == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.content;
+			if (e.canRedo()) {
+				e.redo();
+				undos.push(f);
+			} else {
+				System.out.println("Could not redo " + e);
+			}
+		} else if (f.type == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.content;
+			undos.push(new StyledNodeEdit(new Rectangle(getBounds())));
+			setBounds(r);
+			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
 		}
+		revalidate();
+		repaint();
 	}
-
 
 	@Override
 	public void undo() {
 		if (undos.empty()) 
 			return;
-		UndoableEdit e = undos.pop();
-		if (e.canUndo()) {
-			e.undo();
-			redos.push(e);
-		} else {
-			System.out.println("Could not undo " + e);
+		StyledNodeEdit f = undos.pop();
+		if (f.type == StyledNodeEditType.TEXT) {
+			UndoableEdit e = (UndoableEdit) f.content;
+			if (e.canUndo()) {
+				e.undo();
+				redos.push(f);
+			} else {
+				System.out.println("Could not undo " + e);
+			}
+		} else if (f.type == StyledNodeEditType.DRAG) {
+			Rectangle r = (Rectangle) f.content;
+			redos.push(new StyledNodeEdit(new Rectangle(getBounds())));
+			setBounds(r);
+			view.setBounds(BORDER_WIDTH, BORDER_WIDTH, r.width-2*BORDER_WIDTH, r.height-2*BORDER_WIDTH);
 		}
+		revalidate();
+		repaint();
 	}
-
 
 	@Override
 	public BoardElt clone() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
 	@Override
 	public Point getPos() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 	@Override
 	public void setPos(Point p) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
-	
-	
-	
-	
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		System.out.println("CLICKED!");
-		
+		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
+			backend.remove(this.getUID());
+		}
 	}
-
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		System.out.println("ENTERED!");
-		
+		if(_mouseListener!=null) {
+			System.out.println("asdfa");
+			if(_mouseListener.draggedPath!=null) {
+				System.out.println("whoo");
+				_mouseListener.draggedPath._snapSeminal = this;
+			}
+		}
+		System.out.println("ENTERED");
 	}
-
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(_mouseListener!=null) {
+			System.out.println("asdfa");
+			if(_mouseListener.draggedPath!=null) {
+				System.out.println("whoo");
+				_mouseListener.draggedPath._snapSeminal = null;
+			}
+		}
 	}
 
-	@Override
+	Rectangle boundsBeforeMove;
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
 		wbp.setListFront(this);
+		content.grabFocus();
 		startPt = new Point(e.getX(),e.getY());
-		if(e.getX() > this.getWidth()-15 && e.getY() > this.getHeight()-15){
+		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
 			_resizeLock = true;
 		}
 		else {
 			_dragLock = true;
 		}
+		boundsBeforeMove = getBounds();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (_resizeLock || _dragLock) {
+			System.out.println("releasing lock " + _resizeLock + _dragLock);
+			undos.push(new StyledNodeEdit(boundsBeforeMove));
+			notifyBackend(BoardActionType.ELT_MOD);
+			System.out.println(undos.size());
+		}
 		_resizeLock = false;
 		_dragLock = false;
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-		Rectangle nodeBounds = getBounds();
-		Rectangle viewBounds = view.getBounds();
-		int xoffset =  - (startPt.x - e.getX());
-		int yoffset =  - (startPt.y - e.getY());
+		int dx = e.getX() - startPt.x;
+		int dy = e.getY() - startPt.y;
+		int screenX = e.getX() + getBounds().x;
+		int screenY = e.getY() + getBounds().y;
+		Rectangle previousBounds = getBounds();
+		Rectangle prevView = view.getBounds();
 		if(_resizeLock){
-			if(nodeBounds.width + xoffset < 30 && nodeBounds.height + yoffset < 30){
-				xoffset = 0;
-				yoffset = 0;
+			if (e.getX() > BORDER_WIDTH*8) { //the resize leaves us with positive width
+				setBounds(previousBounds.x, previousBounds.y, e.getX(), previousBounds.height);
+				view.setBounds(prevView.x, prevView.y, e.getX()-BORDER_WIDTH*2, prevView.height);
 			}
-			else if(nodeBounds.width + xoffset < 30){
-				xoffset = 0;
+			if (e.getY()> BORDER_WIDTH*8) { //the resize leaves us with positive height
+				setBounds(previousBounds.x, previousBounds.y, getBounds().width, e.getY());
+				view.setBounds(prevView.x, prevView.y, view.getBounds().width, e.getY()-BORDER_WIDTH*2);
 			}
-			else if(nodeBounds.height + yoffset < 30){
-				yoffset = 0;
-			}
-				System.out.println(startPt);
-				System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
-				setBounds(nodeBounds.x,nodeBounds.y,nodeBounds.width + xoffset,nodeBounds.height + yoffset);
-				view.setBounds(viewBounds.x,viewBounds.y,viewBounds.width + xoffset,viewBounds.height + yoffset);
-				view.setPreferredSize(new Dimension(viewBounds.width + xoffset,viewBounds.height + yoffset));
-				repaint();
-				revalidate();
-				startPt.setLocation(e.getX(),e.getY());
+			view.setPreferredSize(new Dimension(view.getBounds().width, view.getBounds().height));
+			startPt.setLocation(e.getX(), e.getY());
+		} else if (_dragLock) {
+
+			//if (previousBounds.x + dx >= 0 && previousBounds.y + dy >= 0)
+			setBounds(previousBounds.x + dx, previousBounds.y + dy, previousBounds.width, previousBounds.height);
+			//if (screenX>= 0 && screenY>= 0)
+			//	setBounds(screenX, screenY, previousBounds.width, previousBounds.height);
 		}
-		else if(_dragLock){
-			System.out.println(startPt);
-			System.out.println(e.getX() + "<=====X     Y=====>" + e.getY());
-			setBounds(nodeBounds.x + xoffset,nodeBounds.y + yoffset,nodeBounds.width,nodeBounds.height);
-			view.setBounds(viewBounds.x + xoffset,viewBounds.y + yoffset,viewBounds.width,viewBounds.height);
-			repaint();
-			revalidate();
-		}
+		wbp.extendPanel(getBounds());
+		repaint();
+		revalidate();
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+		}
+		else if(e.getX() > this.getWidth()-BORDER_WIDTH|| e.getX() < BORDER_WIDTH || e.getY() < BORDER_WIDTH|| e.getY() > this.getHeight()-BORDER_WIDTH) {
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		}
+
+	}
+	public class StyledNodeEdit {
+		private Object content;
+		private StyledNodeEditType type;
+		//the added edit
+		public StyledNodeEdit(UndoableEdit e) {
+			content = e;
+			type = StyledNodeEditType.TEXT;
+		}
+		//@param r		the old location of this node
+		public StyledNodeEdit(Rectangle r) {
+			content = r;
+			type = StyledNodeEditType.DRAG;
+		}
+	}
+	private enum StyledNodeEditType {
+		DRAG, TEXT
+	}
+	public void paintComponent(Graphics graphics) {
+		super.paintComponent(graphics);
+		Graphics2D g = (Graphics2D) graphics;
+		g.setColor(Color.DARK_GRAY);
+		g.fillRect(0,0,getWidth(), getHeight());
+		g.setColor(Color.RED);
+		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
+
+		g.setColor(Color.LIGHT_GRAY);
+		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+		
 		
 	}
-	
+
 }

@@ -79,6 +79,9 @@ public class SuggestGUI extends JPanel {
 
 
 
+	public boolean networkingSet() {
+		return _net!=null;
+	}
 	private void buildChatTab() {
 		
 	}

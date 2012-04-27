@@ -1,18 +1,16 @@
 package boardnodes;
 
-import javax.swing.JComponent;
+import java.io.Serializable;
 
-import whiteboard.Backend;
-import GUI.WhiteboardPanel;
 import javax.swing.JPanel;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 
 import whiteboard.BoardActionType;
+import GUI.ViewportDragScrollListener;
+import GUI.WhiteboardPanel;
 
 /*The parent class for all Board Elements,
  * Paths and BoardNodes*/
-public abstract class BoardElt extends JPanel implements Cloneable{
+public abstract class BoardElt extends JPanel implements Cloneable, Serializable{
 	//the unique identifier of this BoardElt
 	private int UID;
 	//position on the board
@@ -22,12 +20,13 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	private static int ID_Last;
 	public BoardEltType Type;
 	//the whiteboard that this is a part of
-	private whiteboard.Backend board;
+	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
+	public ViewportDragScrollListener _mouseListener;
 
 	protected static int nextUID = 0;
 
-	private BoardEltType type;
+	protected BoardEltType type;
 	public int getUID() {
 		return UID;
 	}
@@ -36,12 +35,12 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 
 	public BoardElt(int _UID, whiteboard.Backend w) {
 		UID = _UID;
-		board = w;
-		wbp = board.getPanel();
+		backend = w;
+		wbp = backend.getPanel();
 	}
 
 	public whiteboard.Backend getWhiteboard() {
-		return board;
+		return backend;
 	}
 
 	public BoardEltType getType() {
@@ -87,7 +86,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		return textBody;
 	}
 
-
 	/*Assigns this BoardElt's text to input
 	 * @param toSet - what to make this Element store
 	 * @return void
@@ -100,7 +98,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 
 	public abstract void redo();
 
-	protected void notifyWhiteboard(BoardActionType b) {
+	protected void notifyBackend(BoardActionType b) {
 		if(this.getWhiteboard()==null) {
 			System.out.println("whiteboard reference is null - cannot notify it");
 			return;

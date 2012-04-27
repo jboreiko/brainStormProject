@@ -35,6 +35,7 @@ import java.awt.event.*;
  */
 
 public class MainFrame extends JFrame {
+	protected static final int SCROLL_INCREMENT = 16;
 	private JTabbedPane _tabbedPane;
 	private JMenuItem _newProject, _save, _close, _exit, _load, _undo, _redo, _join;
 	private JMenu _file, _edit;
@@ -42,7 +43,7 @@ public class MainFrame extends JFrame {
 	private InterfacePanel _interfacePane;
 	private ArrayList<WhiteboardPanel> _whiteboards;
 	private WhiteboardPanel _activeBoardPanel;
-	private JPanel _suggestPanel;
+	private SuggestGUI _suggestPanel;
 	
 	/*
 	 * Mainframe()
@@ -67,7 +68,7 @@ public class MainFrame extends JFrame {
 		
 		getContentPane().add(_tabbedPane,BorderLayout.CENTER);
 		_interfacePane = new InterfacePanel(_whiteboards);
-		Dimension interfaceSize = new Dimension(350, 2000);//250,2000);
+		Dimension interfaceSize = new Dimension(350, screenSize.height);
 		_interfacePane.setPreferredSize(interfaceSize);
 		_interfacePane.setSize(interfaceSize);
 		//_interfacePane.setLayout(new GridLayout(10,0));
@@ -76,6 +77,7 @@ public class MainFrame extends JFrame {
 		
 		_suggestPanel = new SuggestGUI(interfaceSize);
 		_interfacePane.add(_suggestPanel);
+		
         add(_tabbedPane, BorderLayout.CENTER);
 		add(_interfacePane, BorderLayout.WEST);
 	}
@@ -113,7 +115,7 @@ public class MainFrame extends JFrame {
 					return;
 				}
 				while(true){
-					if(!((projectName.length()) < 1)){
+					if(projectName.length() >= 1){
 						_save.setEnabled(true);
 						_close.setEnabled(true);
 						WhiteboardPanel wb = new WhiteboardPanel();
@@ -122,12 +124,19 @@ public class MainFrame extends JFrame {
 					    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
 						JScrollPane scrollPane = new JScrollPane(wb,v,h);
 						//interesting stuff
+						scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
+						scrollPane.getHorizontalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
 						ViewportDragScrollListener l = new ViewportDragScrollListener(wb);
+						wb._mouseListener = l;
+						wb.getBackend()._mouseListener = l;
 						JViewport vp = scrollPane.getViewport();
 						vp.addMouseMotionListener(l);
 						vp.addMouseListener(l);
 						vp.addHierarchyListener(l);
 						_tabbedPane.addTab(projectName, scrollPane);
+						if(!_suggestPanel.networkingSet()) {
+							_suggestPanel.setNetworking(wb.getBackend().getNetworking());
+						}
 						//JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
 						break;
 					}

@@ -1,17 +1,18 @@
 package whiteboard;
 
 import java.awt.Point;
-import boardnodes.BoardElt;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Stack;
 
 import networking.Networking;
-
+import GUI.ViewportDragScrollListener;
+import boardnodes.BoardElt;
 import boardnodes.BoardEltType;
+import boardnodes.BoardPath;
 
-public class Backend {
+public class Backend implements Serializable{
 	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
 	private ArrayList<boardnodes.BoardPath> paths;
@@ -19,7 +20,7 @@ public class Backend {
 	private Stack<BoardAction> futureActions;
 	private Networking networking;
 	private BoardElt clipboard;
-	
+	public ViewportDragScrollListener _mouseListener;
 	
 	//TODO: make every method that adds an action just add the action and then call executeaction on it (every method
 	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
@@ -30,15 +31,21 @@ public class Backend {
 		pastActions = new Stack<BoardAction>();
 		futureActions = new Stack<BoardAction>();
 		boardElts = new Hashtable<Integer, BoardElt>();
+		paths = new ArrayList<boardnodes.BoardPath>();
+		networking = new Networking();
+		networking.setBackend(this);
 	}
 	
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
+		b._mouseListener = _mouseListener;
 		boardElts.put(b.getUID(), b);
 		if(b.getType() == BoardEltType.PATH) {
 			paths.add((boardnodes.BoardPath)b);
 		}
-		addAction(new CreationAction(b));
+		BoardAction committed = new CreationAction(b);
+		addAction(committed);
+		networking.sendAction(new BoardEltExchange(b,committed));
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -51,8 +58,17 @@ public class Backend {
 	public BoardElt remove(int UID) {
 		BoardElt toReturn = boardElts.remove(UID);
 		if(toReturn!=null) {
-			addAction(new DeletionAction(toReturn));
+			if(toReturn.getType()!=BoardEltType.PATH) {
+				panel.remove(toReturn);
+			}
+			BoardAction committed = new DeletionAction(toReturn);
+			addAction(committed);
+			if (lookup(UID) != null)
+				networking.sendAction(new BoardEltExchange(lookup(UID), committed));
+			else  
+				System.err.println("Couldn't find UID of remove and tried to send " + UID);
 		}
+		panel.repaint();
 		return toReturn;
 	}
 	
@@ -61,12 +77,15 @@ public class Backend {
 	public void modifyBoardElt(int UID) {
 		BoardElt b = (BoardElt) boardElts.get(UID);
 		if(b!=null) {
-			addAction(new ModificationAction(b));
+			BoardAction committed = new ModificationAction(b);
+			addAction(committed);
+			networking.sendAction(new BoardEltExchange(b,committed));
 		}
 	}
 	
 	//Adds the given action to the stack, and erases all future actions because we've started a new "branch"
 	public void addAction(BoardAction ba) {
+		System.err.println("I'm adding an action right now");
 		pastActions.push(ba);
 		futureActions.clear();
 	}
@@ -97,7 +116,8 @@ public class Backend {
 		BoardElt be;
 		switch(b.getType()) {
 		case ELT_MOD:
-			System.out.println("undoing a modification on node "+b.getTarget());
+//			boardElts   
+//			System.out.println("undoing a modification on node "+b.getTarget());
 			System.out.println("the hashmap associates "+b.getTarget()+" with "+boardElts.get(b.getTarget()));
 			b.getTarget().undo();
 			b.getTarget().repaint();
@@ -108,18 +128,26 @@ public class Backend {
 			 be = b.getTarget();
 			if(be==null)
 				return;
-			panel.remove(be);
 			boardElts.remove(be.getUID());
-			futureActions.push(new DeletionAction(be));
+			if(be.getType()==BoardEltType.PATH) {
+				paths.remove(be);
+			} else {
+				panel.remove(be);
+			}
+			futureActions.push(new CreationAction(be));
 			break;
 		case DELETION:
 			//undoing a deletion means doing a creation
 			be = b.getTarget();
 			if(be==null)
 				return;
-			panel.add(be);
 			boardElts.put(be.getUID(), be);
-			futureActions.push(new CreationAction(be));
+			if(be.getType()==BoardEltType.PATH) {
+				paths.add((boardnodes.BoardPath)be);
+			} else {
+				panel.add(be);
+			}
+			futureActions.push(new DeletionAction(be));
 			break;
 		case MOVE:
 			//TODO: handle move
@@ -134,30 +162,58 @@ public class Backend {
 			System.out.println("no actions to redo!");
 			return;
 		}
+		BoardElt be;
 		BoardAction b = futureActions.pop();
 		switch(b.getType()) {
 		case ELT_MOD:
-			boardElts.get(b.getTarget()).redo();
-			boardElts.get(b.getTarget()).repaint();
+			b.getTarget().redo();
+			b.getTarget().repaint();
+			pastActions.push(b);
 			break;
 		case CREATION:
-			//TODO: handle creation
-			break;
+			//redoing a creation means doing a creation
+			be = b.getTarget();
+			if(be==null)
+				return;
+			boardElts.put(be.getUID(), be);
+			if(be.getType()==BoardEltType.PATH) {
+				paths.add((boardnodes.BoardPath)be);
+			} else {
+				panel.add(be);
+			}
+			pastActions.push(new CreationAction(be));
+			break;			
 		case DELETION:
-			//TODO: handle deletion
+			//redoing a deletion means doing a deletion
+			be = b.getTarget();
+			if(be==null)
+				return;
+			boardElts.remove(be.getUID());
+			if(be.getType()==BoardEltType.PATH) {
+				paths.remove(be);
+			} else {
+				panel.remove(be);
+			}
+			pastActions.push(new DeletionAction(be));
 			break;
 		case MOVE:
 			//TODO: handle move
 			break;
 		}
-		pastActions.push(b);
-		
+		panel.repaint();
+	}
+	
+	public Networking getNetworking() {
+		return networking;
 	}
 	
 	public GUI.WhiteboardPanel getPanel() {
 		return panel;
 	}
 	
+	public ArrayList<boardnodes.BoardPath> getPaths() {
+		return paths;
+	}
 	/**
 	 * @author aabeshou
 	 * call boardelt.encode on all of the elements in the board, and concatenate them all into one XML string that this will return
@@ -189,6 +245,31 @@ public class Backend {
 			}
 		}
 		return toReturn;
+	}
+	
+	/**callback for when the networking object associated with
+	 * this backend has received a new Object reflecting a change 
+	 * in the state of the hosted Whiteboard.
+	 * We simply replace our outdated object with the one
+	 * contained in this BoardEltExchange object
+	 * 
+	 * @param receivedAction
+	 */
+	public void receiveNetworkedObject(Object receivedAction) {
+		BoardEltExchange bex = (BoardEltExchange) receivedAction;
+		BoardElt nodeToReplace = bex.getNode();
+		BoardAction action = bex.getAction();
+		if (nodeToReplace.Type != BoardEltType.PATH)
+			panel.updateMember(nodeToReplace);
+		else {
+			for (int i = 0 ; i < paths.size(); i++) {
+				if (paths.get(i).getUID() == nodeToReplace.getUID()) {
+					paths.set(i, (BoardPath)nodeToReplace);
+					break;
+				}
+			}
+		}
+		addAction(action);
 	}
 	
 	public ArrayList<BoardElt> getElts() {

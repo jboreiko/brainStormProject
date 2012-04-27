@@ -279,7 +279,7 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		}
 		ActionObject ao = futurePositions.pop();
 		Point[] newpos = (Point[]) ao.changeInfo;
-		Point[] oldpos = new Point[]{(Point) _seminal.clone(), (Point) _terminal.clone()};
+		Point[] oldpos = new Point[]{new Point(_seminal), new Point(_terminal)};
 		ao = new ActionObject(oldpos);
 		_seminal = newpos[0];
 		_terminal = newpos[1];
@@ -295,11 +295,37 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		}
 		ActionObject ao = pastPositions.pop();
 		Point[] newpos = (Point[]) ao.changeInfo;
-		Point[] oldpos = new Point[]{(Point) _seminal.clone(), (Point) _terminal.clone()};
+		Point[] oldpos = new Point[]{new Point(_seminal), new Point(_terminal)};
 		ao = new ActionObject(oldpos);
 		_seminal = newpos[0];
 		_terminal = newpos[1];
 		futurePositions.push(ao);
+	}
+	
+	public class SerializedBoardPath extends SerializedBoardElt {
+	    /**
+         * 
+         */
+        private static final long serialVersionUID = -4310196162247409269L;
+        public Point _start;
+	    public Point _end;
+	    public SerializedBoardPath(Point start, Point end) {
+	        _start = start;
+	        _end = end;
+	        type = BoardEltType.PATH;
+	    }
+	}
+	
+	public SerializedBoardElt getSerializedSelf() {
+	    return new SerializedBoardPath(_seminal, _terminal);
+	}
+	
+	public void becomeState(SerializedBoardPath future) {
+	    _seminal = future._start;
+	    _terminal = future._end;
+	    pastPositions.push(new ActionObject(new Point[]{(Point)_oldSeminal.clone(), (Point)_oldTerminal.clone()}));
+	    _oldSeminal = new Point(_seminal);
+	    _oldTerminal = new Point(_terminal);
 	}
 
 	@Override

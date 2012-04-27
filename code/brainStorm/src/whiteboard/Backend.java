@@ -11,6 +11,8 @@ import GUI.ViewportDragScrollListener;
 import boardnodes.BoardElt;
 import boardnodes.BoardEltType;
 import boardnodes.BoardPath;
+import boardnodes.SerializedBoardElt;
+import boardnodes.BoardPath.SerializedBoardPath;
 
 public class Backend implements Serializable{
 	private GUI.WhiteboardPanel panel;
@@ -40,12 +42,14 @@ public class Backend implements Serializable{
 	public void add(BoardElt b) {
 		b._mouseListener = _mouseListener;
 		boardElts.put(b.getUID(), b);
+	    BoardAction committed = new CreationAction(b);
+	    addAction(committed);
 		if(b.getType() == BoardEltType.PATH) {
 			paths.add((boardnodes.BoardPath)b);
+			networking.sendAction(new BoardEltExchange(((BoardPath) b).getSerializedSelf(), BoardActionType.CREATION));
+		} else {
+		    //networking.sendAction(new BoardEltExchange(BoardActionType.CREATION, b.));
 		}
-		BoardAction committed = new CreationAction(b);
-		addAction(committed);
-		networking.sendAction(new BoardEltExchange(b,committed));
 	}
 	
 	//Returns the board elt with given UID. Returns null if no elt with that UID exists
@@ -63,10 +67,11 @@ public class Backend implements Serializable{
 			}
 			BoardAction committed = new DeletionAction(toReturn);
 			addAction(committed);
-			if (lookup(UID) != null)
-				networking.sendAction(new BoardEltExchange(lookup(UID), committed));
-			else  
+			if (lookup(UID) != null) {
+				//networking.sendAction(new BoardEltExchange(lookup(UID), committed));
+			} else  {
 				System.err.println("Couldn't find UID of remove and tried to send " + UID);
+			}
 		}
 		panel.repaint();
 		return toReturn;
@@ -79,7 +84,7 @@ public class Backend implements Serializable{
 		if(b!=null) {
 			BoardAction committed = new ModificationAction(b);
 			addAction(committed);
-			networking.sendAction(new BoardEltExchange(b,committed));
+			//networking.sendAction(new BoardEltExchange(b,committed));
 		}
 	}
 	
@@ -257,10 +262,24 @@ public class Backend implements Serializable{
 	 */
 	public void receiveNetworkedObject(Object receivedAction) {
 		BoardEltExchange bex = (BoardEltExchange) receivedAction;
-		BoardElt nodeToReplace = bex.getNode();
-		BoardAction action = bex.getAction();
-		if (nodeToReplace.Type != BoardEltType.PATH)
-			panel.updateMember(nodeToReplace);
+		SerializedBoardElt serializedElt = bex.getNode();
+		BoardActionType type = bex.getAction();
+		BoardAction action = null;
+		switch (type) {
+		case CREATION:
+		    action = new CreationAction(receiveNetworkCreationObject(serializedElt));
+		    break;
+		case ELT_MOD:
+		    //action = new ModificationAction();
+		    break;
+		case DELETION:
+		    //action = new DelectionAction();
+		    break;
+		}
+		/*
+		if (nodeToReplace.getType() != BoardEltType.PATH) {
+			//panel.updateMember(nodeToReplace);
+		}
 		else {
 			for (int i = 0 ; i < paths.size(); i++) {
 				if (paths.get(i).getUID() == nodeToReplace.getUID()) {
@@ -269,10 +288,27 @@ public class Backend implements Serializable{
 				}
 			}
 		}
+		*/
 		addAction(action);
 	}
 	
-	public ArrayList<BoardElt> getElts() {
+	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
+	    BoardElt toReturn = null;
+	    switch (e.getType()) {
+	    case PATH:
+	        toReturn = new BoardPath(e.getUID(), this);
+	        ((BoardPath) toReturn).becomeState((SerializedBoardPath) e);
+	        toReturn._mouseListener = _mouseListener;
+	        boardElts.put(toReturn.getUID(), toReturn);
+	        paths.add((BoardPath) toReturn);
+	        break;
+	    default:
+	        break;
+	    }
+        return toReturn;
+    }
+
+    public ArrayList<BoardElt> getElts() {
 		return new ArrayList<BoardElt>(boardElts.values());
 	}
 	

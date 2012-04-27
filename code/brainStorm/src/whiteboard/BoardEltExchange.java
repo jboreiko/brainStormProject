@@ -2,21 +2,21 @@ package whiteboard;
 
 import java.io.Serializable;
 
-import boardnodes.BoardElt;
+import boardnodes.SerializedBoardElt;
 
 public class BoardEltExchange implements Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private BoardElt affectedNode;
-	private BoardAction actionCommitted;
+	private SerializedBoardElt affectedNode;
+	private BoardActionType actionCommitted;
 	
-	public BoardEltExchange(BoardElt e, BoardAction a) {
+	public BoardEltExchange(SerializedBoardElt e, BoardActionType a) {
 		affectedNode = e;
 		actionCommitted = a;
 	}
 	
-	public BoardElt getNode() {return affectedNode;}
-	public BoardAction getAction() {return actionCommitted;}
+	public SerializedBoardElt getNode() {return affectedNode;}
+	public BoardActionType getAction() {return actionCommitted;}
 }

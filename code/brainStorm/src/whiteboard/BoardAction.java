@@ -9,16 +9,16 @@ public abstract class BoardAction implements Serializable{
 	protected BoardActionType type;
 	protected boardnodes.BoardElt target;
 	
+	public BoardAction(boardnodes.BoardElt _target) {
+	    target = _target;
+	}
+	
 	public boardnodes.BoardElt getTarget() {
 		return target;
 	}
 	
 	public BoardActionType getType() {
 		return type;
-	}
-	
-	public BoardAction(boardnodes.BoardElt _target) {
-		target = _target;
 	}
 	
 	public abstract String encode();

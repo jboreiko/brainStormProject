@@ -249,24 +249,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
 	}
 	
-	public class ScribbleNodeEdit {
-		Object content;
-		ScribbleNodeEditType type;
-		public ScribbleNodeEdit(List<ColoredPoint> stroke) {
-			type = ScribbleNodeEditType.DRAW;
-			content = stroke;
-		}
-		public ScribbleNodeEdit(Rectangle r) {
-			type = ScribbleNodeEditType.DRAG;
-			content=  r;
-		}
-	}
-	public enum ScribbleNodeEditType { DRAW,DRAG}
-	@Override
+	
 	public void ofSerialized(SerializedBoardElt b) {
 		SerializedScribbleNode sn = (SerializedScribbleNode) b;
 		UID = sn.UID;
-		setLocation(sn.x, sn.y);
+		setBounds(sn.bounds);
 		undos = sn.undos;
 		redos = sn.redos;
 		repaint();
@@ -275,10 +262,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public SerializedBoardElt toSerialized() {
 		SerializedScribbleNode toReturn = new SerializedScribbleNode();
 		toReturn.UID = UID;
-		toReturn.x = getX();
-		toReturn.y = getY();
-		toReturn.undos = undos;
-		toReturn.redos = redos;
+		toReturn.bounds = getBounds();
+		toReturn.undos = (Stack<ScribbleNodeEdit>) undos.clone();
+		toReturn.redos = (Stack<ScribbleNodeEdit>) redos.clone();
 		return toReturn;
 	}
 }

@@ -1,21 +1,18 @@
 package whiteboard;
 
 import java.awt.Point;
-
-import GUI.ViewportDragScrollListener;
-import boardnodes.BoardElt;
-import boardnodes.BoardPath;
-
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Stack;
 
 import networking.Networking;
-
+import GUI.ViewportDragScrollListener;
+import boardnodes.BoardElt;
 import boardnodes.BoardEltType;
+import boardnodes.BoardPath;
 
-public class Backend {
+public class Backend implements Serializable{
 	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
 	private ArrayList<boardnodes.BoardPath> paths;

@@ -225,6 +225,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
 		Graphics2D g = (Graphics2D) graphics;
+		g.setColor(Color.GRAY);
+		g.fillRect(0, 0, getWidth(), getHeight());
+		g.setColor(Color.WHITE);
+		g.fillRect(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight() - 2*BORDER_WIDTH);
 		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 		for (ScribbleNodeEdit edit : undos) {
@@ -254,12 +258,13 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 				prev = temp;
 			}
 		}
+		final int radius = 14;
 		//draw the border
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, getWidth(), BORDER_WIDTH);
-		g.fillRect(0, 0, BORDER_WIDTH, getHeight());
-		g.fillRect(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, getHeight());
-		g.fillRect(0, getHeight()-BORDER_WIDTH, getWidth(), BORDER_WIDTH);
+		g.fillRoundRect(0, 0, getWidth(), BORDER_WIDTH, radius, radius);
+		g.fillRoundRect(0, 0, BORDER_WIDTH, getHeight(), radius, radius);
+		g.fillRoundRect(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, getHeight(), radius, radius);
+		g.fillRoundRect(0, getHeight()-BORDER_WIDTH, getWidth(), BORDER_WIDTH, radius, radius);
 		//draw the delete square
 		g.setColor(Color.RED);
 		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);

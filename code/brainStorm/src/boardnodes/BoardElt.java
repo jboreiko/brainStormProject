@@ -10,7 +10,7 @@ import GUI.WhiteboardPanel;
 
 /*The parent class for all Board Elements,
  * Paths and BoardNodes*/
-public abstract class BoardElt extends JPanel implements Cloneable, Serializable{
+public abstract class BoardElt extends JPanel implements Cloneable{
 	//the unique identifier of this BoardElt
 	private int UID;
 	//position on the board

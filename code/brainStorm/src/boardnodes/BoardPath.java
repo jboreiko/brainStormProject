@@ -22,9 +22,11 @@ import whiteboard.BoardActionType;
 
 public class BoardPath extends BoardElt implements MouseListener, MouseMotionListener{
 	public final static int ARROW_LENGTH = 15;
-	public final static double ARROW_ANGLE = 3*Math.PI/4;
+	public final static double ARROW_ANGLE = Math.PI/4;
 	public final static int DRAG_RADIUS = 15; //the size of the zone you can click to start dragging
 	public final static int DRAG_SQUARE_RADIUS = DRAG_RADIUS-4; //the size of the marker of the zone you can click to start dragging (needs to be a bit smaller)
+	final static BasicStroke dashedStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f}, 0.0f);
+	final static BasicStroke normalStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	public final static Color START_COLOR = new Color(Color.GREEN.getRed(),Color.GREEN.getGreen(),Color.GREEN.getBlue(),210);
 	public final static Color END_COLOR = new Color(Color.YELLOW.getRed(),Color.YELLOW.getGreen(),Color.YELLOW.getBlue(),210);
 	public final static Color DELETE_COLOR = Color.RED;
@@ -32,6 +34,11 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	public final static int START_HEIGHT = 60;
 	public BoardElt _start; //where the base of the arrow points
 	public BoardElt _end; //where the tip of the arrow points
+	
+	public BoardElt _snapSeminal;
+	public BoardElt _snapTerminal;
+	public double _snapAngle;
+	
 	double _s0, _s1;  //the location on the map of start if _start is null
 	double _e0, _e1; //end location of map is _end is null
 	private boolean _highlighted;
@@ -62,7 +69,6 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 		futurePositions = new Stack<ActionObject>();
 		type = BoardEltType.PATH;
 		_highlighted = false;
-		pathType = BoardPathType.ARROW;
 	}
 
 	//set the start+end point/nodes
@@ -72,25 +78,33 @@ public class BoardPath extends BoardElt implements MouseListener, MouseMotionLis
 	public void setEnd(double e0, double e1) {_e0 = e0; _e1 = e1;}
 	public void setSeminal(Point p) { _seminal = p;}
 	public void setTerminal(Point p) {_terminal = p;}
-		
+	public void setPathType(BoardPathType b) { pathType = b;}	
+	
+	
 	public void paintComponent(Graphics graphics) {
 		//super.paintComponent(graphics);
 		Graphics2D g2 = (Graphics2D) graphics;
+		if(_snapSeminal!=null)
+			_seminal = _snapSeminal.getLocation();
 		g2.setColor(Color.BLACK);
-		g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
+		if(pathType==BoardPathType.NORMAL || pathType==BoardPathType.ARROW) {
+			g2.setStroke(normalStroke);
+		} else {
+			g2.setStroke(dashedStroke);
+		}		
 		g2.drawLine(_seminal.x, _seminal.y, _terminal.x, _terminal.y);
-		if(pathType == BoardPathType.ARROW) {		
+		g2.setStroke(normalStroke);
+		if(pathType == BoardPathType.ARROW || pathType == BoardPathType.DOTTED_ARROW) {	
 			Point point1 = new Point(_terminal.x, _terminal.y);
 			Point point2 = new Point(_terminal.x, _terminal.y);
-			double angle = Math.atan2(_terminal.y-_seminal.y, _terminal.x-_seminal.x);
+			double angle = Math.atan2(_seminal.y-_terminal.y, _seminal.x-_terminal.x);
 			point1.x+=ARROW_LENGTH*(Math.cos(ARROW_ANGLE+angle));
 			point1.y+=ARROW_LENGTH*(Math.sin(ARROW_ANGLE+angle));
-			point2.x+=ARROW_LENGTH*(Math.cos(ARROW_ANGLE-angle));
-			point2.y+=ARROW_LENGTH*(Math.sin(ARROW_ANGLE-angle));
+			point2.x+=ARROW_LENGTH*(Math.cos(angle-ARROW_ANGLE));
+			point2.y+=ARROW_LENGTH*(Math.sin(angle-ARROW_ANGLE));
 			g2.drawLine(_terminal.x, _terminal.y, point1.x, point1.y);
 			g2.drawLine(_terminal.x, _terminal.y, point2.x, point2.y);
 		}
-		
 		if(_highlighted) {			
 			g2.setColor(BoardPath.START_COLOR);
 			g2.fillRect(_seminal.x-DRAG_SQUARE_RADIUS/2, _seminal.y-DRAG_SQUARE_RADIUS/2, DRAG_SQUARE_RADIUS, DRAG_SQUARE_RADIUS);

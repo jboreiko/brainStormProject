@@ -2,6 +2,7 @@ package GUI;
 
 import javax.swing.*;
 
+import boardnodes.BoardElt;
 import boardnodes.BoardPath;
 
 import java.awt.event.*;
@@ -15,7 +16,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	private final WhiteboardPanel wb;
 	private Point startPt = new Point();
 	private Point move    = new Point();
-	private boolean draggingAPath = false;
+	public BoardPath draggedPath;
 
 	public ViewportDragScrollListener(WhiteboardPanel comp) {
 		this.wb = comp;
@@ -25,7 +26,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 		JComponent c = (JComponent)e.getSource();
 	}
 	@Override public void mouseDragged(MouseEvent e) {
-		if(!draggingAPath) {
+		if(draggedPath == null) {
 			JViewport vport = (JViewport)e.getSource();
 			Point pt = e.getPoint();
 			int dx = startPt.x - pt.x;
@@ -38,13 +39,13 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 		} else {
 			Point offset = ((JViewport)e.getSource()).getViewPosition();
 			Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
-			for(BoardPath p: wb.getBackend().getPaths()) {
-				if(p.isSeminalDragging()) {
-					p.setSeminal(loc);
-				} else if (p.isTerminalDragging()) {
-					p.setTerminal(loc);
-				}
+			//for(BoardPath p: wb.getBackend().getPaths()) {
+			if(draggedPath.isSeminalDragging()) {
+				draggedPath.setSeminal(loc);
+			} else if (draggedPath.isTerminalDragging()) {
+				draggedPath.setTerminal(loc);
 			}
+			//}
 		}
 		wb.repaint();
 	}
@@ -55,16 +56,16 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 		for(BoardPath p: wb.getBackend().getPaths()) {
 			if(p.isNearSeminal(loc.x, loc.y)) {
 				p.startSeminalDrag();
-				draggingAPath = true;
+				draggedPath = p;
 				break;
 			} else if(p.isNearTerminal(loc.x, loc.y)){
 				p.startTerminalDrag();
-				draggingAPath = true;
+				draggedPath = p;
 				break;
 			}
 		}
 
-		if(!draggingAPath) {
+		if(draggedPath==null) {
 			((JComponent)e.getSource()).setCursor(hc); //label.setCursor(hc);
 			startPt.setLocation(e.getPoint());
 			move.setLocation(0, 0);
@@ -75,11 +76,10 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	@Override public void mouseReleased(MouseEvent e) {
 		Point offset = ((JViewport)e.getSource()).getViewPosition();
 		Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
-		for(BoardPath p: wb.getBackend().getPaths()) {
-			if(p.isSeminalDragging()||p.isTerminalDragging())
-				p.stopDrag(loc);
+		if(draggedPath!=null) {
+			draggedPath.stopDrag(loc);
+			draggedPath = null;
 		}
-		draggingAPath = false;
 		((JComponent)e.getSource()).setCursor(dc); //label.setCursor(dc);
 	}
 	@Override public void mouseExited(MouseEvent e) {

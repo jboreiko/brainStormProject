@@ -11,6 +11,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,7 +21,11 @@ import javax.swing.JPanel;
 
 import whiteboard.BoardActionType;
 
-public class ScribbleNode extends BoardElt implements MouseListener, MouseMotionListener{
+public class ScribbleNode extends BoardElt implements MouseListener, MouseMotionListener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8104681433533441763L;
 	boolean _resizeLock,_dragLock;
 	Point startPt;
 	public final static int POINT_WIDTH = 3;
@@ -179,8 +184,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		else {
 			LinkedList<ColoredPoint> ret = new LinkedList<ColoredPoint>();
-			ret.add(new ColoredPoint(startPt, Color.BLACK));
-			ColoredPoint endPt = new ColoredPoint(startPt.x+1, startPt.y+1, Color.BLACK);
+			Color toColor = e.getModifiers()==16?Color.BLACK:Color.white;
+			ret.add(new ColoredPoint(startPt, toColor));
+			ColoredPoint endPt = new ColoredPoint(startPt.x+1, startPt.y+1, toColor);
 			ret.add(endPt);
 			drawnArea.add(ret);
 		}

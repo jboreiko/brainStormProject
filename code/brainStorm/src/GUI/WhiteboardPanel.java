@@ -31,10 +31,12 @@ public class WhiteboardPanel extends JPanel{
 	public static final int SCRIBBLE = 2;
 	public static final int PATH = 3;
 	private int _lastAdded;
+	private BoardPathType _lastPathType;
 	private ArrayList<BoardElt> _elements;
 	private Dimension _panelSize;
 	private boolean _contIns;
 	private Backend _backend;
+	public ViewportDragScrollListener _mouseListener;
 	
 	private Point _addLocation; //the location you should add the next BoardElt to
 
@@ -44,6 +46,7 @@ public class WhiteboardPanel extends JPanel{
 		super();
 		_lastAdded = 0;
 		_backend = new Backend(this);
+		_backend._mouseListener = _mouseListener;
 		this.setLayout(null);
 		this.setVisible(true);
 		this.setBackground(Color.GRAY);
@@ -71,15 +74,7 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem styledNodeMenuItem = new JMenuItem("Add Styled Node");
 		styledNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				newElt(BoardEltType.STYLED);
-				/*extendPanel();
-				StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _board,WhiteboardPanel.this);
-				Dimension size = styledNode.getSize();
-				styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-				add(styledNode);
-				_board.add(styledNode);
-				_lastAdded = WhiteboardPanel.STYLED;
-				repaint();*/
+				newElt(BoardEltType.STYLED, BoardPathType.NORMAL);
 			}
 		});
 		popup.add(styledNodeMenuItem);
@@ -87,26 +82,42 @@ public class WhiteboardPanel extends JPanel{
 		JMenuItem drawNodeMenuItem = new JMenuItem("Add Scribble Node");
 		drawNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				newElt(BoardEltType.SCRIBBLE);
-				/*_lastAdded = WhiteboardPanel.SCRIBBLE;
-				ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _board,WhiteboardPanel.this);
-				System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter+" that should be equal to "+scribbleNode.getUID());
-				Dimension size = scribbleNode.getSize();
-				scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
-				add(scribbleNode);
-				_board.add(scribbleNode);
-				repaint();*/
+				newElt(BoardEltType.SCRIBBLE, BoardPathType.NORMAL);
 			}
 		});
 		popup.add(drawNodeMenuItem);
-		
+		popup.addSeparator();
 		JMenuItem addPathItem = new JMenuItem("Add Path");
 		addPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				newElt(BoardEltType.PATH);
+				newElt(BoardEltType.PATH, BoardPathType.NORMAL);
 			}
 		});
 		popup.add(addPathItem);
+		
+		JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
+		dottedPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				newElt(BoardEltType.PATH, BoardPathType.DOTTED);
+			}
+		});
+		popup.add(dottedPathItem);
+		
+		JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
+		arrowPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				newElt(BoardEltType.PATH, BoardPathType.ARROW);
+			}
+		});
+		popup.add(arrowPathItem);
+		
+		JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
+		dottedArrowPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				newElt(BoardEltType.PATH, BoardPathType.DOTTED_ARROW);
+			}
+		});
+		popup.add(dottedArrowPathItem);
 		
 		return popup;
 	}
@@ -128,20 +139,6 @@ public class WhiteboardPanel extends JPanel{
 			this.setSize(newSize);
 			_panelSize = newSize;
 		}
-		/*if(e.getX() < 200){
-			//SOME KIND OF TRANSLATION HERE
-			Dimension newSize = new Dimension(_panelSize.width + 200,_panelSize.height);
-			this.setPreferredSize(newSize);
-			this.setSize(newSize);
-			_panelSize = newSize;
-		}
-		if(e.getY() < 200){
-			//SOME KIND OF TRANSLATION HERE
-			Dimension newSize = new Dimension(_panelSize.width,_panelSize.height + 200);
-			this.setPreferredSize(newSize);
-			this.setSize(newSize);
-			_panelSize = newSize;
-		}*/
 	}
 	public void addNode(Point p){
 		if(_contIns){
@@ -151,18 +148,19 @@ public class WhiteboardPanel extends JPanel{
 				
 			}
 			else if(_lastAdded == WhiteboardPanel.SCRIBBLE){
-				newElt(BoardEltType.SCRIBBLE);
+				newElt(BoardEltType.SCRIBBLE, BoardPathType.NORMAL);
 			}
 			else if(_lastAdded == WhiteboardPanel.STYLED){
-				newElt(BoardEltType.STYLED);
+				newElt(BoardEltType.STYLED, BoardPathType.NORMAL);
 			} else if (_lastAdded == WhiteboardPanel.PATH) {
-				newElt(BoardEltType.PATH);
+				newElt(BoardEltType.PATH, _lastPathType);
 			}
 		}
 		//repaint();
 	}
 	
-	private void newElt(BoardEltType b) {
+	//boardpathtype only has to be specified when adding a path
+	private void newElt(BoardEltType b, BoardPathType bpt) {
 		//extendPanel(); //taken out when extendPanel changed to accept rect
 		Dimension size;
 		switch(b) {
@@ -195,10 +193,12 @@ public class WhiteboardPanel extends JPanel{
 		case PATH:
 			System.out.println("trying to add a path");
 			_lastAdded = WhiteboardPanel.PATH;
+			_lastPathType = bpt;
 			BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _backend);
 			System.out.println("Just created a path");
 			size = bp.getPreferredSize();
 			System.out.println(size);
+			bp.setPathType(bpt);
 			bp.setSeminal(_addLocation);
 			bp.setTerminal(new Point(_addLocation.x + BoardPath.START_WIDTH, _addLocation.y + BoardPath.START_HEIGHT));
 			//add(bp);

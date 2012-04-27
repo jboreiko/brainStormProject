@@ -1,5 +1,5 @@
 package boardnodes;
 
 public enum BoardPathType {
-	NORMAL, ARROW;
+	NORMAL, ARROW, DOTTED, DOTTED_ARROW;
 }

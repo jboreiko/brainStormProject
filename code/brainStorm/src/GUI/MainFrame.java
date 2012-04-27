@@ -42,7 +42,7 @@ public class MainFrame extends JFrame {
 	private InterfacePanel _interfacePane;
 	private ArrayList<WhiteboardPanel> _whiteboards;
 	private WhiteboardPanel _activeBoardPanel;
-	private JPanel _suggestPanel;
+	private SuggestGUI _suggestPanel;
 	
 	/*
 	 * Mainframe()
@@ -114,7 +114,7 @@ public class MainFrame extends JFrame {
 					return;
 				}
 				while(true){
-					if(!((projectName.length()) < 1)){
+					if(projectName.length() >= 1){
 						_save.setEnabled(true);
 						_close.setEnabled(true);
 						WhiteboardPanel wb = new WhiteboardPanel();
@@ -124,11 +124,16 @@ public class MainFrame extends JFrame {
 						JScrollPane scrollPane = new JScrollPane(wb,v,h);
 						//interesting stuff
 						ViewportDragScrollListener l = new ViewportDragScrollListener(wb);
+						wb._mouseListener = l;
+						wb.getBackend()._mouseListener = l;
 						JViewport vp = scrollPane.getViewport();
 						vp.addMouseMotionListener(l);
 						vp.addMouseListener(l);
 						vp.addHierarchyListener(l);
 						_tabbedPane.addTab(projectName, scrollPane);
+						if(!_suggestPanel.networkingSet()) {
+							_suggestPanel.setNetworking(wb.getBackend().getNetworking());
+						}
 						//JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
 						break;
 					}

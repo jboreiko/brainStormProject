@@ -1,6 +1,7 @@
 package whiteboard;
 
 import java.awt.Point;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -13,7 +14,7 @@ import boardnodes.BoardPath;
 import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
-import boardnodes.SerializedScribbleNode;
+//import boardnodes.SerializedScribbleNode;
 
 public class Backend {
 	private GUI.WhiteboardPanel panel;
@@ -315,7 +316,7 @@ public class Backend {
 	        }
 	        break;
 	    case SCRIBBLE:
-	    	 if(!boardElts.containsKey(e.getUID())) {
+	    	 /*if(!boardElts.containsKey(e.getUID())) {
 		        	toReturn = new ScribbleNode(e.getUID(), this);
 		        	toReturn.ofSerialized(((SerializedScribbleNode) e));
 		        	toReturn._mouseListener = _mouseListener;
@@ -324,7 +325,7 @@ public class Backend {
 		        } else {
 		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
 		        }
-	        break;
+	        break;*/
 	    }
 	    panel.repaint();
         return toReturn;

@@ -205,8 +205,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
 		Graphics2D g = (Graphics2D) graphics;
-		g.setColor(Color.GRAY);
-		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(Color.WHITE);
 		g.fillRect(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight() - 2*BORDER_WIDTH);
 		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -241,10 +239,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		final int radius = 14;
 		//draw the border
 		g.setColor(Color.BLACK);
-		g.fillRoundRect(0, 0, getWidth(), BORDER_WIDTH, radius, radius);
-		g.fillRoundRect(0, 0, BORDER_WIDTH, getHeight(), radius, radius);
-		g.fillRoundRect(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, getHeight(), radius, radius);
-		g.fillRoundRect(0, getHeight()-BORDER_WIDTH, getWidth(), BORDER_WIDTH, radius, radius);
+		g.fillRect(0, 0, getWidth(), BORDER_WIDTH);
+		g.fillRect(0, 0, BORDER_WIDTH, getHeight());
+		g.fillRect(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, getHeight());
+		g.fillRect(0, getHeight()-BORDER_WIDTH, getWidth(), BORDER_WIDTH);
 		//draw the delete square
 		g.setColor(Color.RED);
 		g.fillRect(0, 0, BORDER_WIDTH, BORDER_WIDTH);
@@ -268,21 +266,22 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public enum ScribbleNodeEditType { DRAW,DRAG}
 	@Override
 	public void ofSerialized(SerializedBoardElt b) {
-		SerializedScribbleNode sn = (SerializedScribbleNode) b;
+		/*SerializedScribbleNode sn = (SerializedScribbleNode) b;
 		UID = sn.UID;
 		drawnArea = sn.drawnArea;
 		undrawnArea = sn.undrawnArea;
 		undos = sn.undos;
-		redos = sn.redos;		
+		redos = sn.redos;	*/	
 	}
 	@Override
 	public SerializedBoardElt toSerialized() {
-		SerializedScribbleNode toReturn = new SerializedScribbleNode();
+		/*SerializedScribbleNode toReturn = new SerializedScribbleNode();
 		toReturn.UID = UID;
 		toReturn.drawnArea = drawnArea;
 		toReturn.undrawnArea = undrawnArea;
 		toReturn.undos = undos;
 		toReturn.redos = redos;
-		return toReturn;
+		return toReturn;*/
+		return null;
 	}
 }

@@ -4,14 +4,22 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,6 +28,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 
 import networking.Networking;
@@ -38,6 +48,7 @@ public class SuggestGUI extends JPanel {
 	private Networking _net;
 	private JTextArea _chatLog;
 	private JTextArea _chatMessage;
+	private JScrollPane _chatScrollPane;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -160,29 +171,36 @@ public class SuggestGUI extends JPanel {
 		Font font = new Font("Verdana", Font.BOLD, 14);
 		_chatLog.setFont(font);
 		_chatLog.setText("  CHAT: \n");
-		JScrollPane chatScrollPane = new JScrollPane(_chatLog);
-		chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		chatScrollPane.setPreferredSize(new Dimension(340, 600));
-		chatPanel.add(chatScrollPane);
+		_chatScrollPane = new JScrollPane(_chatLog);
+		_chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		_chatScrollPane.setPreferredSize(new Dimension(340, 600));
+		chatPanel.add(_chatScrollPane);
 		JPanel messagePanel = new JPanel();
-		_chatMessage = new JTextArea(2, 20);
+		_chatMessage = new JTextArea(5, 20);
 		_chatMessage.setEditable(true);
 		_chatMessage.setLineWrap(true);
 		_chatMessage.setWrapStyleWord(true);
 		JButton sendMessageButton = new JButton("Send");
-		sendMessageButton.addActionListener(new ActionListener() {
-			
+		JScrollPane chatMessageScrollPane = new JScrollPane(_chatMessage, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String text = _chatMessage.getText();
-				_chatMessage.setText("");
-				_chatLog.append("Me:  ");
-				_chatLog.append(text + "\n");
+				addMessage();
+			}};
+		KeyStroke keyStroke = KeyStroke.getKeyStroke("ENTER");
+		InputMap im = _chatMessage.getInputMap();
+		_chatMessage.getActionMap().put(im.get(keyStroke), action);
+		
+		
+		sendMessageButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addMessage();
 				_chatMessage.grabFocus();
-				_net.sendMessage(text);
 			}
 		});
-		messagePanel.add(_chatMessage,BorderLayout.WEST);
+		messagePanel.add(chatMessageScrollPane,BorderLayout.WEST);
 		messagePanel.add(sendMessageButton, BorderLayout.EAST);
 		//chatPanel.add(_chatLog, BorderLayout.NORTH);
 		//chatPanel.add(messagePanel, BorderLayout.SOUTH);
@@ -208,9 +226,30 @@ public class SuggestGUI extends JPanel {
 		
 	}
 	
+	public void addMessage(){
+		String text = _chatMessage.getText();
+		if(!text.equals("")){
+			_chatMessage.setText("");
+			_chatLog.append("Me:  ");
+			_chatLog.append(text + "\n");
+			_chatMessage.grabFocus();
+			_net.sendMessage(text);
+			JViewport vport = _chatScrollPane.getViewport();
+			Point vp = vport.getViewPosition();
+			vp.translate(0, _chatScrollPane.getSize().height);
+			_chatLog.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
+			_chatLog.repaint();
+		}
+	}
+	
 	public void newMessage(String username, String message) {
 		System.out.println("newmessage called");
 		_chatLog.append(username + ":  " + message + "\n");
+		JViewport vport = _chatScrollPane.getViewport();
+		Point vp = vport.getViewPosition();
+		vp.translate(0, _chatScrollPane.getSize().height);
+		_chatLog.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
+		_chatLog.repaint();
 	}
 	
 	private void buildSuggestTab() {

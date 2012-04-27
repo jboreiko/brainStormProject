@@ -92,13 +92,9 @@ public class SuggestGUI extends JPanel {
 		_findPanel.add(buttonPanel);
 	}
 
-
-
 	public boolean networkingSet() {
 		return _net!=null;
 	}
-
-
 
 	private void buildNetworkTab() {
 		_networkPanel = new JPanel();

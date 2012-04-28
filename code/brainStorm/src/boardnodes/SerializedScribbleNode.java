@@ -11,8 +11,6 @@ public class SerializedScribbleNode extends SerializedBoardElt {
 	 * 
 	 */
 	private static final long serialVersionUID = 8416218992109699688L;
-	public LinkedList<List<ColoredPoint>> drawnArea;
-	public LinkedList<List<ColoredPoint>> undrawnArea;
 	public Stack<ScribbleNodeEdit> undos;
 	public Stack<ScribbleNodeEdit> redos;
 	public Rectangle bounds;

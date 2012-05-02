@@ -91,8 +91,8 @@ public class Host extends Thread{
 				System.out.println("server: starting new client handler");
 				handler.start();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("server: closing serversocket and shuting down");
+				break;
 			}
         }
     }

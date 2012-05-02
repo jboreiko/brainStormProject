@@ -147,6 +147,9 @@ public class Host extends Thread{
     }
     /* TODO: need to have this shut down gracefully */
     public boolean shutDown() {
+    	for (ClientHandler ch: clients) {
+    		ch.signOff();
+    	}
     	try {
 			serverSocket.close();
 		} catch (IOException e) {

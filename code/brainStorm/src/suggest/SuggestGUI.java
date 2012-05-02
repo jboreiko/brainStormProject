@@ -237,6 +237,7 @@ public class SuggestGUI extends JPanel {
 					e1.printStackTrace();
 				}
 				// tell networking you are leaving
+				_net.signOff();
 				
 			}
 			

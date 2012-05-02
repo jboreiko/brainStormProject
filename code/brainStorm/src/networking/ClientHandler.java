@@ -62,14 +62,6 @@ public class ClientHandler extends Thread {
         }
     }
 
-    /**************************************************************************
-     * This function has been pre-implemented =).
-     * @return the users name
-     **************************************************************************/
-    public int getUsername() {
-        return id; 
-    }
-
     /********************************************************************
      * Sign the client off.
      * Here you have to:
@@ -81,7 +73,7 @@ public class ClientHandler extends Thread {
         /*TODO*/
     	//out.write(id + " has signed off.");
     	//out.close();
-    	server.broadcastMessage(new ChatMessage(username + " has signed off"), this);
+    	server.broadcastMessage(new ChatMessage(id, username + "just left the Brainstrom!\n", "Host"), this);
     	try {
             writer.close();
             reader.close();

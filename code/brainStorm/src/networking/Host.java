@@ -46,6 +46,10 @@ public class Host extends Thread{
         return localClient.send(nm);
     }
     
+    public boolean signOff() {
+    	return localClient.signOff();
+    }
+    
     public NetworkMessage receive (Type t) {
         return localClient.receive(t);
     }
@@ -108,7 +112,6 @@ public class Host extends Thread{
     }
     
     public synchronized void respondHandshake(Handshake message, ClientHandler clientHandler) {
-        /*TODO*/
         if (message.sender_id == -1) {
         	String username = message.client_username;
             int temp = getNextOpenId();
@@ -118,6 +121,7 @@ public class Host extends Thread{
             clientHandler.send(new Handshake(hostId, temp, username, START_UID));
             registerClient(clientHandler);
             System.out.println("server: registered client with id: " + temp + ", uname: " + username);
+            broadcastMessage(new ChatMessage(temp, username + "just joined the Brainstrom!\n", "Host"), clientHandler);
         } else {
             System.out.println("server: client already has received an id ERROR");
         }
@@ -133,7 +137,6 @@ public class Host extends Thread{
      * Return whether the client was found or not.
      **************************************************************************/
     public synchronized boolean removeClient(ClientHandler client) {
-        /*TODO*/
     	if (clients.contains(client)) {
     		return clients.remove(client);
     	}

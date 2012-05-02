@@ -58,6 +58,7 @@ public class SuggestGUI extends JPanel {
 	private BlockingQueue<String> _bqueue;
 	private SuggestThread _suggestThread;
 	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton;
+	private int _role;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -84,6 +85,7 @@ public class SuggestGUI extends JPanel {
 		_bqueue = new LinkedBlockingQueue<String>();
 		_suggestThread = new SuggestThread();
 		_suggestThread.start();
+		_role = 0;
 	}
 	
 	public void setNetworking(Networking net) {
@@ -149,10 +151,11 @@ public class SuggestGUI extends JPanel {
 							} catch (BadLocationException e2) {
 								e2.printStackTrace();
 							}
+							_role = 1;
 						}
 						else {
 							// handle connection error
-							
+							connectionError();
 						}
 					} else {
 						System.out.println("suggest: networking is null, has not be set");
@@ -203,10 +206,11 @@ public class SuggestGUI extends JPanel {
 							} catch (BadLocationException e2) {
 								e2.printStackTrace();
 							}
+							_role = 2;
 						}
 						else {
 							// handle connection error
-							
+							connectionError();
 						}
 					} else {
 						System.out.println("suggest: networking is null, has not be set");
@@ -230,6 +234,7 @@ public class SuggestGUI extends JPanel {
 				_ipField.setEnabled(true);
 				_beHostButton.setEnabled(true);
 				_joinButton.setEnabled(true);
+				_role = 0;
 				try {
 					Document document = _chatPane.getDocument();
 					document.remove(0, document.getLength());
@@ -298,29 +303,73 @@ public class SuggestGUI extends JPanel {
 		
 	}
 	
-	// networking needs to call me please
-	public void newUser(String username) {
-		SimpleAttributeSet set = new SimpleAttributeSet();
-		StyleConstants.setFontSize(set, 18);
-		StyleConstants.setForeground(set, Color.CYAN);
-		StyledDocument doc = _chatPane.getStyledDocument();
-		try {
-			doc.insertString(doc.getLength(), username + "just joined the Brainstrom!\n", set);
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
-	}
+//	// networking needs to call me please
+//	public void newUser(String username) {
+//		SimpleAttributeSet set = new SimpleAttributeSet();
+//		StyleConstants.setFontSize(set, 18);
+//		StyleConstants.setForeground(set, Color.CYAN);
+//		StyledDocument doc = _chatPane.getStyledDocument();
+//		try {
+//			doc.insertString(doc.getLength(), username + "just joined the Brainstrom!\n", set);
+//		} catch (BadLocationException e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
-	// networking needs to call me please
-	public void userExited(String username) {
-		SimpleAttributeSet set = new SimpleAttributeSet();
-		StyleConstants.setFontSize(set, 18);
-		StyleConstants.setForeground(set, Color.RED);
-		StyledDocument doc = _chatPane.getStyledDocument();
-		try {
-			doc.insertString(doc.getLength(), username + "just left the Brainstrom!\n", set);
-		} catch (BadLocationException e) {
-			e.printStackTrace();
+//	// networking needs to call me please
+//	public void userExited(String username) {
+//		SimpleAttributeSet set = new SimpleAttributeSet();
+//		StyleConstants.setFontSize(set, 18);
+//		StyleConstants.setForeground(set, Color.RED);
+//		StyledDocument doc = _chatPane.getStyledDocument();
+//		try {
+//			doc.insertString(doc.getLength(), username + "just left the Brainstrom!\n", set);
+//		} catch (BadLocationException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	public void connectionError() {
+		Object[] options = {"Ok", "Retry Connection"};
+		int n = JOptionPane.showOptionDialog(_networkPanel, "A connection error has disrupted the Brainstorm.", "Connection Error", JOptionPane.CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+		if (n == 1) {
+			// retry
+			if (_role == 1) {
+				if (_net.becomeHost(_usernameField.getText())) {
+					SimpleAttributeSet set = new SimpleAttributeSet();
+					StyleConstants.setFontSize(set, 18);
+					StyleConstants.setForeground(set, Color.MAGENTA);
+					StyledDocument doc = _chatPane.getStyledDocument();
+					try {
+						doc.insertString(doc.getLength(), "Connection Restored!\n", set);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				} else {
+					connectionError();
+				}
+				
+			} else if (_role == 2) {
+				if (_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
+					SimpleAttributeSet set = new SimpleAttributeSet();
+					StyleConstants.setFontSize(set, 18);
+					StyleConstants.setForeground(set, Color.MAGENTA);
+					StyledDocument doc = _chatPane.getStyledDocument();
+					try {
+						doc.insertString(doc.getLength(), "Connection Restored!\n", set);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+				else {
+					connectionError();
+				}
+					
+			}
+		}
+		else {
+			_role = 0;
+			
 		}
 	}
 	

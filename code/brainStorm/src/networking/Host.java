@@ -146,10 +146,15 @@ public class Host extends Thread{
         return false;
     }
     /* TODO: need to have this shut down gracefully */
-    public boolean shutDown() {
-    	for (ClientHandler ch: clients) {
+    public synchronized boolean shutDown() {
+    	/*
+    	clients.
+    	ClientHandler ch = clients.get(0);
+    	while (ch != null) {
     		ch.signOff();
+    		ch = clients.get(0);
     	}
+    	*/
     	try {
 			serverSocket.close();
 		} catch (IOException e) {

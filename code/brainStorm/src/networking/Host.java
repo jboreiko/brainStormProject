@@ -124,7 +124,7 @@ public class Host extends Thread{
             clientHandler.send(new Handshake(hostId, temp, username, START_UID));
             registerClient(clientHandler);
             System.out.println("server: registered client with id: " + temp + ", uname: " + username);
-            broadcastMessage(new ChatMessage(temp, username + "just joined the Brainstrom!\n", "Host"), clientHandler);
+            broadcastMessage(new ChatMessage(temp, username + " just joined the Brainstrom!\n", "Host"), clientHandler);
         } else {
             System.out.println("server: client already has received an id ERROR");
         }

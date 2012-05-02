@@ -47,7 +47,10 @@ public class Host extends Thread{
     }
     
     public boolean signOff() {
-    	return localClient.signOff();
+    	if(localClient.signOff())
+    		return this.shutDown();
+    	else
+    		return false;
     }
     
     public NetworkMessage receive (Type t) {
@@ -121,7 +124,7 @@ public class Host extends Thread{
             clientHandler.send(new Handshake(hostId, temp, username, START_UID));
             registerClient(clientHandler);
             System.out.println("server: registered client with id: " + temp + ", uname: " + username);
-            broadcastMessage(new ChatMessage(temp, username + "just joined the Brainstrom!\n", "Host"), clientHandler);
+            broadcastMessage(new ChatMessage(temp, username + " just joined the Brainstrom!\n", "Host"), clientHandler);
         } else {
             System.out.println("server: client already has received an id ERROR");
         }
@@ -141,6 +144,16 @@ public class Host extends Thread{
     		return clients.remove(client);
     	}
         return false;
+    }
+    /* TODO: need to have this shut down gracefully */
+    public boolean shutDown() {
+    	try {
+			serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return true;
     }
 
     /*

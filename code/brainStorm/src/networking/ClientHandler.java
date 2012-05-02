@@ -73,7 +73,7 @@ public class ClientHandler extends Thread {
         /*TODO*/
     	//out.write(id + " has signed off.");
     	//out.close();
-    	server.broadcastMessage(new ChatMessage(id, username + "just left the Brainstrom!\n", "Host"), this);
+    	server.broadcastMessage(new ChatMessage(id, username + " just left the Brainstrom!\n", "Host"), this);
     	try {
             writer.close();
             reader.close();

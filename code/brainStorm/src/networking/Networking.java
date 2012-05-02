@@ -100,6 +100,8 @@ public class Networking {
 			ret = host.signOff();
 		}
 		currentState = State.NONE;
+		client = null;
+		host = null;
 		return ret;
 	}
 

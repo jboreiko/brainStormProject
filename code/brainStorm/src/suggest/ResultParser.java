@@ -121,13 +121,6 @@ public class ResultParser {
 				JSONObject elementObj = topicsArr.getJSONObject(j);
 				String text = elementObj.getString("Text");
 				
-				// trying to fix <*> tags
-//				if (text.contains("<")) {
-//					int indexOf = text.indexOf("<");
-//					int indexOf2 = text.indexOf(">");
-//					text.replaceAll("\\x3[^\\x3]*\\x3e", "");
-//					System.out.println(text);
-//				}
 				line += text;
 				line += "\n\n";
 				System.out.println("aline:   " + line);
@@ -163,6 +156,7 @@ public class ResultParser {
 	    if (substring.equals("-1")) {
 	    	//TODO handle no page results from wiki
 	    	// return/break out of parsing
+	    	return("No Wikipedia Results Found");
 	    }
 	    
 	    JSONObject pageidObj = pagesObj.getJSONObject(substring);
@@ -170,25 +164,162 @@ public class ResultParser {
 	    JSONObject revisionObj = revisionArr.getJSONObject(0);
 	    String article = revisionObj.getString("*");
 	    
+	    // TODO handle redirects
+	    if (article.startsWith("#REDIRECT")) {
+	    	return article;
+	    }
+	    
+	    article = removeBraces(article);
+	    article = removeParens(article);
+	    while (article.startsWith("\n")) {
+	    	article = article.substring(1, article.length());
+	    }
+	    article = removeTriple(article);
+	    article = removeTags(article);
+	    article  = removeTagBraces(article);
+	    
 	    // TODO handle multiple options
-	    //System.out.println(article.substring(0, (int) article.length()/2));
+	    if (article.indexOf(":") < article.indexOf("\n")) {
+	    	System.out.println("Multiple Options son");
+	    	return article;
+	    }
 	    
-	    // TODO handle parsing
-	    //done briefly below
-//			int indexOf = response.indexOf("'''");
-//			System.out.println(indexOf);
-//			int indexOf2 = response.indexOf("==", indexOf);
-//			System.out.println(indexOf2);
-//			String substring = "";
-//			if (indexOf < 0 || indexOf2 < 0) {
-//				substring = response;
-//			}
-//			else {
-//				substring = response.substring(indexOf, indexOf2);
-//			}
-//			System.out.println(substring);
-//			return substring;
+	    indexOf = article.indexOf("==");
+	    article = article.substring(0, indexOf);
 	    
+	    
+//	    substring = "";
+//	    int index = article.indexOf("'''");
+//	    System.out.println(index);
+//	    
+//	    
+//	    
+//	    // TODO handle parsing
+//	    //done briefly below
+//	    int index2 = article.indexOf("==", index);
+//	    System.out.println(index2);
+//	    if (index < 0 || index2 < 0) {
+//	    	System.out.println("WHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHYYYYYYYYYYYYYYYYYYYYYYYYY");
+//	    	System.out.println(article);
+//	    	System.out.println("WHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHYYYYYYYYYYYYYYYYYYYYYYYYY");
+//	    }
+//	    else {
+//	    	article = article.substring(index, index2);
+//	    }
+	    //remove <*> tags
+//	    while (text.contains("<")) {
+//	    	int indexOf = text.indexOf("<");
+//	    	int indexOf2 = text.indexOf(">");
+//	    	text= text.substring(0,indexOf) + text.substring(indexOf2+1, text.length());
+//	    }
+	    
+		return article;
+	}
+	
+	private String removeTagBraces(String article) {
+		int balance = 0;
+		int start = 0;
+		int end = 0;
+		boolean done = false;
+		for (int i = 0; i < article.length(); i++) {
+			char letter = article.charAt(i);
+			if(letter == '<') {
+				balance++;
+				if (balance == 1) {
+					start = i;
+				}
+			}
+			else if (letter == '>') {
+				balance--;
+				if (balance == 0) {
+					end = i;
+					done = true;
+				}
+			}
+			if (done) {
+				i = i - end + start - 1;
+				article = article.substring(0,start) + article.substring(end+1, article.length());
+				done = false;
+			}
+		}
+		return article;
+	}
+	
+	private String removeTags(String article) {
+		int index = article.indexOf("<ref");
+		int index2 = article.indexOf("/ref>", index);
+		while (index != -1 && index2 != -1) {
+			article = article.substring(0,index) + article.substring(index2+5, article.length());
+			index = article.indexOf("<ref");
+			index2 = article.indexOf("/ref>", index);
+		}
+		return article;
+	}
+
+	private String removeTriple(String article) {
+		int index = article.indexOf("'''");
+		while (index != -1) {
+			article = article.substring(0,index) + article.substring(index+3, article.length());
+			index = article.indexOf("'''");
+		}
+		return article;
+	}
+
+	private String removeParens(String article) {
+		int balance = 0;
+		int start = 0;
+		int end = 0;
+		boolean done = false;
+		for (int i = 0; i < article.length(); i++) {
+			char letter = article.charAt(i);
+			if(letter == '(') {
+				balance++;
+				if (balance == 1) {
+					start = i;
+				}
+			}
+			else if (letter == ')') {
+				balance--;
+				if (balance == 0) {
+					end = i;
+					done = true;
+				}
+			}
+			if (done) {
+				i = i - end + start - 1;
+				article = article.substring(0,start) + article.substring(end+1, article.length());
+				done = false;
+			}
+		}
+		return article;
+	}
+	
+	private String removeBraces(String article) {
+		int balance = 0;
+		int start = 0;
+		int end = 0;
+		boolean done = false;
+		for (int i = 0; i < article.length(); i++) {
+			char letter = article.charAt(i);
+			if(letter == '{') {
+				balance++;
+				if (balance == 1) {
+					start = i;
+				}
+			}
+			else if (letter == '}') {
+				balance--;
+				if (balance == 0) {
+					end = i;
+					done = true;
+				}
+			}
+			if (done) {
+				i = i - end + start - 1;
+				article = article.substring(0,start) + article.substring(end+1, article.length());
+				done = false;
+			}
+		}
 		return article;
 	}
 	

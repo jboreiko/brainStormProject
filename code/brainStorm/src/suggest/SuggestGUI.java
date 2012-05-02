@@ -146,7 +146,10 @@ public class SuggestGUI extends JPanel {
 							SimpleAttributeSet set = new SimpleAttributeSet();
 							StyleConstants.setFontSize(set, 18);
 							StyleConstants.setForeground(set, Color.CYAN);
+							StyleConstants.setFontFamily(set, "Veranda");
 							StyledDocument doc = _chatPane.getStyledDocument();
+							StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+							doc.setParagraphAttributes(doc.getLength(), 15, set, true);
 							try {
 								doc.insertString(doc.getLength(), "You just joined the Brainstrom!\n", set);
 							} catch (BadLocationException e2) {
@@ -201,7 +204,10 @@ public class SuggestGUI extends JPanel {
 							SimpleAttributeSet set = new SimpleAttributeSet();
 							StyleConstants.setFontSize(set, 18);
 							StyleConstants.setForeground(set, Color.CYAN);
+							StyleConstants.setFontFamily(set, "Veranda");
 							StyledDocument doc = _chatPane.getStyledDocument();
+							StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+							doc.setParagraphAttributes(doc.getLength(), 15, set, true);
 							try {
 								doc.insertString(doc.getLength(), "You just joined the Brainstrom!\n", set);
 							} catch (BadLocationException e2) {
@@ -236,8 +242,9 @@ public class SuggestGUI extends JPanel {
 				_joinButton.setEnabled(true);
 				_role = 0;
 				try {
-					Document document = _chatPane.getDocument();
+					StyledDocument document = _chatPane.getStyledDocument();
 					document.remove(0, document.getLength());
+					document.insertString(0, "Chat:\n", null);
 				} catch (BadLocationException e1) {
 					e1.printStackTrace();
 				}
@@ -350,7 +357,10 @@ public class SuggestGUI extends JPanel {
 					SimpleAttributeSet set = new SimpleAttributeSet();
 					StyleConstants.setFontSize(set, 18);
 					StyleConstants.setForeground(set, Color.MAGENTA);
+					StyleConstants.setFontFamily(set, "Veranda");
 					StyledDocument doc = _chatPane.getStyledDocument();
+					StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+					doc.setParagraphAttributes(doc.getLength(), 10, set, false);
 					try {
 						doc.insertString(doc.getLength(), "Connection Restored!\n", set);
 					} catch (BadLocationException e) {
@@ -374,7 +384,10 @@ public class SuggestGUI extends JPanel {
 					SimpleAttributeSet set = new SimpleAttributeSet();
 					StyleConstants.setFontSize(set, 18);
 					StyleConstants.setForeground(set, Color.MAGENTA);
+					StyleConstants.setFontFamily(set, "Veranda");
 					StyledDocument doc = _chatPane.getStyledDocument();
+					StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+					doc.setParagraphAttributes(doc.getLength(), 10, set, false);
 					try {
 						doc.insertString(doc.getLength(), "Connection Restored!\n", set);
 					} catch (BadLocationException e) {
@@ -400,11 +413,12 @@ public class SuggestGUI extends JPanel {
 		SimpleAttributeSet set = new SimpleAttributeSet();
 		StyleConstants.setBold(set, true);
 		StyleConstants.setFontSize(set, 26);
+		StyleConstants.setFontFamily(set, "Veranda");
 		StyleConstants.setAlignment(set, StyleConstants.ALIGN_CENTER);
 		StyledDocument doc = pane.getStyledDocument();
 		try {
 			doc.insertString(doc.getLength(), "Chat:\n", set);
-			doc.setParagraphAttributes(0, doc.getLength(), set, false);
+			doc.setParagraphAttributes(0, doc.getLength(), set, true);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
@@ -418,6 +432,9 @@ public class SuggestGUI extends JPanel {
 			_chatMessage.setText("");
 			SimpleAttributeSet set = new SimpleAttributeSet();
 			StyledDocument doc = _chatPane.getStyledDocument();
+			StyleConstants.setFontFamily(set, "Veranda");
+			StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+			doc.setParagraphAttributes(doc.getLength(), text.length(), set, true);
 			StyleConstants.setBold(set, true);
 			StyleConstants.setForeground(set, Color.BLUE);
 			StyleConstants.setFontSize(set, 16);
@@ -443,6 +460,9 @@ public class SuggestGUI extends JPanel {
 		System.out.println("newmessage called");
 		SimpleAttributeSet set = new SimpleAttributeSet();
 		StyledDocument doc = _chatPane.getStyledDocument();
+		StyleConstants.setFontFamily(set, "Veranda");
+		StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+		doc.setParagraphAttributes(doc.getLength(), message.length(), set, true);
 		StyleConstants.setBold(set, true);
 		StyleConstants.setForeground(set, Color.GREEN);
 		StyleConstants.setFontSize(set, 16);

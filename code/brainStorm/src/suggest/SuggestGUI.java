@@ -132,6 +132,7 @@ public class SuggestGUI extends JPanel {
 					//_usernameField.getText for parameter
 					// check for bad connection boolean
 					if (_net != null) {
+						_role = 1;
 						if (_net.becomeHost(_usernameField.getText())) {
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
@@ -151,7 +152,6 @@ public class SuggestGUI extends JPanel {
 							} catch (BadLocationException e2) {
 								e2.printStackTrace();
 							}
-							_role = 1;
 						}
 						else {
 							// handle connection error
@@ -187,6 +187,7 @@ public class SuggestGUI extends JPanel {
 					// check for bad connection boolean
 					//
 					if (_net != null) {
+						_role = 2;
 						if(_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
@@ -206,7 +207,6 @@ public class SuggestGUI extends JPanel {
 							} catch (BadLocationException e2) {
 								e2.printStackTrace();
 							}
-							_role = 2;
 						}
 						else {
 							// handle connection error
@@ -334,9 +334,19 @@ public class SuggestGUI extends JPanel {
 		Object[] options = {"Ok", "Retry Connection"};
 		int n = JOptionPane.showOptionDialog(_networkPanel, "A connection error has disrupted the Brainstorm.", "Connection Error", JOptionPane.CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 		if (n == 1) {
+			System.out.println("retried");
 			// retry
 			if (_role == 1) {
 				if (_net.becomeHost(_usernameField.getText())) {
+					_chatMessage.setEnabled(true);
+					_chatPane.setEnabled(true);
+					_sendMessageButton.setEnabled(true);
+					_leaveButton.setEnabled(true);
+					_chatMessage.grabFocus();
+					_usernameField.setEnabled(false);
+					_ipField.setEnabled(false);
+					_beHostButton.setEnabled(false);
+					_joinButton.setEnabled(false);
 					SimpleAttributeSet set = new SimpleAttributeSet();
 					StyleConstants.setFontSize(set, 18);
 					StyleConstants.setForeground(set, Color.MAGENTA);
@@ -352,6 +362,15 @@ public class SuggestGUI extends JPanel {
 				
 			} else if (_role == 2) {
 				if (_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
+					_chatMessage.setEnabled(true);
+					_chatPane.setEnabled(true);
+					_sendMessageButton.setEnabled(true);
+					_leaveButton.setEnabled(true);
+					_chatMessage.grabFocus();
+					_usernameField.setEnabled(false);
+					_ipField.setEnabled(false);
+					_beHostButton.setEnabled(false);
+					_joinButton.setEnabled(false);
 					SimpleAttributeSet set = new SimpleAttributeSet();
 					StyleConstants.setFontSize(set, 18);
 					StyleConstants.setForeground(set, Color.MAGENTA);
@@ -370,7 +389,6 @@ public class SuggestGUI extends JPanel {
 		}
 		else {
 			_role = 0;
-			
 		}
 	}
 	

@@ -47,7 +47,10 @@ public class Host extends Thread{
     }
     
     public boolean signOff() {
-    	return localClient.signOff();
+    	if(localClient.signOff())
+    		return this.shutDown();
+    	else
+    		return false;
     }
     
     public NetworkMessage receive (Type t) {
@@ -141,6 +144,16 @@ public class Host extends Thread{
     		return clients.remove(client);
     	}
         return false;
+    }
+    /* TODO: need to have this shut down gracefully */
+    public boolean shutDown() {
+    	try {
+			serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return true;
     }
 
     /*

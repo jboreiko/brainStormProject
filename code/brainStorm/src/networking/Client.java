@@ -80,6 +80,16 @@ class Client extends Thread{
 		sock = new Socket(addrName, port);
 		return sock;
 	}
+	
+	public boolean signOff() {
+		try {
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
 	public boolean send (NetworkMessage nm) {
 		//l.lock();

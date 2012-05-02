@@ -91,6 +91,17 @@ public class Networking {
 		}
 		return ret;
 	}
+	/* NEEDS TO BE FIXED IN THE CLIENT */
+	public boolean signOff() {
+		boolean ret = false;
+		if (currentState == State.CLIENT) {
+			ret = client.signOff();
+		} else if (currentState == State.HOST) {
+			ret = host.signOff();
+		}
+		currentState = State.NONE;
+		return ret;
+	}
 
 	//This is blocking!!
 	public String receiveChatMessage() {        

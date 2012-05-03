@@ -61,7 +61,8 @@ public class ResultParser {
 			return "No Definitions Available";
 		}
 		JSONArray primariesArr = json.getJSONArray("primaries");
-		String def = "Definition Results:\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append("Definition Results:\n");
 		String line = "";
 		int numTotal = 1;
 		for (int i = 0; i < primariesArr.size(); i++) {
@@ -87,23 +88,23 @@ public class ResultParser {
 					}
 					line += text;
 					line += "\n\n";
-					def += line;
+					sb.append(line);
 					numTotal++;
 				}
 			}
 		}
-		System.out.println("totsdef" + def);
-		return def;
+		System.out.println("totsdef" + sb.toString());
+		return sb.toString();
 		
 	}
 
 	private String duckParse(String response) {
 		JSONObject json = (JSONObject) JSONSerializer.toJSON(response);
-		String results = "                    Related Categories and Topics : \n";
+		StringBuilder sb = new StringBuilder("                    Related Categories and Topics : \n");
 		JSONArray relatedArr = json.getJSONArray("RelatedTopics");
 		if (relatedArr.size() == 0) {
-			results += "No Topics Found.";
-			return results;
+			sb.append("No Topics Found.");
+			return sb.toString();
 		}
 		String line = "";
 		for (int i = 0; i < relatedArr.size(); i++) {
@@ -113,7 +114,7 @@ public class ResultParser {
 			}
 			JSONArray topicsArr = topicObj.getJSONArray("Topics");
 			String name = topicObj.getString("Name");
-			results += name + ":\n";
+			sb.append(name + ":\n");
 			int numper = 1;
 			for (int j = 0; j < topicsArr.size(); j++) {
 				line = "";
@@ -124,13 +125,13 @@ public class ResultParser {
 				line += text;
 				line += "\n\n";
 				System.out.println("aline:   " + line);
-				results += line;
+				sb.append(line);
 				numper++;
 			}
 			
 		}
-		System.out.println("totsduck" + results);
-		return results;
+		System.out.println("totsduck" + sb.toString());
+		return sb.toString();
 	}
 	
 
@@ -170,19 +171,24 @@ public class ResultParser {
 	    }
 	    
 	    article = removeBraces(article);
-	    article = removeParens(article);
-	    while (article.startsWith("\n")) {
-	    	article = article.substring(1, article.length());
-	    }
+	    article = removeFiles(article);
 	    article = removeTriple(article);
 	    article = removeTags(article);
 	    article  = removeTagBraces(article);
-	    
+	    article  = removeImages(article);
+	    while (article.startsWith("\n")) {
+	    	article = article.substring(1, article.length());
+	    }
 	    // TODO handle multiple options
 	    if (article.indexOf(":") < article.indexOf("\n")) {
 	    	System.out.println("Multiple Options son");
 	    	return article;
 	    }
+	    article = removeParens(article);
+	    while (article.startsWith("\n")) {
+	    	article = article.substring(1, article.length());
+	    }
+	    
 	    
 	    indexOf = article.indexOf("==");
 	    article = article.substring(0, indexOf);
@@ -216,13 +222,52 @@ public class ResultParser {
 		return article;
 	}
 	
+	private String removeImages(String article) {
+		StringBuilder sb = new StringBuilder(article);
+		int index = sb.indexOf("[[Image:");
+		int index2 = sb.indexOf("]]", index);
+		int index3 = sb.indexOf("[[", index+4);
+		while (index >= 0) {
+			index2 = sb.indexOf("]]", index);
+			index3 = sb.indexOf("[[", index+4);
+			while (index3 >= 0 && index3 < index2) {
+				index2 = sb.indexOf("]]", index2+2);
+				index3 = sb.indexOf("[[", index3+2);
+			}
+			sb.delete(index, index2+2);
+			
+			index = sb.indexOf("[[Image:");
+		}
+		return sb.toString();
+	}
+	
+	private String removeFiles(String article) {
+		StringBuilder sb = new StringBuilder(article);
+		int index = sb.indexOf("[[File:");
+		int index2 = sb.indexOf("]]", index);
+		int index3 = sb.indexOf("[[", index+4);
+		while (index >= 0) {
+			index2 = sb.indexOf("]]", index);
+			index3 = sb.indexOf("[[", index+4);
+			while (index3 >= 0 && index3 < index2) {
+				index2 = sb.indexOf("]]", index2+2);
+				index3 = sb.indexOf("[[", index3+2);
+			}
+			sb.delete(index, index2+2);
+			
+			index = sb.indexOf("[[File:");
+		}
+		return sb.toString();
+	}
+
 	private String removeTagBraces(String article) {
+		StringBuilder sb = new StringBuilder(article);
 		int balance = 0;
 		int start = 0;
 		int end = 0;
 		boolean done = false;
-		for (int i = 0; i < article.length(); i++) {
-			char letter = article.charAt(i);
+		for (int i = 0; i < sb.length(); i++) {
+			char letter = sb.charAt(i);
 			if(letter == '<') {
 				balance++;
 				if (balance == 1) {
@@ -238,40 +283,44 @@ public class ResultParser {
 			}
 			if (done) {
 				i = i - end + start - 1;
-				article = article.substring(0,start) + article.substring(end+1, article.length());
+				sb.delete(start, end+1);
 				done = false;
 			}
 		}
-		return article;
+		return sb.toString();
 	}
 	
 	private String removeTags(String article) {
-		int index = article.indexOf("<ref");
-		int index2 = article.indexOf("/ref>", index);
+		StringBuilder sb = new StringBuilder(article);
+		int index = sb.indexOf("<ref");
+		int index2 = sb.indexOf("/ref>", index);
 		while (index != -1 && index2 != -1) {
-			article = article.substring(0,index) + article.substring(index2+5, article.length());
-			index = article.indexOf("<ref");
-			index2 = article.indexOf("/ref>", index);
+			sb.delete(index, index2+5);
+			index = sb.indexOf("<ref");
+			index2 = sb.indexOf("/ref>", index);
 		}
-		return article;
+		return sb.toString();
 	}
 
 	private String removeTriple(String article) {
-		int index = article.indexOf("'''");
+		StringBuilder sb = new StringBuilder(article);
+		int index = sb.indexOf("'''");
 		while (index != -1) {
-			article = article.substring(0,index) + article.substring(index+3, article.length());
-			index = article.indexOf("'''");
+			sb.delete(index, index+3);
+			index = sb.indexOf("'''");
 		}
-		return article;
+		return sb.toString();
 	}
 
 	private String removeParens(String article) {
+		StringBuilder sb = new StringBuilder(article);
 		int balance = 0;
 		int start = 0;
 		int end = 0;
+		char letter = 'd';
 		boolean done = false;
-		for (int i = 0; i < article.length(); i++) {
-			char letter = article.charAt(i);
+		for (int i = 0; i < sb.length(); i++) {
+			letter = sb.charAt(i);
 			if(letter == '(') {
 				balance++;
 				if (balance == 1) {
@@ -287,20 +336,22 @@ public class ResultParser {
 			}
 			if (done) {
 				i = i - end + start - 1;
-				article = article.substring(0,start) + article.substring(end+1, article.length());
+				sb.delete(start, end+1);
 				done = false;
 			}
 		}
-		return article;
+		return sb.toString();
 	}
 	
 	private String removeBraces(String article) {
+		StringBuilder sb = new StringBuilder(article);
 		int balance = 0;
 		int start = 0;
 		int end = 0;
+		char letter = 'd';
 		boolean done = false;
-		for (int i = 0; i < article.length(); i++) {
-			char letter = article.charAt(i);
+		for (int i = 0; i < sb.length(); i++) {
+			letter = sb.charAt(i);
 			if(letter == '{') {
 				balance++;
 				if (balance == 1) {
@@ -316,11 +367,11 @@ public class ResultParser {
 			}
 			if (done) {
 				i = i - end + start - 1;
-				article = article.substring(0,start) + article.substring(end+1, article.length());
+				sb.delete(start, end+1);
 				done = false;
 			}
 		}
-		return article;
+		return sb.toString();
 	}
 	
 	

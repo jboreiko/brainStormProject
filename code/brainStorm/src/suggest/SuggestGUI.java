@@ -9,8 +9,11 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -52,13 +55,15 @@ public class SuggestGUI extends JPanel {
 	private JTextField _ipField;
 	private JPanel _findPanel;
 	private Networking _net;
-	private JTextPane _chatPane;
+	private JTextPane _chatPane, _wikiPane;
 	private JTextArea _chatMessage;
 	private JScrollPane _chatScrollPane;
 	private BlockingQueue<String> _bqueue;
 	private SuggestThread _suggestThread;
-	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton;
+	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton, _backButton;
 	private int _role;
+	private ArrayList<ClickText> _textList;
+	private Stack<String> _back;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -86,6 +91,7 @@ public class SuggestGUI extends JPanel {
 		_suggestThread = new SuggestThread();
 		_suggestThread.start();
 		_role = 0;
+		_back = new Stack<String>();
 	}
 	
 	public void setNetworking(Networking net) {
@@ -235,7 +241,7 @@ public class SuggestGUI extends JPanel {
 				_chatPane.setEnabled(false);
 				_sendMessageButton.setEnabled(false);
 				_leaveButton.setEnabled(false);
-				_chatMessage.grabFocus();
+				_usernameField.grabFocus();
 				_usernameField.setEnabled(true);
 				_ipField.setEnabled(true);
 				_beHostButton.setEnabled(true);
@@ -311,6 +317,8 @@ public class SuggestGUI extends JPanel {
 		
 	}
 	
+	// Customized entering and exiting methods below
+	
 //	// networking needs to call me please
 //	public void newUser(String username) {
 //		SimpleAttributeSet set = new SimpleAttributeSet();
@@ -371,6 +379,7 @@ public class SuggestGUI extends JPanel {
 				}
 				
 			} else if (_role == 2) {
+				// retry
 				if (_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
 					_chatMessage.setEnabled(true);
 					_chatPane.setEnabled(true);
@@ -402,6 +411,15 @@ public class SuggestGUI extends JPanel {
 		}
 		else {
 			_role = 0;
+			_chatMessage.setEnabled(false);
+			_chatPane.setEnabled(false);
+			_sendMessageButton.setEnabled(false);
+			_leaveButton.setEnabled(false);
+			_usernameField.grabFocus();
+			_usernameField.setEnabled(true);
+			_ipField.setEnabled(true);
+			_beHostButton.setEnabled(true);
+			_joinButton.setEnabled(true);
 		}
 	}
 	
@@ -506,15 +524,71 @@ public class SuggestGUI extends JPanel {
 		buttonPanel.add(suggestButton);
 		
 		JPanel wikiPanel = new JPanel();
-		wikioutput = new JTextArea(20, 50);
-		wikioutput.setEditable(false);
-		wikioutput.setLineWrap(true);
-		wikioutput.setWrapStyleWord(true);
-		JScrollPane wikiScrollPane = new JScrollPane(wikioutput);
+		
+//		wikioutput = new JTextArea(20, 50);
+//		wikioutput.setEditable(false);
+//		wikioutput.setLineWrap(true);
+//		wikioutput.setWrapStyleWord(true);
+//		JScrollPane wikiScrollPane = new JScrollPane(wikioutput);
+		
+		_wikiPane = new JTextPane();
+		_wikiPane.setSize(20, 50);
+		_wikiPane.setEditable(false);
+		// Chat Header
+		_wikiPane.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				Point point = e.getPoint();
+				int viewToModel = _wikiPane.viewToModel(point);
+				searchIt(viewToModel);
+				System.out.println("VIEW: " + viewToModel);
+			}
+		});
+		_textList = new ArrayList<ClickText>();
+		
+		JScrollPane wikiScrollPane = new JScrollPane(_wikiPane);
 		wikiScrollPane.setVerticalScrollBarPolicy(
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		wikiScrollPane.setPreferredSize(new Dimension(340, 600));
 		wikiPanel.add(wikiScrollPane);
+		JPanel backPanel = new JPanel();
+		_backButton = new JButton("Back");
+		_backButton.setEnabled(false);
+		_backButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_back.pop();
+				String popBack = _back.pop();
+				suggest(popBack);
+				input.setText(popBack);
+				if(_back.size() <= 1) {
+					_backButton.setEnabled(false);
+				}
+			}
+		});
+		backPanel.add(_backButton);
 		
 		JPanel dictPanel = new JPanel();
 		dictoutput = new JTextArea(20, 50);
@@ -556,6 +630,28 @@ public class SuggestGUI extends JPanel {
 		_suggestPanel.add(inputpanel);
 		_suggestPanel.add(buttonPanel);
 		_suggestPanel.add(tabbedPane);
+		_suggestPanel.add(backPanel);
+	}
+	
+	public void searchIt(int cursor) {
+		for (ClickText text:_textList) {
+			if (cursor >= text.getStart() && cursor <= text.getEnd()) {
+				System.out.println(text.getQuery());
+				input.setText(text.getQuery());
+				suggest(text.getQuery());
+//				try {
+//					String result = queryService.submit(text.getQuery(), 0).get();
+//					styleWiki(result);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				} catch (ExecutionException e) {
+//					e.printStackTrace();
+//				} catch (BadLocationException e) {
+//					e.printStackTrace();
+//				}
+				break;
+			}
+		}
 	}
 
 	public void suggest(String query) {
@@ -567,8 +663,12 @@ public class SuggestGUI extends JPanel {
 	}
 
 	public void submitQuery(String query) {
+		_back.push(query);
+		if(_back.size() > 1) {
+			_backButton.setEnabled(true);
+		}
+		_textList = new ArrayList<ClickText>();
 		List<Future<String>> futures = new ArrayList<Future<String>>();
-		//futures.add(queryService.submit(query, 4));
 		for (int i = 0; i < 3; i++) {
 			futures.add(i, queryService.submit(query, i));
 		}
@@ -583,7 +683,12 @@ public class SuggestGUI extends JPanel {
 						String requery = result.substring(index+2, index2);
 						result = queryService.submit(requery, 0).get();
 					}
-					wikioutput.setText(result);
+					try {
+						styleWiki(result);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+					//wikioutput.setText(result);
 				}
 				else if (j==1) {
 					dictoutput.setText(result);
@@ -601,6 +706,47 @@ public class SuggestGUI extends JPanel {
 		
 	}
 	
+	private void styleWiki(String result) throws BadLocationException {
+		StyledDocument doc = _wikiPane.getStyledDocument();
+		doc.remove(0, doc.getLength());
+		SimpleAttributeSet set = new SimpleAttributeSet();
+		SimpleAttributeSet click = new SimpleAttributeSet();
+		StyleConstants.setForeground(click, Color.BLUE);
+		StyleConstants.setItalic(click, true);
+		int end = 0;
+		int index = result.indexOf("[[");
+		int index2 = result.indexOf("]]", index);
+		int middle = -1;
+		String query = "";
+		String text = "";
+		while (index >= 0 && index2 >= 0) {
+			doc.insertString(doc.getLength(), result.substring(end, index), set);
+			middle = result.indexOf("|", index);
+			if (middle > index && middle < index2) {
+				query = result.substring(index+2, middle);
+				text = result.substring(middle+1, index2);
+				end = index2-3-query.length();
+				doc.insertString(doc.getLength(), text, click);
+				ClickText clickText = new ClickText(query, index, end);
+				_textList.add(clickText);
+				result = result.substring(0, index) + result.substring(middle+1, index2) + result.substring(index2+2, result.length());
+			} else {
+				query = result.substring(index+2, index2);
+				end = index2-2;
+				doc.insertString(doc.getLength(), query, click);
+				ClickText clickText = new ClickText(query, index, end);
+				_textList.add(clickText);
+				result = result.substring(0, index) + result.substring(index+2, index2) + result.substring(index2+2, result.length());
+			}
+			
+			index = result.indexOf("[[");
+			index2 = result.indexOf("]]", index);
+		}
+		
+		doc.insertString(doc.getLength(), result.substring(end, result.length()), set);
+		
+	}
+
 	private class SuggestThread extends Thread {
 		
 		@Override

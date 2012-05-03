@@ -412,6 +412,13 @@ public class SuggestGUI extends JPanel {
 		else {
 			_role = 0;
 			_chatMessage.setEnabled(false);
+			try {
+				StyledDocument document = _chatPane.getStyledDocument();
+				document.remove(0, document.getLength());
+				document.insertString(0, "Chat:\n", null);
+			} catch (BadLocationException e1) {
+				e1.printStackTrace();
+			}
 			_chatPane.setEnabled(false);
 			_sendMessageButton.setEnabled(false);
 			_leaveButton.setEnabled(false);

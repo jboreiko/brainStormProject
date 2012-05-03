@@ -443,8 +443,13 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
     @Override
     public void ofSerialized(SerializedBoardElt b) {
-        //TODO: make sure that this implements undo and redo
-
+        System.out.println("ofSerialized stylednode");
+        SerializedStyledNode ssn = (SerializedStyledNode) b;
+        this.setBounds(ssn.bounds);
+        undos = ssn.undos;
+        redos = ssn.redos;
+        /* Need to have this tranfer text over, currently does not */
+        //this.text.se = ssn.text;
     }
 
     @Override

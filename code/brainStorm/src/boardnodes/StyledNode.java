@@ -443,6 +443,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
     @Override
     public void ofSerialized(SerializedBoardElt b) {
+        //TODO: make sure that this implements undo and redo
 
     }
 

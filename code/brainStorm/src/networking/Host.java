@@ -20,7 +20,7 @@ public class Host extends Thread{
 
     private static int START_UID = 0;
     private static final int ELTS_PER_CLIENT = 5000;
-    private List<ClientHandler> clients; //The list of currently connected clients.
+    private LinkedList<ClientHandler> clients; //The list of currently connected clients.
     private Queue<ClientInfo> recoveryPriority;
     public Client localClient;
     private int hostId = 0;
@@ -124,7 +124,7 @@ public class Host extends Thread{
             clientHandler.send(new Handshake(hostId, temp, username, START_UID));
             registerClient(clientHandler);
             System.out.println("server: registered client with id: " + temp + ", uname: " + username);
-            broadcastMessage(new ChatMessage(temp, username + " just joined the Brainstrom!\n", "Host"), clientHandler);
+            broadcastMessage(new ChatMessage(temp, username + " just joined the Brainstrom!", "Host"), clientHandler);
         } else {
             System.out.println("server: client already has received an id ERROR");
         }
@@ -147,14 +147,12 @@ public class Host extends Thread{
     }
     /* TODO: need to have this shut down gracefully */
     public synchronized boolean shutDown() {
-    	/*
-    	clients.
-    	ClientHandler ch = clients.get(0);
-    	while (ch != null) {
-    		ch.signOff();
-    		ch = clients.get(0);
+        this.broadcastMessage(new ChatMessage(0, "BrainStorming session has now ended", "Host"), null);
+    	ClientHandler ch = null;
+    	while (clients.size() >= 1) {
+            ch = clients.removeFirst();
+    		ch.shutdown();
     	}
-    	*/
     	try {
 			serverSocket.close();
 		} catch (IOException e) {

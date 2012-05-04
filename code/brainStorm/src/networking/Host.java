@@ -20,7 +20,7 @@ public class Host extends Thread{
 
     private static int START_UID = 0;
     private static final int ELTS_PER_CLIENT = 5000;
-    private List<ClientHandler> clients; //The list of currently connected clients.
+    private LinkedList<ClientHandler> clients; //The list of currently connected clients.
     private Queue<ClientInfo> recoveryPriority;
     public Client localClient;
     private int hostId = 0;
@@ -44,6 +44,13 @@ public class Host extends Thread{
     
     public boolean send(NetworkMessage nm) {
         return localClient.send(nm);
+    }
+    
+    public boolean signOff() {
+    	if(localClient.signOff())
+    		return this.shutDown();
+    	else
+    		return false;
     }
     
     public NetworkMessage receive (Type t) {
@@ -84,8 +91,8 @@ public class Host extends Thread{
 				System.out.println("server: starting new client handler");
 				handler.start();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("server: closing serversocket and shuting down");
+				break;
 			}
         }
     }
@@ -108,7 +115,6 @@ public class Host extends Thread{
     }
     
     public synchronized void respondHandshake(Handshake message, ClientHandler clientHandler) {
-        /*TODO*/
         if (message.sender_id == -1) {
         	String username = message.client_username;
             int temp = getNextOpenId();
@@ -118,6 +124,7 @@ public class Host extends Thread{
             clientHandler.send(new Handshake(hostId, temp, username, START_UID));
             registerClient(clientHandler);
             System.out.println("server: registered client with id: " + temp + ", uname: " + username);
+            broadcastMessage(new ChatMessage(temp, username + " just joined the Brainstrom!", "Host"), clientHandler);
         } else {
             System.out.println("server: client already has received an id ERROR");
         }
@@ -133,11 +140,26 @@ public class Host extends Thread{
      * Return whether the client was found or not.
      **************************************************************************/
     public synchronized boolean removeClient(ClientHandler client) {
-        /*TODO*/
     	if (clients.contains(client)) {
     		return clients.remove(client);
     	}
         return false;
+    }
+    /* TODO: need to have this shut down gracefully */
+    public synchronized boolean shutDown() {
+        this.broadcastMessage(new ChatMessage(0, "BrainStorming session has now ended", "Host"), null);
+    	ClientHandler ch = null;
+    	while (clients.size() >= 1) {
+            ch = clients.removeFirst();
+    		ch.shutdown();
+    	}
+    	try {
+			serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return true;
     }
 
     /*

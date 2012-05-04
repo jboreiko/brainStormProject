@@ -14,6 +14,8 @@ import boardnodes.BoardPath;
 import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
+import boardnodes.SerializedStyledNode;
+import boardnodes.StyledNode;
 //import boardnodes.SerializedScribbleNode;
 import boardnodes.SerializedScribbleNode;
 
@@ -122,7 +124,8 @@ public class Backend {
 		pastActions.push(ba);
 		futureActions.clear();
 		if(!fromNetwork) {
-			if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE) {
+		    /* VERY IMPORTANT EFFECT WHICK NODES GET SENT ACROSS */
+			if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE || ba.target.getType() == BoardEltType.STYLED) {
 				networking.sendAction(new BoardEltExchange(ba.getTarget().toSerialized(), ba.getType()));
 			}
 		}
@@ -370,6 +373,18 @@ public class Backend {
 		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
 		        }
 	        break;
+	    case STYLED:
+            if(!boardElts.containsKey(e.getUID())) {
+                toReturn = new StyledNode(e.getUID(), this);
+                toReturn.ofSerialized(((SerializedStyledNode) e));
+                toReturn._mouseListener = _mouseListener;
+                boardElts.put(toReturn.getUID(), toReturn);
+                panel.add(toReturn);
+                System.out.println("adding "+toReturn.getUID());
+            } else {
+                boardElts.get(e.getUID()).ofSerialized(((SerializedStyledNode) e));
+            }
+        break;
 	    }
 	    panel.repaint();
         return toReturn;

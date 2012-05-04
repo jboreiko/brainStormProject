@@ -1,6 +1,7 @@
 package suggest;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -8,13 +9,15 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -28,9 +31,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
-import javax.swing.border.Border;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import networking.Networking;
 
@@ -46,9 +55,15 @@ public class SuggestGUI extends JPanel {
 	private JTextField _ipField;
 	private JPanel _findPanel;
 	private Networking _net;
-	private JTextArea _chatLog;
+	private JTextPane _chatPane, _wikiPane;
 	private JTextArea _chatMessage;
 	private JScrollPane _chatScrollPane;
+	private BlockingQueue<String> _bqueue;
+	private SuggestThread _suggestThread;
+	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton, _backButton;
+	private int _role;
+	private ArrayList<ClickText> _textList;
+	private Stack<String> _back;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -72,6 +87,11 @@ public class SuggestGUI extends JPanel {
 		this.setPreferredSize(interfaceSize);
 		this.setSize(interfaceSize);
 		queryService = new QueryService();
+		_bqueue = new LinkedBlockingQueue<String>();
+		_suggestThread = new SuggestThread();
+		_suggestThread.start();
+		_role = 0;
+		_back = new Stack<String>();
 	}
 	
 	public void setNetworking(Networking net) {
@@ -104,8 +124,8 @@ public class SuggestGUI extends JPanel {
 		JLabel usernamelabel = new JLabel("Username: ");
 		_usernameField = new JTextField(15);
 		_usernameField.setEditable(true);
-		JButton beHostButton = new JButton("Host a Brainstorm");
-		beHostButton.addActionListener(new ActionListener() {
+		_beHostButton = new JButton("Host a Brainstorm");
+		_beHostButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -118,8 +138,34 @@ public class SuggestGUI extends JPanel {
 					//_usernameField.getText for parameter
 					// check for bad connection boolean
 					if (_net != null) {
-						_net.becomeHost(_usernameField.getText());
-						_chatMessage.grabFocus();
+						_role = 1;
+						if (_net.becomeHost(_usernameField.getText())) {
+							_chatMessage.setEnabled(true);
+							_chatPane.setEnabled(true);
+							_sendMessageButton.setEnabled(true);
+							_leaveButton.setEnabled(true);
+							_chatMessage.grabFocus();
+							_usernameField.setEnabled(false);
+							_ipField.setEnabled(false);
+							_beHostButton.setEnabled(false);
+							_joinButton.setEnabled(false);
+							SimpleAttributeSet set = new SimpleAttributeSet();
+							StyleConstants.setFontSize(set, 18);
+							StyleConstants.setForeground(set, Color.CYAN);
+							StyleConstants.setFontFamily(set, "Veranda");
+							StyledDocument doc = _chatPane.getStyledDocument();
+							StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+							doc.setParagraphAttributes(doc.getLength(), 15, set, true);
+							try {
+								doc.insertString(doc.getLength(), "You just joined the Brainstrom!\n", set);
+							} catch (BadLocationException e2) {
+								e2.printStackTrace();
+							}
+						}
+						else {
+							// handle connection error
+							connectionError();
+						}
 					} else {
 						System.out.println("suggest: networking is null, has not be set");
 					}
@@ -132,8 +178,8 @@ public class SuggestGUI extends JPanel {
 		_ipField.setEditable(true);
 		
 		JPanel joinPanel = new JPanel();
-		JButton joinButton = new JButton("Join a Brainstorm");
-		joinButton.addActionListener(new ActionListener() {
+		_joinButton = new JButton("Join a Brainstorm");
+		_joinButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -150,8 +196,34 @@ public class SuggestGUI extends JPanel {
 					// check for bad connection boolean
 					//
 					if (_net != null) {
-						_net.becomeClient(_ipField.getText(), _usernameField.getText());
-						_chatMessage.grabFocus();
+						_role = 2;
+						if(_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
+							_chatMessage.setEnabled(true);
+							_chatPane.setEnabled(true);
+							_leaveButton.setEnabled(true);
+							_sendMessageButton.setEnabled(true);
+							_chatMessage.grabFocus();
+							_usernameField.setEnabled(false);
+							_ipField.setEnabled(false);
+							_beHostButton.setEnabled(false);
+							_joinButton.setEnabled(false);
+							SimpleAttributeSet set = new SimpleAttributeSet();
+							StyleConstants.setFontSize(set, 18);
+							StyleConstants.setForeground(set, Color.CYAN);
+							StyleConstants.setFontFamily(set, "Veranda");
+							StyledDocument doc = _chatPane.getStyledDocument();
+							StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+							doc.setParagraphAttributes(doc.getLength(), 15, set, true);
+							try {
+								doc.insertString(doc.getLength(), "You just joined the Brainstrom!\n", set);
+							} catch (BadLocationException e2) {
+								e2.printStackTrace();
+							}
+						}
+						else {
+							// handle connection error
+							connectionError();
+						}
 					} else {
 						System.out.println("suggest: networking is null, has not be set");
 					}
@@ -159,16 +231,42 @@ public class SuggestGUI extends JPanel {
 			}
 		});
 		
+		JPanel leavePanel = new JPanel();
+		_leaveButton = new JButton("Leave Brainstorm");
+		_leaveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_chatMessage.setEnabled(false);
+				_chatPane.setEnabled(false);
+				_sendMessageButton.setEnabled(false);
+				_leaveButton.setEnabled(false);
+				_usernameField.grabFocus();
+				_usernameField.setEnabled(true);
+				_ipField.setEnabled(true);
+				_beHostButton.setEnabled(true);
+				_joinButton.setEnabled(true);
+				_role = 0;
+				try {
+					StyledDocument document = _chatPane.getStyledDocument();
+					document.remove(0, document.getLength());
+					document.insertString(0, "Chat:\n", null);
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+				// tell networking you are leaving
+				_net.signOff();
+				
+			}
+			
+		});
+		_leaveButton.setEnabled(false);
+		leavePanel.add(_leaveButton);
+		
 		JPanel chatPanel = new JPanel();
-		_chatLog = new JTextArea(20, 50);
-		_chatLog.setEditable(false);
-		_chatLog.setLineWrap(true);
-		_chatLog.setWrapStyleWord(true);
-		Font font = new Font("Verdana", Font.BOLD, 14);
-		_chatLog.setFont(font);
-		_chatLog.setText("  CHAT: \n");
-		_chatScrollPane = new JScrollPane(_chatLog);
-		_chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		_chatPane = createChatPane();
+		_chatScrollPane = new JScrollPane(_chatPane);
+		_chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		_chatScrollPane.setPreferredSize(new Dimension(340, 600));
 		chatPanel.add(_chatScrollPane);
 		JPanel messagePanel = new JPanel();
@@ -176,7 +274,7 @@ public class SuggestGUI extends JPanel {
 		_chatMessage.setEditable(true);
 		_chatMessage.setLineWrap(true);
 		_chatMessage.setWrapStyleWord(true);
-		JButton sendMessageButton = new JButton("Send");
+		_sendMessageButton = new JButton("Send");
 		JScrollPane chatMessageScrollPane = new JScrollPane(_chatMessage, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		Action action = new AbstractAction() {
@@ -187,9 +285,11 @@ public class SuggestGUI extends JPanel {
 		KeyStroke keyStroke = KeyStroke.getKeyStroke("ENTER");
 		InputMap im = _chatMessage.getInputMap();
 		_chatMessage.getActionMap().put(im.get(keyStroke), action);
+		_chatMessage.setEnabled(false);
+		_chatPane.setEnabled(false);
 		
 		
-		sendMessageButton.addActionListener(new ActionListener() {
+		_sendMessageButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				addMessage();
@@ -197,55 +297,213 @@ public class SuggestGUI extends JPanel {
 			}
 		});
 		messagePanel.add(chatMessageScrollPane,BorderLayout.WEST);
-		messagePanel.add(sendMessageButton, BorderLayout.EAST);
-		//chatPanel.add(_chatLog, BorderLayout.NORTH);
-		//chatPanel.add(messagePanel, BorderLayout.SOUTH);
+		messagePanel.add(_sendMessageButton, BorderLayout.EAST);
 		
 		_networkPanel.setLayout(new FlowLayout());
 		usernamePanel.add(usernamelabel,BorderLayout.WEST);
 		usernamePanel.add(_usernameField, BorderLayout.EAST);
-		hostPanel.add(beHostButton, BorderLayout.CENTER);
-		//JPanel holderPanel = new JPanel();
-		//holderPanel.add(usernamePanel, BorderLayout.NORTH);
-		//holderPanel.add(hostPanel, BorderLayout.SOUTH);
+		hostPanel.add(_beHostButton, BorderLayout.CENTER);
 		clientPanel.add(ipLabel, BorderLayout.WEST);
 		clientPanel.add(_ipField, BorderLayout.EAST);
-		joinPanel.add(joinButton, BorderLayout.CENTER);
+		joinPanel.add(_joinButton, BorderLayout.CENTER);
 		
 		_networkPanel.add(usernamePanel);
 		_networkPanel.add(hostPanel);
-		//_networkPanel.add(holderPanel, BorderLayout.CENTER);
 		_networkPanel.add(clientPanel);
 		_networkPanel.add(joinPanel);
+		_networkPanel.add(leavePanel);
 		_networkPanel.add(chatPanel);
 		_networkPanel.add(messagePanel);
 		
 	}
 	
+	// Customized entering and exiting methods below
+	
+//	// networking needs to call me please
+//	public void newUser(String username) {
+//		SimpleAttributeSet set = new SimpleAttributeSet();
+//		StyleConstants.setFontSize(set, 18);
+//		StyleConstants.setForeground(set, Color.CYAN);
+//		StyledDocument doc = _chatPane.getStyledDocument();
+//		try {
+//			doc.insertString(doc.getLength(), username + "just joined the Brainstrom!\n", set);
+//		} catch (BadLocationException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+//	// networking needs to call me please
+//	public void userExited(String username) {
+//		SimpleAttributeSet set = new SimpleAttributeSet();
+//		StyleConstants.setFontSize(set, 18);
+//		StyleConstants.setForeground(set, Color.RED);
+//		StyledDocument doc = _chatPane.getStyledDocument();
+//		try {
+//			doc.insertString(doc.getLength(), username + "just left the Brainstrom!\n", set);
+//		} catch (BadLocationException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	public void connectionError() {
+		Object[] options = {"Ok", "Retry Connection"};
+		int n = JOptionPane.showOptionDialog(_networkPanel, "A connection error has disrupted the Brainstorm.", "Connection Error", JOptionPane.CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+		if (n == 1) {
+			System.out.println("retried");
+			// retry
+			if (_role == 1) {
+				if (_net.becomeHost(_usernameField.getText())) {
+					_chatMessage.setEnabled(true);
+					_chatPane.setEnabled(true);
+					_sendMessageButton.setEnabled(true);
+					_leaveButton.setEnabled(true);
+					_chatMessage.grabFocus();
+					_usernameField.setEnabled(false);
+					_ipField.setEnabled(false);
+					_beHostButton.setEnabled(false);
+					_joinButton.setEnabled(false);
+					SimpleAttributeSet set = new SimpleAttributeSet();
+					StyleConstants.setFontSize(set, 18);
+					StyleConstants.setForeground(set, Color.MAGENTA);
+					StyleConstants.setFontFamily(set, "Veranda");
+					StyledDocument doc = _chatPane.getStyledDocument();
+					StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+					doc.setParagraphAttributes(doc.getLength(), 10, set, false);
+					try {
+						doc.insertString(doc.getLength(), "Connection Restored!\n", set);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				} else {
+					connectionError();
+				}
+				
+			} else if (_role == 2) {
+				// retry
+				if (_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
+					_chatMessage.setEnabled(true);
+					_chatPane.setEnabled(true);
+					_sendMessageButton.setEnabled(true);
+					_leaveButton.setEnabled(true);
+					_chatMessage.grabFocus();
+					_usernameField.setEnabled(false);
+					_ipField.setEnabled(false);
+					_beHostButton.setEnabled(false);
+					_joinButton.setEnabled(false);
+					SimpleAttributeSet set = new SimpleAttributeSet();
+					StyleConstants.setFontSize(set, 18);
+					StyleConstants.setForeground(set, Color.MAGENTA);
+					StyleConstants.setFontFamily(set, "Veranda");
+					StyledDocument doc = _chatPane.getStyledDocument();
+					StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+					doc.setParagraphAttributes(doc.getLength(), 10, set, false);
+					try {
+						doc.insertString(doc.getLength(), "Connection Restored!\n", set);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+				else {
+					connectionError();
+				}
+					
+			}
+		}
+		else {
+			_role = 0;
+			_chatMessage.setEnabled(false);
+			try {
+				StyledDocument document = _chatPane.getStyledDocument();
+				document.remove(0, document.getLength());
+				document.insertString(0, "Chat:\n", null);
+			} catch (BadLocationException e1) {
+				e1.printStackTrace();
+			}
+			_chatPane.setEnabled(false);
+			_sendMessageButton.setEnabled(false);
+			_leaveButton.setEnabled(false);
+			_usernameField.grabFocus();
+			_usernameField.setEnabled(true);
+			_ipField.setEnabled(true);
+			_beHostButton.setEnabled(true);
+			_joinButton.setEnabled(true);
+		}
+	}
+	
+	private JTextPane createChatPane() {
+		JTextPane pane = new JTextPane();
+		pane.setSize(20, 50);
+		pane.setEditable(false);
+		// Chat Header
+		SimpleAttributeSet set = new SimpleAttributeSet();
+		StyleConstants.setBold(set, true);
+		StyleConstants.setFontSize(set, 26);
+		StyleConstants.setFontFamily(set, "Veranda");
+		StyleConstants.setAlignment(set, StyleConstants.ALIGN_CENTER);
+		StyledDocument doc = pane.getStyledDocument();
+		try {
+			doc.insertString(doc.getLength(), "Chat:\n", set);
+			doc.setParagraphAttributes(0, doc.getLength(), set, true);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		
+		return pane;
+	}
+
 	public void addMessage(){
 		String text = _chatMessage.getText();
 		if(!text.equals("")){
 			_chatMessage.setText("");
-			_chatLog.append("Me:  ");
-			_chatLog.append(text + "\n");
+			SimpleAttributeSet set = new SimpleAttributeSet();
+			StyledDocument doc = _chatPane.getStyledDocument();
+			StyleConstants.setFontFamily(set, "Veranda");
+			StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+			doc.setParagraphAttributes(doc.getLength(), text.length(), set, true);
+			StyleConstants.setBold(set, true);
+			StyleConstants.setForeground(set, Color.BLUE);
+			StyleConstants.setFontSize(set, 16);
+			try {
+				doc.insertString(doc.getLength(), "Me:   ", set);
+				set = new SimpleAttributeSet();
+				StyleConstants.setFontSize(set, 14);
+				doc.insertString(doc.getLength(), text + "\n", set);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
 			_chatMessage.grabFocus();
 			_net.sendMessage(text);
 			JViewport vport = _chatScrollPane.getViewport();
 			Point vp = vport.getViewPosition();
 			vp.translate(0, _chatScrollPane.getSize().height);
-			_chatLog.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
-			_chatLog.repaint();
+			_chatPane.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
+			_chatPane.repaint();
 		}
 	}
 	
 	public void newMessage(String username, String message) {
 		System.out.println("newmessage called");
-		_chatLog.append(username + ":  " + message + "\n");
+		SimpleAttributeSet set = new SimpleAttributeSet();
+		StyledDocument doc = _chatPane.getStyledDocument();
+		StyleConstants.setFontFamily(set, "Veranda");
+		StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
+		doc.setParagraphAttributes(doc.getLength(), message.length(), set, true);
+		StyleConstants.setBold(set, true);
+		StyleConstants.setForeground(set, Color.GREEN);
+		StyleConstants.setFontSize(set, 16);
+		try {
+			doc.insertString(doc.getLength(), username + ":   ", set);
+			set = new SimpleAttributeSet();
+			StyleConstants.setFontSize(set, 14);
+			doc.insertString(doc.getLength(), message + "\n", set);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 		JViewport vport = _chatScrollPane.getViewport();
 		Point vp = vport.getViewPosition();
 		vp.translate(0, _chatScrollPane.getSize().height);
-		_chatLog.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
-		_chatLog.repaint();
+		_chatPane.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
+		_chatPane.repaint();
 	}
 	
 	private void buildSuggestTab() {
@@ -255,21 +513,89 @@ public class SuggestGUI extends JPanel {
 		input.setEditable(true);
 		inputpanel.add(input);
 		
+		Action action = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String query = input.getText();
+				if (!query.isEmpty()) {
+					suggest(query);
+				}
+			}};
+		KeyStroke keyStroke = KeyStroke.getKeyStroke("ENTER");
+		InputMap im = input.getInputMap();
+		input.getActionMap().put(im.get(keyStroke), action);
+		
 		JPanel buttonPanel = new JPanel();
 		JButton suggestButton = new JButton("Suggestions?");
 		suggestButton.addActionListener(new SuggestionListener());
 		buttonPanel.add(suggestButton);
 		
 		JPanel wikiPanel = new JPanel();
-		wikioutput = new JTextArea(20, 50);
-		wikioutput.setEditable(false);
-		wikioutput.setLineWrap(true);
-		wikioutput.setWrapStyleWord(true);
-		JScrollPane wikiScrollPane = new JScrollPane(wikioutput);
+		
+//		wikioutput = new JTextArea(20, 50);
+//		wikioutput.setEditable(false);
+//		wikioutput.setLineWrap(true);
+//		wikioutput.setWrapStyleWord(true);
+//		JScrollPane wikiScrollPane = new JScrollPane(wikioutput);
+		
+		_wikiPane = new JTextPane();
+		_wikiPane.setSize(20, 50);
+		_wikiPane.setEditable(false);
+		// Chat Header
+		_wikiPane.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				Point point = e.getPoint();
+				int viewToModel = _wikiPane.viewToModel(point);
+				searchIt(viewToModel);
+				System.out.println("VIEW: " + viewToModel);
+			}
+		});
+		_textList = new ArrayList<ClickText>();
+		
+		JScrollPane wikiScrollPane = new JScrollPane(_wikiPane);
 		wikiScrollPane.setVerticalScrollBarPolicy(
-		JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		wikiScrollPane.setPreferredSize(new Dimension(340, 600));
 		wikiPanel.add(wikiScrollPane);
+		JPanel backPanel = new JPanel();
+		_backButton = new JButton("Back");
+		_backButton.setEnabled(false);
+		_backButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_back.pop();
+				String popBack = _back.pop();
+				suggest(popBack);
+				input.setText(popBack);
+				if(_back.size() <= 1) {
+					_backButton.setEnabled(false);
+				}
+			}
+		});
+		backPanel.add(_backButton);
 		
 		JPanel dictPanel = new JPanel();
 		dictoutput = new JTextArea(20, 50);
@@ -278,7 +604,7 @@ public class SuggestGUI extends JPanel {
 		dictoutput.setWrapStyleWord(true);
 		JScrollPane dictScrollPane = new JScrollPane(dictoutput);
 		dictScrollPane.setVerticalScrollBarPolicy(
-		JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		dictScrollPane.setPreferredSize(new Dimension(340, 600));
 		dictPanel.add(dictScrollPane);
 		
@@ -289,7 +615,7 @@ public class SuggestGUI extends JPanel {
 		duckoutput.setWrapStyleWord(true);
 		JScrollPane duckScrollPane = new JScrollPane(duckoutput);
 		duckScrollPane.setVerticalScrollBarPolicy(
-		JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		duckScrollPane.setPreferredSize(new Dimension(340, 600));
 		duckPanel.add(duckScrollPane);
 		
@@ -311,65 +637,147 @@ public class SuggestGUI extends JPanel {
 		_suggestPanel.add(inputpanel);
 		_suggestPanel.add(buttonPanel);
 		_suggestPanel.add(tabbedPane);
+		_suggestPanel.add(backPanel);
+	}
+	
+	public void searchIt(int cursor) {
+		for (ClickText text:_textList) {
+			if (cursor >= text.getStart() && cursor <= text.getEnd()) {
+				System.out.println(text.getQuery());
+				input.setText(text.getQuery());
+				suggest(text.getQuery());
+//				try {
+//					String result = queryService.submit(text.getQuery(), 0).get();
+//					styleWiki(result);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				} catch (ExecutionException e) {
+//					e.printStackTrace();
+//				} catch (BadLocationException e) {
+//					e.printStackTrace();
+//				}
+				break;
+			}
+		}
 	}
 
+	public void suggest(String query) {
+		try {
+			_bqueue.put(query);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
+	public void submitQuery(String query) {
+		_back.push(query);
+		if(_back.size() > 1) {
+			_backButton.setEnabled(true);
+		}
+		_textList = new ArrayList<ClickText>();
+		List<Future<String>> futures = new ArrayList<Future<String>>();
+		for (int i = 0; i < 3; i++) {
+			futures.add(i, queryService.submit(query, i));
+		}
+		int j =0;
+		for (Future<String> future:futures) {
+			try {
+				String result = future.get();
+				if (j == 0) {
+					if (result.startsWith("#REDIRECT")) {
+						int index = result.indexOf("[");
+						int index2 = result.indexOf("]", index);
+						String requery = result.substring(index+2, index2);
+						result = queryService.submit(requery, 0).get();
+					}
+					try {
+						styleWiki(result);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+					//wikioutput.setText(result);
+				}
+				else if (j==1) {
+					dictoutput.setText(result);
+				}
+				else if (j==2) {
+					duckoutput.setText(result);
+				}
+				j++;
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			} catch (ExecutionException e3) {
+				e3.printStackTrace();
+			}
+		}
+		
+	}
+	
+	private void styleWiki(String result) throws BadLocationException {
+		StyledDocument doc = _wikiPane.getStyledDocument();
+		doc.remove(0, doc.getLength());
+		SimpleAttributeSet set = new SimpleAttributeSet();
+		SimpleAttributeSet click = new SimpleAttributeSet();
+		StyleConstants.setForeground(click, Color.BLUE);
+		StyleConstants.setItalic(click, true);
+		int end = 0;
+		int index = result.indexOf("[[");
+		int index2 = result.indexOf("]]", index);
+		int middle = -1;
+		String query = "";
+		String text = "";
+		while (index >= 0 && index2 >= 0) {
+			doc.insertString(doc.getLength(), result.substring(end, index), set);
+			middle = result.indexOf("|", index);
+			if (middle > index && middle < index2) {
+				query = result.substring(index+2, middle);
+				text = result.substring(middle+1, index2);
+				end = index2-3-query.length();
+				doc.insertString(doc.getLength(), text, click);
+				ClickText clickText = new ClickText(query, index, end);
+				_textList.add(clickText);
+				result = result.substring(0, index) + result.substring(middle+1, index2) + result.substring(index2+2, result.length());
+			} else {
+				query = result.substring(index+2, index2);
+				end = index2-2;
+				doc.insertString(doc.getLength(), query, click);
+				ClickText clickText = new ClickText(query, index, end);
+				_textList.add(clickText);
+				result = result.substring(0, index) + result.substring(index+2, index2) + result.substring(index2+2, result.length());
+			}
+			
+			index = result.indexOf("[[");
+			index2 = result.indexOf("]]", index);
+		}
+		
+		doc.insertString(doc.getLength(), result.substring(end, result.length()), set);
+		
+	}
+
+	private class SuggestThread extends Thread {
+		
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					String query = _bqueue.take();
+					submitQuery(query);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	private class SuggestionListener implements ActionListener {
 		
-		
 		public void actionPerformed(ActionEvent e) {
-			
 			String query = input.getText();
-			
-			suggestThread suggestThread = new suggestThread(query);
-			suggestThread.start();
-			
+			if (!query.isEmpty()) {
+				suggest(query);
+			}
 		}
 		
-		private class suggestThread extends Thread {
-			
-			private String _query;
-			
-			public suggestThread(String query) {
-				this._query = query;
-			}
-
-			@Override
-			public void run() {
-				List<Future<String>> futures = new ArrayList<Future<String>>();
-				//futures.add(queryService.submit(query, 4));
-				for (int i = 0; i < 3; i++) {
-					futures.add(i, queryService.submit(_query, i));
-				}
-				int j =0;
-				for (Future<String> future:futures) {
-					try {
-						String result = future.get();
-						//System.out.println("NUMBERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR:  " + j);
-						if (j == 0) {
-							//System.out.println(result);
-							wikioutput.setText(result);
-						}
-						else if (j==1) {
-							//System.out.println(result);
-							dictoutput.setText(result);
-						}
-						else if (j==2) {
-							//System.out.println(result);
-							duckoutput.setText(result);
-						}
-						j++;
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					} catch (ExecutionException e3) {
-						e3.printStackTrace();
-					}
-				}
-				
-			}
-			
-		}
 		
 	}
 }

@@ -8,7 +8,6 @@ import java.awt.event.HierarchyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.Serializable;
 import java.util.Iterator;
 
 import javax.swing.JComponent;
@@ -16,7 +15,7 @@ import javax.swing.JViewport;
 
 import boardnodes.BoardPath;
 
-public class ViewportDragScrollListener implements MouseListener,MouseMotionListener, HierarchyListener, Serializable{
+public class ViewportDragScrollListener implements MouseListener,MouseMotionListener, HierarchyListener{
 	private static final int SPEED = 25;
 	private final Cursor dc;
 	private final Cursor hc = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
@@ -58,6 +57,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	}
 	@Override public void mousePressed(MouseEvent e) {
 		//first, check if we need to start dragging a path
+		wb.requestFocusInWindow();
 		Point offset = ((JViewport)e.getSource()).getViewPosition();
 		System.out.println(offset);
 		Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);

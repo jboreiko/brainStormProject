@@ -32,6 +32,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		UID = _UID;
 		backend = w;
 		wbp = backend.getPanel();
+		setFocusable(true);
 	}
 
 	public whiteboard.Backend getWhiteboard() {

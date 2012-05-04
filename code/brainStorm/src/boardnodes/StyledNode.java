@@ -1,24 +1,27 @@
 package boardnodes;
-import java.awt.*;
-import java.util.Stack;
-import GUI.WhiteboardPanel;
-
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Stack;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
@@ -27,8 +30,7 @@ import javax.swing.text.StyledDocument;
 import javax.swing.undo.UndoableEdit;
 
 import whiteboard.BoardActionType;
-
-import boardnodes.BoardEltType;
+import GUI.WhiteboardPanel;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
     /**
@@ -55,13 +57,13 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         //Different Styles of Typing
         _styleMenu = new JMenu("Styles");
         final String fonts[] = 
-        {"Abberancy","Arial","Courier New","Dialog","FreeSerif","Impact","SansSerif","Times New Roman","Verdana"};
+        {"Times New Roman","Arial","Courier New","Abberancy","Dialog","FreeSerif","Impact","SansSerif","Verdana"};
         for(int i=0;i<fonts.length;i+=1){
             final String fontName = fonts[i];
             JMenuItem fontItem = new JMenuItem(fontName);
             fontItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    content.setFont(new Font(fontName,Font.PLAIN, content.getFont().getSize()));
+                	content.setFont(new Font(fontName, content.getFont().getStyle(), content.getFont().getSize()));
                 }
             });
             _styleMenu.add(fontItem);
@@ -86,52 +88,21 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
         //Different Sizes
         _fontSizeMenu = new JMenu("Size");
-        final JTextField fontItem = new JTextField();
-        fontItem.setPreferredSize(new Dimension(100,40));
-        fontItem.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
-                if(e.getKeyChar() == e.VK_ENTER){
-                    System.out.println("ENTER");
-                    int fontSize = 12;
-                    try{
-                        fontSize = Integer.parseInt(fontItem.getText());
-                        if(fontSize > 72){
-                            System.err.println("72 is max text size!");
-                            fontSize = 72;
-                        }
-                        if(fontSize<6) {
-                            System.err.println("6 is min text size!");
-                            fontSize = 6;
-                        }
-                        else{
-                            content.setFont(new Font(content.getFont().getName(),Font.PLAIN, fontSize));
-                        }
-                    }
-                    catch(Exception ex){
-                        System.err.println("TYPE AN INT!");
-                    }
-                }
-            }
+        final int[] sizes = {6, 7, 8, 9, 10, 12, 14, 18, 24, 36, 52, 72};
+        for (final int a : sizes) {
+        	JMenuItem fontSize = new JMenuItem(a+"");
+        	fontSize.addActionListener(new ActionListener() {
+        		public void actionPerformed(ActionEvent e) {
+        			Font replaceWith = content.getFont().deriveFont((float)a);
+        			content.setFont(replaceWith);
+        		}
+        	});
+            _fontSizeMenu.add(fontSize);
+        }
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-        _fontSizeMenu.add(fontItem);
-
-        _fontMenu.add(_fontSizeMenu);
-        _fontMenu.addSeparator();
         _fontMenu.add(_styleMenu);
+        _fontMenu.addSeparator();
+        _fontMenu.add(_fontSizeMenu);
         _fontMenu.addSeparator();
         _fontMenu.add(_colorMenu);
 
@@ -150,7 +121,16 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         this.setSize(new Dimension(DEFAULT_SIZE.width + BORDER_WIDTH*2, DEFAULT_SIZE.height + BORDER_WIDTH*2));
         addMouseListener(this);
         addMouseMotionListener(this);
-
+        
+        System.out.println(content.requestFocusInWindow());
+        SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				content.grabFocus();
+				content.requestFocusInWindow();
+			}
+        });
+        
         revalidate();
         view.revalidate();
         repaint();
@@ -160,7 +140,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
     public class BoardCommUndoableEditListener implements UndoableEditListener {
         @Override
         public void undoableEditHappened(UndoableEditEvent e) {
-            System.out.println("DOCUMENT LISTENER SAYS UID IS " + getUID());
             undos.push(new StyledNodeEdit(e.getEdit()));
             if(e.getEdit().getPresentationName().equals("addition")) {
                 try {
@@ -195,7 +174,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
             @Override
             public void focusLost(FocusEvent e) {
-                // TODO Auto-generated method stub
+            	System.out.println("Lost focus");
                 content.revalidate();
             }
 

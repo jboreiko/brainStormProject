@@ -47,6 +47,7 @@ public class WhiteboardPanel extends JPanel{
 		_lastAdded = 0;
 		_backend = new Backend(this);
 		_backend._mouseListener = _mouseListener;
+		setFocusable(true);
 		this.setLayout(null);
 		this.setVisible(true);
 		this.setBackground(Color.GRAY);
@@ -131,7 +132,7 @@ public class WhiteboardPanel extends JPanel{
 			this.setSize(newSize);
 		}
 		if(obtrusion.y + obtrusion.height > panelHeight){ //extends down past the bottom
-			Dimension newSize = new Dimension(panelWidth, obtrusion.y + obtrusion.height);
+			Dimension newSize = new Dimension(getSize().height, obtrusion.y + obtrusion.height);
 			this.setPreferredSize(newSize);
 			this.setSize(newSize);
 		}

@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class SerializedBoardElt implements Serializable {
     BoardEltType type;
     int UID;
+    String body;
     /**
      * 
      */

@@ -150,7 +150,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                     e1.printStackTrace();
                 }
             }
-            notifyBackend(BoardActionType.ELT_MOD);
         }
     }
 
@@ -165,10 +164,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         text.addUndoableEditListener(new BoardCommUndoableEditListener());
         JTextPane toReturn = new JTextPane(text);
         toReturn.addFocusListener(new FocusListener() {
-
+        	String lastText = "";
             @Override
             public void focusGained(FocusEvent e) {
-                // TODO Auto-generated method stub
+                // TODO Notify the backend
                 System.out.println("GAINED FOCUS");
             }
 
@@ -176,6 +175,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             public void focusLost(FocusEvent e) {
             	System.out.println("Lost focus");
                 content.revalidate();
+                if (!lastText.equals(content.getText())) { //send changes over the network
+                	notifyBackend(BoardActionType.ELT_MOD);
+                }
+                lastText = content.getText();
             }
 
 
@@ -359,6 +362,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             //if (screenX>= 0 && screenY>= 0)
             //	setBounds(screenX, screenY, previousBounds.width, previousBounds.height);
         }
+        notifyBackend(BoardActionType.ELT_MOD);
         wbp.extendPanel(getBounds());
         repaint();
         wbp.repaint();
@@ -425,10 +429,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         System.out.println("ofSerialized stylednode");
         SerializedStyledNode ssn = (SerializedStyledNode) b;
         this.setBounds(ssn.bounds);
-        undos = ssn.undos;
-        redos = ssn.redos;
+        view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
+        //undos = ssn.undos;
+        //redos = ssn.redos;
         /* Need to have this tranfer text over, currently does not */
-        //this.text.se = ssn.text;
+        content.setText(b.body);
     }
 
     @Override

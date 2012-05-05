@@ -4,11 +4,10 @@ package GUI;
 
 import java.util.*;
 import javax.swing.*;
-
 import suggest.SuggestGUI;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.io.File;
 
 /**
@@ -54,8 +53,8 @@ public class MainFrame extends JFrame {
 	 */
 	
 	
-	public MainFrame(String title){
-		super(title);
+	public MainFrame(String projectName){
+		super(projectName);
 		this.setVisible(true);
 		setJMenuBar(initMenu());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -77,40 +76,27 @@ public class MainFrame extends JFrame {
         fc = new JFileChooser();
 
 		//whiteboard.newProject
-		String projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
-		if(projectName==null) {
-			System.out.println("project creation was cancelled");
-			return;
+		this.setTitle(projectName);
+		_whiteboard = new WhiteboardPanel();
+	    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+	    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+		JScrollPane scrollPane = new JScrollPane(_whiteboard,v,h);
+		//interesting stuff
+		scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
+		scrollPane.getHorizontalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
+		ViewportDragScrollListener l = new ViewportDragScrollListener(_whiteboard);
+		_whiteboard._mouseListener = l;
+		_whiteboard.getBackend()._mouseListener = l;
+		JViewport vp = scrollPane.getViewport();
+		vp.addMouseMotionListener(l);
+		vp.addMouseListener(l);
+		vp.addHierarchyListener(l);
+		add(_interfacePane, BorderLayout.WEST);
+		add(scrollPane, BorderLayout.CENTER);
+		if(!_suggestPanel.networkingSet()) {
+			_suggestPanel.setNetworking(_whiteboard.getBackend().getNetworking());
 		}
-		while(true){
-			if(projectName.length() >= 1){
-				this.setTitle(projectName);
-				_whiteboard = new WhiteboardPanel();
-			    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
-			    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
-				JScrollPane scrollPane = new JScrollPane(_whiteboard,v,h);
-				//interesting stuff
-				scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
-				scrollPane.getHorizontalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
-				ViewportDragScrollListener l = new ViewportDragScrollListener(_whiteboard);
-				_whiteboard._mouseListener = l;
-				_whiteboard.getBackend()._mouseListener = l;
-				JViewport vp = scrollPane.getViewport();
-				vp.addMouseMotionListener(l);
-				vp.addMouseListener(l);
-				vp.addHierarchyListener(l);
-				add(scrollPane, BorderLayout.CENTER);
-				if(!_suggestPanel.networkingSet()) {
-					_suggestPanel.setNetworking(_whiteboard.getBackend().getNetworking());
-				}
-				//JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
-				break;
-			}
-			else{
-				JOptionPane.showMessageDialog(null, "Please specify a name for the project","Error!", JOptionPane.ERROR_MESSAGE);
-				projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
-			}
-		}
+		//JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
 		
 		validate();
 		repaint();
@@ -142,6 +128,13 @@ public class MainFrame extends JFrame {
 		_newProject.getAccessibleContext().setAccessibleDescription("Creates a new project");
 		_newProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				System.err.println("NOT IMPLEMENTED");
+				try{
+					Runtime.getRuntime().exec("java brainStormProject");
+				}
+				catch(IOException exception){
+					
+				}
 			}
 		});
 		_file.add(_newProject);
@@ -249,6 +242,20 @@ public class MainFrame extends JFrame {
 		return _menuBar;
 	}
 	public static void main(String[] args) {
-		new MainFrame("(untitled)");
+		String projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
+		while(true){
+			if(projectName==null) {
+				System.exit(1);
+				return;
+			}
+			if(projectName.length()>0){
+				new MainFrame(projectName);
+				break;
+			}
+			else{
+				JOptionPane.showMessageDialog(null, "Please specify a name for the project","Error!", JOptionPane.ERROR_MESSAGE);
+				projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
+			}
+		}
 	}
 }

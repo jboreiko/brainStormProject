@@ -150,7 +150,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                     e1.printStackTrace();
                 }
             }
-            notifyBackend(BoardActionType.ELT_MOD);
         }
     }
 
@@ -165,10 +164,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         text.addUndoableEditListener(new BoardCommUndoableEditListener());
         JTextPane toReturn = new JTextPane(text);
         toReturn.addFocusListener(new FocusListener() {
-
+        	String lastText = "";
             @Override
             public void focusGained(FocusEvent e) {
-                // TODO Auto-generated method stub
+                // TODO Notify the backend
                 System.out.println("GAINED FOCUS");
             }
 
@@ -176,6 +175,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             public void focusLost(FocusEvent e) {
             	System.out.println("Lost focus");
                 content.revalidate();
+                if (!lastText.equals(content.getText())) { //send changes over the network
+                	notifyBackend(BoardActionType.ELT_MOD);
+                }
+                lastText = content.getText();
             }
 
 
@@ -206,7 +209,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                 if (e.getModifiers() == 4) {
                     _fontMenu.show(StyledNode.this,e.getX(),e.getY());
                 }
-                wbp.setListFront(StyledNode.this);
+                wbp.setListFront(StyledNode.this.UID);
                 content.grabFocus();
                 StyledNode.this.repaint();
 
@@ -309,7 +312,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
     Rectangle boundsBeforeMove;
     public void mousePressed(MouseEvent e) {
-        wbp.setListFront(this);
+        wbp.setListFront(this.UID);
         content.grabFocus();
         startPt = new Point(e.getX(),e.getY());
         if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
@@ -425,10 +428,15 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         System.out.println("ofSerialized stylednode");
         SerializedStyledNode ssn = (SerializedStyledNode) b;
         this.setBounds(ssn.bounds);
-        undos = ssn.undos;
-        redos = ssn.redos;
-        /* Need to have this tranfer text over, currently does not */
-        //this.text.se = ssn.text;
+        view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
+        //undos = ssn.undos;
+        //redos = ssn.redos;
+        System.out.println("Setting text to " + ssn.text);
+        content.setText(ssn.text);
+        repaint();
+        content.repaint();
+        view.revalidate();
+        view.repaint();
     }
 
     @Override

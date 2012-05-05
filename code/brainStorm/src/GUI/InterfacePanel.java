@@ -13,13 +13,13 @@ import javax.swing.*;
  *
  */
 public class InterfacePanel extends JPanel {
-	private ArrayList<WhiteboardPanel> _whiteboards;
+	private WhiteboardPanel _whiteboard;
 	private JCheckBox _contInsertionBox;
 	private boolean _contInsertion;
-	public InterfacePanel(ArrayList<WhiteboardPanel> whiteboards){
+	public InterfacePanel(WhiteboardPanel whiteboard){
 		super();
 		_contInsertion = false;
-		_whiteboards = whiteboards;
+		_whiteboard = whiteboard;
 		_contInsertionBox = new JCheckBox("Continuous Insertion",null,true);
 		_contInsertionBox.setVisible(true);
 		_contInsertionBox.addActionListener(new ContinuousInsertionListener());
@@ -32,9 +32,7 @@ public class InterfacePanel extends JPanel {
 		public ContinuousInsertionListener(){
 		}
 		public void actionPerformed(ActionEvent e) {
-			for(int i=0;i<_whiteboards.size();i++){
-				_whiteboards.get(i).setContinuousInsertion(_contInsertion);
-			}
+			_whiteboard.setContinuousInsertion(_contInsertion);
 			_contInsertion = !_contInsertion;
 		}
 	}

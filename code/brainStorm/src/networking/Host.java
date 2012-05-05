@@ -105,10 +105,10 @@ public class Host extends Thread{
     ***************************************************************************/
     public synchronized void broadcastMessage(NetworkMessage message, ClientHandler client) {
         /*TODO*/
-        System.out.println("server: broadcasting msg: " + message);
+        //System.out.println("server: broadcasting msg: " + message);
     	for (ClientHandler ch: clients) {
     	    if (ch != client) {
-    	        System.out.println("server: sending msg to client: " + ch.id);
+    	        //System.out.println("server: sending msg to client: " + ch.id);
     	        ch.send(message);
     	    }
     	}

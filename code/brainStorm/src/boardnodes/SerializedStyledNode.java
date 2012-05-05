@@ -20,13 +20,8 @@ public class SerializedStyledNode extends SerializedBoardElt {
     public SerializedStyledNode(StyledNode sn) {
         type = BoardEltType.STYLED;
         bounds = sn.getBounds();
-        undos = sn.undos;
-        redos = sn.redos;
         UID = sn.UID;
-        try {
-            text = sn.text.getText(0, sn.text.getLength());
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
+        
+        text = new String(sn.content.getText());
     }
 }

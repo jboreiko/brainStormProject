@@ -308,12 +308,12 @@ class Client extends Thread{
                     e.printStackTrace();
                 }
                 if (message != null || !shutdown) {
-                    System.out.println("client: received message of type " + message.type);
+                    //System.out.println("client: received message of type " + message.type);
                     if (message.type == Type.ACTION) {
                         _net.backend.receiveNetworkedObject(((ActionMessage) message).action);
                         actionReceived.offer((ActionMessage) message);
                     } else if (message.type == Type.CHAT) {
-                        System.out.println("client: received chat message: " + ((ChatMessage) message).text);
+                        //System.out.println("client: received chat message: " + ((ChatMessage) message).text);
                         ChatMessage chatMsg = (ChatMessage) message;
                         _net._suggestPanel.newMessage(chatMsg.uname, chatMsg.text);
                         chatReceived.offer((ChatMessage) message);

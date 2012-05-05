@@ -64,6 +64,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             fontItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 	content.setFont(new Font(fontName, content.getFont().getStyle(), content.getFont().getSize()));
+                	notifyBackend(BoardActionType.ELT_MOD);
                 }
             });
             _styleMenu.add(fontItem);
@@ -81,6 +82,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             fontItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     content.setForeground(color);
+                    notifyBackend(BoardActionType.ELT_MOD);
                 }
             });
             _colorMenu.add(fontItem);
@@ -95,6 +97,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         		public void actionPerformed(ActionEvent e) {
         			Font replaceWith = content.getFont().deriveFont((float)a);
         			content.setFont(replaceWith);
+                    notifyBackend(BoardActionType.ELT_MOD);
         		}
         	});
             _fontSizeMenu.add(fontSize);
@@ -167,8 +170,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         	String lastText = "";
             @Override
             public void focusGained(FocusEvent e) {
-                // TODO Notify the backend
-                System.out.println("GAINED FOCUS");
+            	backend.alertEditingStatus(StyledNode.this, true);
+                System.out.println("StyledNode: GAINED FOCUS, alerted backend");
             }
 
             @Override
@@ -179,6 +182,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                 	notifyBackend(BoardActionType.ELT_MOD);
                 }
                 lastText = content.getText();
+                backend.alertEditingStatus(StyledNode.this, false);
             }
 
 
@@ -290,24 +294,9 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
     }
     @Override
     public void mouseEntered(MouseEvent e) {
-        /*if(_mouseListener!=null) {
-			System.out.println("asdfa");
-			if(_mouseListener.draggedPath!=null) {
-				System.out.println("whoo");
-				_mouseListener.draggedPath._snapSeminal = this;
-			}
-		}*/
-        System.out.println("ENTERED");
     }
     @Override
     public void mouseExited(MouseEvent e) {
-        /*if(_mouseListener!=null) {
-			System.out.println("asdfa");
-			if(_mouseListener.draggedPath!=null) {
-				System.out.println("whoo");
-				_mouseListener.draggedPath._snapSeminal = null;
-			}
-		}*/
     }
 
     Rectangle boundsBeforeMove;
@@ -419,6 +408,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
         g.setColor(Color.LIGHT_GRAY);
         g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+        
+        if (isBeingEdited) { //notify the user this is being modified elsewhere
+        	g.setColor(Color.ORANGE);
+        	g.fillOval(getWidth()-BORDER_WIDTH, getHeight(), BORDER_WIDTH, BORDER_WIDTH);
+        }
 
 
     }
@@ -431,6 +425,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
         //undos = ssn.undos;
         //redos = ssn.redos;
+        content.setFont(ssn.style);
+        content.setForeground(ssn.fontColor);
         System.out.println("Setting text to " + ssn.text);
         content.setText(ssn.text);
         repaint();

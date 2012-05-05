@@ -1,5 +1,7 @@
 package boardnodes;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.util.Stack;
 
@@ -17,11 +19,14 @@ public class SerializedStyledNode extends SerializedBoardElt {
     public Stack<StyledNodeEdit> redos;
     public Rectangle bounds;
     public String text;
+    public Font style;
+    public Color fontColor;
     public SerializedStyledNode(StyledNode sn) {
         type = BoardEltType.STYLED;
         bounds = sn.getBounds();
         UID = sn.UID;
-        
         text = new String(sn.content.getText());
+        style = sn.content.getFont();
+        fontColor = sn.content.getForeground();
     }
 }

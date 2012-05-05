@@ -4,12 +4,11 @@ package GUI;
 
 import java.util.*;
 import javax.swing.*;
-
 import suggest.SuggestGUI;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.io.File;
 
 /**
  * @author bverch
@@ -43,6 +42,7 @@ public class MainFrame extends JFrame {
 	private InterfacePanel _interfacePane;
 	private SuggestGUI _suggestPanel;
 	private WhiteboardPanel _whiteboard;
+	private JFileChooser fc;
 	
 	/*
 	 * Mainframe()
@@ -72,7 +72,8 @@ public class MainFrame extends JFrame {
 		_suggestPanel = new SuggestGUI(interfaceSize);
 		_interfacePane.add(_suggestPanel);
 		
-		
+		add(_interfacePane, BorderLayout.WEST);
+        fc = new JFileChooser();
 
 		//whiteboard.newProject
 		this.setTitle(projectName);
@@ -96,10 +97,6 @@ public class MainFrame extends JFrame {
 			_suggestPanel.setNetworking(_whiteboard.getBackend().getNetworking());
 		}
 		//JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
-		
-		
-		
-		
 		
 		validate();
 		repaint();
@@ -150,7 +147,7 @@ public class MainFrame extends JFrame {
 		_join.getAccessibleContext().setAccessibleDescription("Joins an existing project");
 		_join.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//whiteboard.joinProject
+				//whiteboard.joinProje
 				JOptionPane.showMessageDialog(null, "You clicked the Join Project menu");
 			}
 		});
@@ -165,6 +162,10 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				//whiteboard.loadProject
 				JOptionPane.showMessageDialog(null, "You clicked the Load menu");
+                int ret = fc.showOpenDialog(_whiteboard);
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    _whiteboard.getBackend().load(fc.getSelectedFile());
+                }
 			}
 		});
 		_file.add(_load);
@@ -174,11 +175,12 @@ public class MainFrame extends JFrame {
 		_save.setMnemonic('S');
 		_save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		_save.getAccessibleContext().setAccessibleDescription("Saves an existing project");
-		_save.setEnabled(false);
 		_save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//whiteboard.loadProject
-				JOptionPane.showMessageDialog(null, "You clicked the Save menu");
+			    int ret = fc.showSaveDialog(_whiteboard);
+			    if (ret == JFileChooser.APPROVE_OPTION) {
+			        _whiteboard.getBackend().save(fc.getSelectedFile());
+			    }
 			}
 		});
 		_file.add(_save);

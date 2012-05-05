@@ -3,7 +3,7 @@ package boardnodes;
 import java.io.Serializable;
 
 public class SerializedBoardElt implements Serializable {
-    BoardEltType type;
+    public BoardEltType type;
     int UID;
     //String body;
     /**

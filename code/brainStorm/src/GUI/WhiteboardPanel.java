@@ -136,27 +136,10 @@ public class WhiteboardPanel extends JPanel{
 			this.setPreferredSize(newSize);
 			this.setSize(newSize);
 		}
-		/*if(obtrusion.x < this.getBounds().x){
-			//SOME KIND OF TRANSLATION HERE
-			System.out.println(obtrusion.x);
-			System.out.println(this.getBounds().x);
-			panelWidth = panelWidth - obtrusion.x;
-			this.setPreferredSize(new Dimension(getWidth() + 10,getHeight()));
-			this.setBounds(this.getX(),this.getY(),panelWidth,panelHeight);
-			this.repaint();
-		}
-		if(obtrusion.y < this.getBounds().y){
-			//SOME KIND OF TRANSLATION HERE
-			panelHeight = panelHeight - obtrusion.x;
-			this.setPreferredSize(new Dimension(getWidth(),getHeight() + 10));
-			this.setBounds(this.getX(),this.getY(),panelWidth,panelHeight);
-			this.repaint();
-		}*/
 	}
 	public void addNode(Point p){
 		if(_contIns){
 			_addLocation = p;
-//			extendPanel();
 			if(_lastAdded == 0){
 				
 			}
@@ -234,45 +217,6 @@ public class WhiteboardPanel extends JPanel{
 	public void redo() {
 		_backend.redo();
 	}
-
-/*	public Dimension getPreferredScrollableViewportSize() {
-		return getPreferredSize();
-	}
-	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction){
-		int currentPosition = 0;
-		if(orientation == SwingConstants.HORIZONTAL){
-			currentPosition = visibleRect.x;
-		}
-		else{
-			currentPosition = visibleRect.y;
-		}
-		
-		if(direction < 0){
-			int newPosition = currentPosition - (currentPosition / _increment)*_increment;
-			return(newPosition == 0) ? _increment : newPosition;
-		}
-		else{
-			return ((currentPosition / _increment) + 1) * _increment - currentPosition;
-			
-		}
-	}
-	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction){
-		if (orientation == SwingConstants.HORIZONTAL){
-			return visibleRect.width - _increment;
-		}
-		else{
-			return visibleRect.height - _increment;
-		}
-	}
-	public boolean getScrollableTracksViewportWidth() {
-		return false;
-	}
-	public boolean getScrollableTracksViewportHeight(){
-		return false;
-	}
-	public void setIncrement(int pixels){
-		_increment = pixels;
-	}*/
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;

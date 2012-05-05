@@ -374,7 +374,8 @@ public class Backend {
 			int node = siu.getUID();
 			BoardElt boardNode = boardElts.get(node);
 			System.out.println(" UID is " + node + " object null? " + (boardNode == null) + ", used? " + isBeingUsed);
-			boardNode.setBeingEditedStatus(isBeingUsed);
+			if (boardNode != null)
+				boardNode.setBeingEditedStatus(isBeingUsed);
 			break;
 		case CREATION:
 			action = new CreationAction(receiveNetworkCreationObject(serializedElt));
@@ -490,7 +491,7 @@ public class Backend {
 
 	
 	public void alertEditingStatus(BoardElt b, boolean isInUse) {
-		SerializedInUse toSend = new SerializedInUse(b.getUID(), b.Type, isInUse);
+		SerializedInUse toSend = new SerializedInUse(b.getUID(), b.type, isInUse);
 		BoardEltExchange bex = new BoardEltExchange(toSend, BoardActionType.IN_USE);
 		networking.sendAction(bex);
 	}

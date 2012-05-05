@@ -22,7 +22,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 
 	protected static int nextUID = 0;
 
-	protected BoardEltType type;
+	public BoardEltType type;
 	protected boolean isBeingEdited; //whether this BoardElt is in focus on another computer
 	public int getUID() {
 		return UID;

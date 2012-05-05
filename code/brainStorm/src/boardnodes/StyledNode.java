@@ -411,7 +411,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         
         if (isBeingEdited) { //notify the user this is being modified elsewhere
         	g.setColor(Color.ORANGE);
-        	g.fillOval(getWidth()-BORDER_WIDTH, getHeight(), BORDER_WIDTH, BORDER_WIDTH);
+        	g.fillOval(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
         }
 
 

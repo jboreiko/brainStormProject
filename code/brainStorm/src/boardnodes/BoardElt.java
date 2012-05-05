@@ -14,7 +14,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	//position on the board
 	private String textBody;
 	private static int ID_Last;
-	public BoardEltType Type;
 	//the whiteboard that this is a part of
 	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
@@ -22,7 +21,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 
 	protected static int nextUID = 0;
 
-	protected BoardEltType type;
+	public BoardEltType type;
 	protected boolean isBeingEdited; //whether this BoardElt is in focus on another computer
 	public int getUID() {
 		return UID;

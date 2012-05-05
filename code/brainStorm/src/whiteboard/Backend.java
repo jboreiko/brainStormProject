@@ -59,6 +59,7 @@ public class Backend {
         try {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
             for (BoardElt be : this.boardElts.values()) {
+                System.out.println("backend: writing out boardelt of type " + be.type);
                 oos.writeObject(be.toSerialized());
             }
             for (BoardPath bp : this.paths) {
@@ -85,7 +86,7 @@ public class Backend {
                 tElt.ofSerialized(be);
                 this.boardElts.put(be.getUID(), tElt);
             } else if (be.type == BoardEltType.SCRIBBLE) {
-                System.out.println("backend: loading found styled");
+                System.out.println("backend: loading found scribble");
                 BoardElt tElt = new ScribbleNode(be.getUID(), this);
                 tElt.ofSerialized(be);
                 this.boardElts.put(be.getUID(), tElt);
@@ -490,7 +491,7 @@ public class Backend {
 
 	
 	public void alertEditingStatus(BoardElt b, boolean isInUse) {
-		SerializedInUse toSend = new SerializedInUse(b.getUID(), b.Type, isInUse);
+		SerializedInUse toSend = new SerializedInUse(b.getUID(), b.type, isInUse);
 		BoardEltExchange bex = new BoardEltExchange(toSend, BoardActionType.IN_USE);
 		networking.sendAction(bex);
 	}

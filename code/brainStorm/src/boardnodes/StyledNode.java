@@ -209,7 +209,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                 if (e.getModifiers() == 4) {
                     _fontMenu.show(StyledNode.this,e.getX(),e.getY());
                 }
-                wbp.setListFront(StyledNode.this);
+                wbp.setListFront(StyledNode.this.UID);
                 content.grabFocus();
                 StyledNode.this.repaint();
 
@@ -312,7 +312,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
     Rectangle boundsBeforeMove;
     public void mousePressed(MouseEvent e) {
-        wbp.setListFront(this);
+        wbp.setListFront(this.UID);
         content.grabFocus();
         startPt = new Point(e.getX(),e.getY());
         if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){

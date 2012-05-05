@@ -1,10 +1,17 @@
 package whiteboard;
 
 import java.awt.Point;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
+import java.util.Map.Entry;
 
 import networking.Networking;
 import GUI.ViewportDragScrollListener;
@@ -41,6 +48,21 @@ public class Backend {
 		paths = new ArrayList<boardnodes.BoardPath>();
 		networking = new Networking();
 		networking.setBackend(this);
+	}
+	
+	public void save(File f) {
+	    System.out.println("backend: saving to file");
+	    try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+            for (Entry<Integer, BoardElt> e : this.boardElts.entrySet()) {
+                oos.writeObject(e.getValue().toSerialized());
+            }
+            for (BoardPath bp : this.paths) {
+                oos.writeObject(bp.toSerialized());
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
 	}
 
 	//Adds the given board elt and adds the "addition" action to the stack

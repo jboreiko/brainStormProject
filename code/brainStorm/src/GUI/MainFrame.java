@@ -142,7 +142,7 @@ public class MainFrame extends JFrame {
 					}
 					else{
 						JOptionPane.showMessageDialog(null, "Please specify a name for the project","Error!", JOptionPane.ERROR_MESSAGE);
-						projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
+						projectName = JOptionPane.showInputDialog(null, "Pro_interfacePaneject Name","New Project",JOptionPane.PLAIN_MESSAGE);
 					}
 				}
 			}
@@ -157,7 +157,7 @@ public class MainFrame extends JFrame {
 		_join.getAccessibleContext().setAccessibleDescription("Joins an existing project");
 		_join.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//whiteboard.joinProject
+				//whiteboard.joinProje
 				if(!(_tabbedPane.getTabCount() == 0)){
 					_save.setEnabled(true);
 					_close.setEnabled(true);
@@ -175,6 +175,7 @@ public class MainFrame extends JFrame {
 		_load.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//whiteboard.loadProject
+			    //_interfacePane
 				if(!(_tabbedPane.getTabCount() == 0)){
 					_save.setEnabled(true);
 					_close.setEnabled(true);

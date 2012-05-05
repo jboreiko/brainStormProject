@@ -1,6 +1,7 @@
 package whiteboard;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -28,10 +29,6 @@ public class Backend {
 	private Networking networking;
 	private BoardElt clipboard;
 	public ViewportDragScrollListener _mouseListener;
-
-	//TODO: make every method that adds an action just add the action and then call executeaction on it (every method
-	//		not including 'undo' and 'redo' need to clear the redo stack, so pass in 'true' for that parameter\
-	//TODO: when calling networking.sendAction be sure to check for return false - that indicates either something went wrong (if networking is on) or networking is off
 
 	public Backend(GUI.WhiteboardPanel _panel) {
 		panel = _panel;
@@ -417,6 +414,11 @@ public class Backend {
 	}
 	public ArrayList<BoardElt> getElts() {
 		return new ArrayList<BoardElt>(boardElts.values());
+	}
+
+	public void highlightNode(BoardElt boardElt) {
+		panel.scrollRectToVisible(new Rectangle(new Point(boardElt.getX(), boardElt.getY()), panel.getSize()));
+		
 	}
 
 }

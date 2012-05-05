@@ -375,7 +375,8 @@ public class Backend {
 			int node = siu.getUID();
 			BoardElt boardNode = boardElts.get(node);
 			System.out.println(" UID is " + node + " object null? " + (boardNode == null) + ", used? " + isBeingUsed);
-			boardNode.setBeingEditedStatus(isBeingUsed);
+			if (boardNode != null)
+				boardNode.setBeingEditedStatus(isBeingUsed);
 			break;
 		case CREATION:
 			action = new CreationAction(receiveNetworkCreationObject(serializedElt));

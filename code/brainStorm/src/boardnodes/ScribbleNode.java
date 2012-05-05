@@ -260,7 +260,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		
 		if (isBeingEdited) { //visual feedback that it's being changed elsewhere
 			g.setColor(Color.ORANGE);
-			g.fillOval(getWidth() - BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+			g.fillOval(getWidth() - BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
 		}
 	}
 	

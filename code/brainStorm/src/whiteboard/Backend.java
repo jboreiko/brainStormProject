@@ -14,6 +14,7 @@ import boardnodes.BoardPath;
 import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
+import boardnodes.SerializedInUse;
 import boardnodes.SerializedStyledNode;
 import boardnodes.StyledNode;
 //import boardnodes.SerializedScribbleNode;
@@ -311,6 +312,15 @@ public class Backend {
 		BoardActionType type = bex.getAction();
 		BoardAction action = null;
 		switch (type) {
+		case IN_USE:
+			System.out.print("Backend: receiving that someone is using a node");
+			SerializedInUse siu = (SerializedInUse) serializedElt;
+			boolean isBeingUsed = siu.isInUse;
+			int node = siu.getUID();
+			BoardElt boardNode = boardElts.get(node);
+			System.out.println(" UID is " + node + " object null? " + (boardNode == null) + ", used? " + isBeingUsed);
+			boardNode.setBeingEditedStatus(isBeingUsed);
+			break;
 		case CREATION:
 			action = new CreationAction(receiveNetworkCreationObject(serializedElt));
 			addActionFromNetwork(action);
@@ -421,4 +431,10 @@ public class Backend {
 		return new ArrayList<BoardElt>(boardElts.values());
 	}
 
+	
+	public void alertEditingStatus(BoardElt b, boolean isInUse) {
+		SerializedInUse toSend = new SerializedInUse(b.getUID(), b.Type, isInUse);
+		BoardEltExchange bex = new BoardEltExchange(toSend, BoardActionType.IN_USE);
+		networking.sendAction(bex);
+	}
 }

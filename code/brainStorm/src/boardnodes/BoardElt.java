@@ -23,6 +23,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	protected static int nextUID = 0;
 
 	protected BoardEltType type;
+	protected boolean isBeingEdited; //whether this BoardElt is in focus on another computer
 	public int getUID() {
 		return UID;
 	}
@@ -103,6 +104,11 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		}
 	}
 
+	public void setBeingEditedStatus(boolean isBeingEdited) {
+		System.out.println("BoardElt: EDITING STATUS CHANGED: " + isBeingEdited);
+		this.isBeingEdited = isBeingEdited;
+	}
+	
 	public abstract void addAction(ActionObject ao);
 	
 	public abstract SerializedBoardElt toSerialized();

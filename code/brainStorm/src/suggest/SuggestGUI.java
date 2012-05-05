@@ -70,6 +70,7 @@ public class SuggestGUI extends JPanel {
 	private Stack<String> _back;
 	private ResultsPanel resultsPanel;
 	private Backend _backend;
+	private JTextField searchField;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -107,18 +108,19 @@ public class SuggestGUI extends JPanel {
 	
 	public void setBackend(Backend b) {
 		_backend = b;
+		resultsPanel.setBackend(_backend);
 	}
 	
 	private void buildFindTab() {
 		_findPanel = new JPanel();
 		resultsPanel = new ResultsPanel();
 		JPanel searchPanel = new JPanel();
-		final JTextField searchField = new JTextField(25);
+		searchField = new JTextField(25);
 		JPanel buttonPanel = new JPanel();
 		JButton searchButton = new JButton("Find it");
 		searchButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				resultsPanel.setResults(_backend.search(searchField.getText()).keySet());
+				resultsPanel.setResults(_backend.search(searchField.getText()), searchField.getText());
 			}
 		});
 		searchPanel.add(searchField, BorderLayout.CENTER);

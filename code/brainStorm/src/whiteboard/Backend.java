@@ -2,10 +2,19 @@ package whiteboard;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
+import java.util.Map.Entry;
 
 import networking.Networking;
 import GUI.ViewportDragScrollListener;
@@ -15,6 +24,7 @@ import boardnodes.BoardPath;
 import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
+import boardnodes.SerializedInUse;
 import boardnodes.SerializedStyledNode;
 import boardnodes.StyledNode;
 //import boardnodes.SerializedScribbleNode;
@@ -39,6 +49,53 @@ public class Backend {
 		networking = new Networking();
 		networking.setBackend(this);
 	}
+	
+    public void save(File f) {
+        System.out.println("backend: saving to file");
+        /* WHAT ELSE NEEDS TO BE SAVED?? */
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+            for (BoardElt be : this.boardElts.values()) {
+                System.out.println("backend: writing out boardelt of type " + be.type);
+                oos.writeObject(be.toSerialized());
+            }
+            for (BoardPath bp : this.paths) {
+                oos.writeObject(bp.toSerialized());
+            }
+            oos.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public void load(File f) {
+        System.out.println("backend: loading file");
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+            SerializedBoardElt be = (SerializedBoardElt) ois.readObject();
+            if (be.type == BoardEltType.PATH) {
+                BoardPath tPath = new BoardPath(be.getUID(), this);
+                tPath.ofSerialized(be);
+                this.paths.add(tPath);
+            } else if (be.type == BoardEltType.STYLED) {
+                System.out.println("backend: loading found styled");
+                BoardElt tElt = new StyledNode(be.getUID(), this);
+                tElt.ofSerialized(be);
+                this.boardElts.put(be.getUID(), tElt);
+            } else if (be.type == BoardEltType.SCRIBBLE) {
+                System.out.println("backend: loading found scribble");
+                BoardElt tElt = new ScribbleNode(be.getUID(), this);
+                tElt.ofSerialized(be);
+                this.boardElts.put(be.getUID(), tElt);
+            } else {
+                System.out.println("backend: loading found unrecognized node");
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
 	//Adds the given board elt and adds the "addition" action to the stack
 	public void add(BoardElt b) {
@@ -282,13 +339,10 @@ public class Backend {
 	}
 
 	//returns a map from elements that contain the term to the first index of that term in the element's text field
-	public Hashtable<BoardElt, Integer> search(String query) {
-		Hashtable<BoardElt, Integer> toReturn = new Hashtable<BoardElt, Integer>();
+	public ArrayList<SearchResult> search(String query) {
+		ArrayList<SearchResult> toReturn = new ArrayList<SearchResult>();
 		for(BoardElt b: boardElts.values()) {
-			int loc = b.containsText(query);
-			if(loc != -1) {
-				toReturn.put(b, loc);
-			}
+			toReturn.addAll(b.search(query));
 		}
 		return toReturn;
 	}
@@ -308,6 +362,16 @@ public class Backend {
 		BoardActionType type = bex.getAction();
 		BoardAction action = null;
 		switch (type) {
+		case IN_USE:
+			System.out.print("Backend: receiving that someone is using a node");
+			SerializedInUse siu = (SerializedInUse) serializedElt;
+			boolean isBeingUsed = siu.isInUse;
+			int node = siu.getUID();
+			BoardElt boardNode = boardElts.get(node);
+			System.out.println(" UID is " + node + " object null? " + (boardNode == null) + ", used? " + isBeingUsed);
+			if (boardNode != null)
+				boardNode.setBeingEditedStatus(isBeingUsed);
+			break;
 		case CREATION:
 			action = new CreationAction(receiveNetworkCreationObject(serializedElt));
 			addActionFromNetwork(action);
@@ -327,6 +391,7 @@ public class Backend {
 		    undoFromNetwork();
 		    break;
 		}
+		
 		/*
 		if (nodeToReplace.getType() != BoardEltType.PATH) {
 			//panel.updateMember(nodeToReplace);
@@ -339,38 +404,39 @@ public class Backend {
 				}
 			}
 		}
-		 */
-		this.getPanel().repaint();
-	}
+         */
+        this.getPanel().repaint();
+    }
 
-	private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
-		BoardElt toReturn = null;
-	    switch (e.getType()) {
-	    case PATH:
-	        if(!boardElts.containsKey(e.getUID())) {
-	        	toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
-	        	toReturn.ofSerialized(((SerializedBoardPath) e));
-	        	toReturn._mouseListener = _mouseListener;
-	        	boardElts.put(toReturn.getUID(), toReturn);
-	        	System.out.println("adding "+toReturn.getUID());
-	        	paths.add((BoardPath) toReturn);
-	        } else {
-	        	boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
-	        }
-	        break;
-	    case SCRIBBLE:
-	    	 if(!boardElts.containsKey(e.getUID())) {
-		        	toReturn = new ScribbleNode(e.getUID(), this);
-		        	toReturn.ofSerialized(((SerializedScribbleNode) e));
-		        	toReturn._mouseListener = _mouseListener;
-		        	boardElts.put(toReturn.getUID(), toReturn);
-		        	panel.add(toReturn);
-		        	System.out.println("adding "+toReturn.getUID());
-		        } else {
-		        	boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
-		        }
-	        break;
-	    case STYLED:
+	
+    private BoardElt receiveNetworkCreationObject(SerializedBoardElt e) {
+        BoardElt toReturn = null;
+        switch (e.getType()) {
+        case PATH:
+            if(!boardElts.containsKey(e.getUID())) {
+                toReturn = new BoardPath(((SerializedBoardPath) e).getUID(), this);
+                toReturn.ofSerialized(((SerializedBoardPath) e));
+                toReturn._mouseListener = _mouseListener;
+                boardElts.put(toReturn.getUID(), toReturn);
+                System.out.println("adding "+toReturn.getUID());
+                paths.add((BoardPath) toReturn);
+            } else {
+                boardElts.get(((SerializedBoardPath) e).getUID()).ofSerialized(((SerializedBoardPath) e));
+            }
+            break;
+        case SCRIBBLE:
+            if(!boardElts.containsKey(e.getUID())) {
+                toReturn = new ScribbleNode(e.getUID(), this);
+                toReturn.ofSerialized(((SerializedScribbleNode) e));
+                toReturn._mouseListener = _mouseListener;
+                boardElts.put(toReturn.getUID(), toReturn);
+                panel.add(toReturn);
+                System.out.println("adding "+toReturn.getUID());
+            } else {
+                boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
+            }
+            break;
+        case STYLED:
             if(!boardElts.containsKey(e.getUID())) {
                 toReturn = new StyledNode(e.getUID(), this);
                 toReturn.ofSerialized(((SerializedStyledNode) e));
@@ -381,44 +447,53 @@ public class Backend {
             } else {
                 boardElts.get(e.getUID()).ofSerialized(((SerializedStyledNode) e));
             }
-        break;
-	    }
-	    panel.repaint();
+            break;
+        }
+        panel.extendPanel(boardElts.get(e.getUID()).getBounds());
+        panel.repaint();
         return toReturn;
     }
 
-	private BoardElt receiveNetworkDeletionObject(SerializedBoardElt e) {
-		BoardElt toReturn = null;
-		if(boardElts.containsKey(e.getUID())) {
-			toReturn = boardElts.remove(e.getUID());
-			if(e.getType()==BoardEltType.PATH)
-				paths.remove(toReturn);
-			else
-				panel.remove(toReturn);
-		}
-		panel.repaint();
-		return toReturn;
-	}
+    private BoardElt receiveNetworkDeletionObject(SerializedBoardElt e) {
+        BoardElt toReturn = null;
+        if(boardElts.containsKey(e.getUID())) {
+            toReturn = boardElts.remove(e.getUID());
+            if(e.getType()==BoardEltType.PATH)
+                paths.remove(toReturn);
+            else
+                panel.remove(toReturn);
+        }
+        panel.repaint();
+        return toReturn;
+    }
 
-	private BoardElt receiveNetworkModificationObject(SerializedBoardElt e) {
-		if(boardElts.containsKey(e.getUID())) {
-			boardElts.get(e.getUID()).ofSerialized(e);
-		}
-		panel.repaint();
-		return boardElts.get(e.getUID());
-	}
+    private BoardElt receiveNetworkModificationObject(SerializedBoardElt e) {
+        if(boardElts.containsKey(e.getUID())) {
+            boardElts.get(e.getUID()).ofSerialized(e);
+        }
+        panel.extendPanel(boardElts.get(e.getUID()).getBounds());
+        panel.setListFront(e.getUID());
+        panel.repaint();
+        return boardElts.get(e.getUID());
+    }
 
-	public void setStartUID(int id) {
-		System.out.println("setting start id to "+id);
-		panel.setStartUID(id);
-	}
-	public ArrayList<BoardElt> getElts() {
-		return new ArrayList<BoardElt>(boardElts.values());
-	}
+    public void setStartUID(int id) {
+        System.out.println("setting start id to "+id);
+        panel.setStartUID(id);
+    }
+    public ArrayList<BoardElt> getElts() {
+        return new ArrayList<BoardElt>(boardElts.values());
+    }
 
-	public void highlightNode(BoardElt boardElt) {
-		panel.scrollRectToVisible(new Rectangle(new Point(boardElt.getX(), boardElt.getY()), panel.getSize()));
-		
+	public void centerNode(BoardElt boardElt) {
+		//TODO: why isn't this working?
+		panel.scrollRectToVisible(new Rectangle(new Point(0,0), panel.getSize()));
+		panel.scrollRectToVisible(new Rectangle(new Point(boardElt.getBounds().x, boardElt.getBounds().y), panel.getSize()));
 	}
-
+	
+	public void alertEditingStatus(BoardElt b, boolean isInUse) {
+		SerializedInUse toSend = new SerializedInUse(b.getUID(), b.type, isInUse);
+		BoardEltExchange bex = new BoardEltExchange(toSend, BoardActionType.IN_USE);
+		networking.sendAction(bex);
+	}
 }

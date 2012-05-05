@@ -2,7 +2,6 @@ package networking;
 
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.Semaphore;
 
 import networking.NetworkMessage.Type;
 
@@ -114,7 +113,7 @@ public class ClientHandler extends Thread {
                     //We need to issue this client an id
                     System.out.println("server: message has no id");
                 } else {
-                    System.out.println("server: message has id: " + message.sender_id);
+                    //System.out.println("server: message has id: " + message.sender_id);
                 }
                 //if (message != null && username != null) {
                 if (message != null) {

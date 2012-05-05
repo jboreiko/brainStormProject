@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.JFrame;
@@ -18,6 +19,7 @@ import GUI.WhiteboardPanel;
 
 import whiteboard.Backend;
 import whiteboard.BoardActionType;
+import whiteboard.SearchResult;
 
 
 public class BoardPath extends BoardElt {
@@ -248,5 +250,22 @@ public class BoardPath extends BoardElt {
 	@Override
 	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub		
+	}
+
+	@Override
+	public ArrayList<SearchResult> search(String query) {
+		return new ArrayList<SearchResult>();
+	}
+
+	@Override
+	public void highlightText(int index, int len, boolean isfocus) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clearHighlight() {
+		// TODO Auto-generated method stub
+		
 	}
 }

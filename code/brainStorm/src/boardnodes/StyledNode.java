@@ -14,6 +14,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.JMenu;
@@ -25,11 +26,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Highlighter;
 import javax.swing.text.StyledDocument;
 import javax.swing.undo.UndoableEdit;
 
 import whiteboard.BoardActionType;
+import whiteboard.SearchResult;
 import GUI.WhiteboardPanel;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
@@ -64,6 +68,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             fontItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 	content.setFont(new Font(fontName, content.getFont().getStyle(), content.getFont().getSize()));
+                	notifyBackend(BoardActionType.ELT_MOD);
                 }
             });
             _styleMenu.add(fontItem);
@@ -81,6 +86,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             fontItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     content.setForeground(color);
+                    notifyBackend(BoardActionType.ELT_MOD);
                 }
             });
             _colorMenu.add(fontItem);
@@ -95,6 +101,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         		public void actionPerformed(ActionEvent e) {
         			Font replaceWith = content.getFont().deriveFont((float)a);
         			content.setFont(replaceWith);
+                    notifyBackend(BoardActionType.ELT_MOD);
         		}
         	});
             _fontSizeMenu.add(fontSize);
@@ -136,6 +143,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         repaint();
         view.repaint();
     }
+    
+    @Override
+    public String getText() {
+    	return this.content.getText();
+    }
 
     public class BoardCommUndoableEditListener implements UndoableEditListener {
         @Override
@@ -150,7 +162,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                     e1.printStackTrace();
                 }
             }
-            notifyBackend(BoardActionType.ELT_MOD);
         }
     }
 
@@ -165,17 +176,22 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         text.addUndoableEditListener(new BoardCommUndoableEditListener());
         JTextPane toReturn = new JTextPane(text);
         toReturn.addFocusListener(new FocusListener() {
-
+        	String lastText = "";
             @Override
             public void focusGained(FocusEvent e) {
-                // TODO Auto-generated method stub
-                System.out.println("GAINED FOCUS");
+            	backend.alertEditingStatus(StyledNode.this, true);
+                System.out.println("StyledNode: GAINED FOCUS, alerted backend");
             }
 
             @Override
             public void focusLost(FocusEvent e) {
             	System.out.println("Lost focus");
                 content.revalidate();
+                if (!lastText.equals(content.getText())) { //send changes over the network
+                	notifyBackend(BoardActionType.ELT_MOD);
+                }
+                lastText = content.getText();
+                backend.alertEditingStatus(StyledNode.this, false);
             }
 
 
@@ -206,7 +222,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                 if (e.getModifiers() == 4) {
                     _fontMenu.show(StyledNode.this,e.getX(),e.getY());
                 }
-                wbp.setListFront(StyledNode.this);
+                wbp.setListFront(StyledNode.this.UID);
                 content.grabFocus();
                 StyledNode.this.repaint();
 
@@ -287,29 +303,14 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
     }
     @Override
     public void mouseEntered(MouseEvent e) {
-        /*if(_mouseListener!=null) {
-			System.out.println("asdfa");
-			if(_mouseListener.draggedPath!=null) {
-				System.out.println("whoo");
-				_mouseListener.draggedPath._snapSeminal = this;
-			}
-		}*/
-        System.out.println("ENTERED");
     }
     @Override
     public void mouseExited(MouseEvent e) {
-        /*if(_mouseListener!=null) {
-			System.out.println("asdfa");
-			if(_mouseListener.draggedPath!=null) {
-				System.out.println("whoo");
-				_mouseListener.draggedPath._snapSeminal = null;
-			}
-		}*/
     }
 
     Rectangle boundsBeforeMove;
     public void mousePressed(MouseEvent e) {
-        wbp.setListFront(this);
+        wbp.setListFront(this.UID);
         content.grabFocus();
         startPt = new Point(e.getX(),e.getY());
         if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
@@ -416,6 +417,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
         g.setColor(Color.LIGHT_GRAY);
         g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+        
+        if (isBeingEdited) { //notify the user this is being modified elsewhere
+        	g.setColor(Color.ORANGE);
+        	g.fillOval(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
+        }
 
 
     }
@@ -425,15 +431,55 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         System.out.println("ofSerialized stylednode");
         SerializedStyledNode ssn = (SerializedStyledNode) b;
         this.setBounds(ssn.bounds);
-        undos = ssn.undos;
-        redos = ssn.redos;
-        /* Need to have this tranfer text over, currently does not */
-        //this.text.se = ssn.text;
+        view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
+        //undos = ssn.undos;
+        //redos = ssn.redos;
+        content.setFont(ssn.style);
+        content.setForeground(ssn.fontColor);
+        System.out.println("Setting text to " + ssn.text);
+        content.setText(ssn.text);
+        repaint();
+        content.repaint();
+        view.revalidate();
+        view.repaint();
     }
 
     @Override
     public SerializedBoardElt toSerialized() {
         return new SerializedStyledNode(this);
     }
+
+	@Override
+	public ArrayList<SearchResult> search(String query) {
+		ArrayList<SearchResult> toReturn = new ArrayList<SearchResult>();
+		String toSearch = this.getText();
+		int lastIndex = 0;
+		while(lastIndex!=-1) {
+			System.out.println(lastIndex);
+			lastIndex = toSearch.indexOf(query, lastIndex);
+			if(lastIndex!=-1) {
+				toReturn.add(new SearchResult(this, lastIndex));
+				lastIndex++;
+			}
+		}
+		return toReturn;
+	}
+
+	@Override
+	public void highlightText(int index, int len, boolean isfocus) {
+		
+		this.content.setHighlighter(hilit);		
+		try {
+			Color toColor = isfocus?Color.YELLOW:Color.LIGHT_GRAY;
+			hilit.addHighlight(index, index+len, new DefaultHighlighter.DefaultHighlightPainter(toColor));
+		} catch (BadLocationException e) {
+			System.out.println("stylednode: the given search index does not exist in the string! ignoring..");
+		}
+	}
+
+	@Override
+	public void clearHighlight() {
+		hilit.removeAllHighlights();		
+	}
 
 }

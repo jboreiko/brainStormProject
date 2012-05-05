@@ -8,10 +8,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +24,7 @@ import javax.swing.JPanel;
 
 
 import whiteboard.BoardActionType;
+import whiteboard.SearchResult;
 
 public class ScribbleNode extends BoardElt implements MouseListener, MouseMotionListener, Serializable {
 	/**
@@ -50,6 +54,17 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		setPreferredSize(new Dimension(200,150));
 		setSize(150,200);
 		type = BoardEltType.SCRIBBLE;
+		this.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				backend.alertEditingStatus(ScribbleNode.this, true);
+			}
+			@Override
+			public void focusLost(FocusEvent e) {
+				backend.alertEditingStatus(ScribbleNode.this, false);
+			}
+			
+		});
 		//setBorder(BorderFactory.createLineBorder(Color.GRAY,7));
 	}
 	@Override
@@ -117,7 +132,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	Rectangle boundsBeforeMove;
 	@Override
 	public void mousePressed(MouseEvent e) {
-		wbp.setListFront(this);
+		wbp.setListFront(this.UID);
 		this.requestFocusInWindow();
 		startPt = new Point(e.getX(),e.getY());
 		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
@@ -232,7 +247,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 				prev = temp;
 			}
 		}
-		final int radius = 14;
 		//draw the border
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, getWidth(), BORDER_WIDTH);
@@ -245,6 +259,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		//draw the resize square
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+		
+		if (isBeingEdited) { //visual feedback that it's being changed elsewhere
+			g.setColor(Color.ORANGE);
+			g.fillOval(getWidth() - BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
+		}
 	}
 	
 	
@@ -264,5 +283,19 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		toReturn.undos = (Stack<ScribbleNodeEdit>) undos.clone();
 		toReturn.redos = (Stack<ScribbleNodeEdit>) redos.clone();
 		return toReturn;
+	}
+	@Override
+	public ArrayList<SearchResult> search(String query) {
+		return new ArrayList<SearchResult>();
+	}
+	@Override
+	public void highlightText(int index, int len, boolean isfocus) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void clearHighlight() {
+		// TODO Auto-generated method stub
+		
 	}
 }

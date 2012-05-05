@@ -362,7 +362,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             //if (screenX>= 0 && screenY>= 0)
             //	setBounds(screenX, screenY, previousBounds.width, previousBounds.height);
         }
-        notifyBackend(BoardActionType.ELT_MOD);
         wbp.extendPanel(getBounds());
         repaint();
         wbp.repaint();
@@ -432,8 +431,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
         //undos = ssn.undos;
         //redos = ssn.redos;
-        /* Need to have this tranfer text over, currently does not */
-        content.setText(b.body);
+        System.out.println("Setting text to " + ssn.text);
+        content.setText(ssn.text);
+        repaint();
+        content.repaint();
+        view.revalidate();
+        view.repaint();
     }
 
     @Override

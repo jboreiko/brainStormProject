@@ -80,6 +80,9 @@ public class MainFrame extends JFrame {
 		
         add(_tabbedPane, BorderLayout.CENTER);
 		add(_interfacePane, BorderLayout.WEST);
+		
+		validate();
+		repaint();
 	}
 	/*
 	 * Method initMenu()

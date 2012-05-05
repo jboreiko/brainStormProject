@@ -407,6 +407,7 @@ public class Backend {
 		if(boardElts.containsKey(e.getUID())) {
 			boardElts.get(e.getUID()).ofSerialized(e);
 		}
+		
 		panel.repaint();
 		return boardElts.get(e.getUID());
 	}

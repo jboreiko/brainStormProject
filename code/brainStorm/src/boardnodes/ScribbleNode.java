@@ -173,10 +173,15 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if(_mouseListener.draggedPath!=null) {
+			_mouseListener.draggedPath.snapTo(this);
+		}
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
+		if(_mouseListener.draggedPath!=null) {
+			_mouseListener.draggedPath.unsnapFrom(this);
+		}
 	}
 	Rectangle boundsBeforeMove;
 	@Override
@@ -257,6 +262,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		_resizeLock = false;
 		_dragLock = false;
+		BoardPath draggedPath = _mouseListener.draggedPath;
+		if(draggedPath!=null) {
+			draggedPath.stopDrag();
+			draggedPath = null;
+		}
 		//if(!withinDelete(e.getX(), e.getY()))
 		//	this.notifyBackend(BoardActionType.ELT_MOD);
 	}

@@ -1,6 +1,8 @@
 package boardnodes;
 
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.swing.text.DefaultHighlighter;
@@ -116,6 +118,19 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public void setBeingEditedStatus(boolean isBeingEdited) {
 		System.out.println("BoardElt: EDITING STATUS CHANGED: " + isBeingEdited);
 		this.isBeingEdited = isBeingEdited;
+	}
+	
+	protected LinkedList<Point> getSnappedPathPoints() {
+		LinkedList<Point> toReturn = new LinkedList<Point>();
+		for(BoardPath p: backend.getPaths()) {
+			if(p._snapSeminal==this) {
+				toReturn.add(p._snapSeminalOffset);
+			}
+			if(p._snapTerminal==this) {
+				toReturn.add(p._snapTerminalOffset);
+			}
+		}
+		return toReturn;		
 	}
 	
 	public abstract void addAction(ActionObject ao);

@@ -314,9 +314,15 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
+		if(_mouseListener.draggedPath!=null) {
+			_mouseListener.draggedPath.snapTo(this);
+		}
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
+		if(_mouseListener.draggedPath!=null && (e.getX()<0 || e.getX()>this.getWidth() || e.getY()<0 || e.getY()>this.getHeight())) {
+			_mouseListener.draggedPath.unsnapFrom(this);
+		}
 	}
 
 	Rectangle boundsBeforeMove;
@@ -468,6 +474,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public SerializedBoardElt toSerialized() {
 		return new SerializedStyledNode(this);
 	}
+
 
 	@Override
 	public ArrayList<SearchResult> search(String query) {

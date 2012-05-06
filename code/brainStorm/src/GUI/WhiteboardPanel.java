@@ -204,7 +204,7 @@ public class WhiteboardPanel extends JPanel{
 			bp.setTerminal(new Point(_addLocation.x + BoardPath.START_WIDTH, _addLocation.y + BoardPath.START_HEIGHT));
 			//add(bp);
 			_backend.add(bp);
-			extendPanel(bp.getBounds());
+			extendPanel(new Rectangle(bp.getLocation(), new Dimension(bp.getWidth(), bp.getHeight())));
 			break;
 		}
 		repaint();

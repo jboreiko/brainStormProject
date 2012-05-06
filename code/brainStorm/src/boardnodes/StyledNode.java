@@ -523,7 +523,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		String toSearch = this.getText();
 		int lastIndex = 0;
 		while(lastIndex!=-1) {
-			System.out.println(lastIndex);
 			lastIndex = toSearch.indexOf(query, lastIndex);
 			if(lastIndex!=-1) {
 				toReturn.add(new SearchResult(this, lastIndex));

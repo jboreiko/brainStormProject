@@ -24,6 +24,7 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,11 +44,13 @@ import javax.swing.text.StyledDocument;
 
 import whiteboard.Backend;
 
+import GUI.MainFrame;
 import GUI.ResultsPanel;
 
 import networking.Networking;
 
 public class SuggestGUI extends JPanel {
+    private MainFrame mainFrame;
 	private JTextField input;
 	private JTextArea wikioutput;
 	private JTextArea duckoutput;
@@ -55,7 +58,7 @@ public class SuggestGUI extends JPanel {
 	private QueryService queryService;
 	private JPanel _suggestPanel;
 	private JPanel _networkPanel;
-	private JTextField _usernameField;
+	public JTextField _usernameField;
 	private JTextField _ipField;
 	private JPanel _findPanel;
 	private Networking _net;
@@ -71,15 +74,18 @@ public class SuggestGUI extends JPanel {
 	private ResultsPanel resultsPanel;
 	private Backend _backend;
 	private JTextField searchField;
+	public JTabbedPane tabbedPane;
 	
-	public SuggestGUI(Dimension interfaceSize) {
+	public SuggestGUI(Dimension interfaceSize, MainFrame main) {
 		super(new java.awt.BorderLayout());
+		
+		mainFrame = main;
 		
 		buildSuggestTab();
 		buildNetworkTab();
 		buildFindTab();
 		
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		
 		ImageIcon suggest = new ImageIcon("./lib/question.jpeg");
 		tabbedPane.addTab("Suggestions", suggest, _suggestPanel, "Get Suggestions");
@@ -159,6 +165,7 @@ public class SuggestGUI extends JPanel {
 					if (_net != null) {
 						_role = 1;
 						if (_net.becomeHost(_usernameField.getText())) {
+	                          mainFrame._load.setEnabled(false);
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
 							_sendMessageButton.setEnabled(true);
@@ -215,8 +222,19 @@ public class SuggestGUI extends JPanel {
 					// check for bad connection boolean
 					//
 					if (_net != null) {
-						_role = 2;
+						_role = 2;                
+						if (!_backend.pastActions.empty()) {
+		                    int ret = JOptionPane.showConfirmDialog(null, "You have made changes to the current brainStorm would you like to save?");
+		                    if (ret == JOptionPane.YES_OPTION) {
+		                        /* Call save */
+		                        mainFrame._save.getActionListeners()[0].actionPerformed(null);
+		                    } else if (ret == JOptionPane.CANCEL_OPTION || ret == JOptionPane.CLOSED_OPTION) {
+		                        return;
+		                    }
+		                }
+						
 						if(_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
+						    mainFrame._load.setEnabled(false);
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
 							_leaveButton.setEnabled(true);
@@ -256,6 +274,7 @@ public class SuggestGUI extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+			    mainFrame._load.setEnabled(true);
 				_chatMessage.setEnabled(false);
 				_chatPane.setEnabled(false);
 				_sendMessageButton.setEnabled(false);

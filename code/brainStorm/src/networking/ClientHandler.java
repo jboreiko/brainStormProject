@@ -58,8 +58,7 @@ public class ClientHandler extends Thread {
             try {
                 writer.writeObject(message);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                System.err.println("clienthandler: socket already closed");
             }
         }
     }

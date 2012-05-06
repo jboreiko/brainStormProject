@@ -10,7 +10,7 @@ public class SuggestApp extends JFrame {
 	public SuggestApp() {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		Dimension interfaceSize = new Dimension(350, 2000);
-		this.add(new SuggestGUI(interfaceSize));
+		this.add(new SuggestGUI(interfaceSize, null));
 		this.pack();
 		this.setVisible(true);
 		this.setResizable(false);

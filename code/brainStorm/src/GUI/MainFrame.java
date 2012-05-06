@@ -36,7 +36,7 @@ import java.io.File;
 
 public class MainFrame extends JFrame {
     protected static final int SCROLL_INCREMENT = 16;
-    private JMenuItem _newProject, _save, _close, _exit, _load, _undo, _redo, _join;
+    public JMenuItem _newProject, _save, _close, _exit, _load, _undo, _redo, _join;
     private JMenu _file, _edit;
     private JMenuBar _menuBar;
     private InterfacePanel _interfacePane;
@@ -70,7 +70,7 @@ public class MainFrame extends JFrame {
         _interfacePane.setLayout(new FlowLayout());
         _interfacePane.setVisible(true);
 
-        _suggestPanel = new SuggestGUI(interfaceSize);
+        _suggestPanel = new SuggestGUI(interfaceSize, this);
 
         _interfacePane.add(_suggestPanel);
 
@@ -79,7 +79,7 @@ public class MainFrame extends JFrame {
 
         //whiteboard.newProject
         this.setTitle(projectName);
-        _whiteboard = new WhiteboardPanel();
+        _whiteboard = new WhiteboardPanel(projectName, this);
         _suggestPanel.setBackend(_whiteboard.getBackend());
         int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
         int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
@@ -94,7 +94,6 @@ public class MainFrame extends JFrame {
         vp.addMouseMotionListener(l);
         vp.addMouseListener(l);
         vp.addHierarchyListener(l);
-        add(_interfacePane, BorderLayout.WEST);
         add(_scrollPane, BorderLayout.CENTER);
         if(!_suggestPanel.networkingSet()) {
             _suggestPanel.setNetworking(_whiteboard.getBackend().getNetworking());
@@ -150,12 +149,12 @@ public class MainFrame extends JFrame {
         _join.getAccessibleContext().setAccessibleDescription("Joins an existing project");
         _join.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //whiteboard.joinProje
-                JOptionPane.showMessageDialog(null, "You clicked the Join Project menu");
+                _suggestPanel.tabbedPane.setSelectedIndex(1);
+                _suggestPanel._usernameField.grabFocus();
             }
         });
         _file.add(_join);
-
+        
         //load project MenuItem
         _load = new JMenuItem("Load Project", KeyEvent.VK_L);
         _load.setMnemonic('L');
@@ -176,11 +175,58 @@ public class MainFrame extends JFrame {
                 int ret = fc.showOpenDialog(_whiteboard);
                 if (ret == JFileChooser.APPROVE_OPTION) {
                     /* Make new whiteboard */
-                   
+                    /*
+                    removeAll();
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    //setBounds(0,0,screenSize.width,screenSize.height);
+
+                    _interfacePane = new InterfacePanel(_whiteboard);
+                    Dimension interfaceSize = new Dimension(350, screenSize.height);
+                    _interfacePane.setPreferredSize(interfaceSize);
+                    _interfacePane.setSize(interfaceSize);
+                    //_interfacePane.setLayout(new GridLayout(10,0));
+                    _interfacePane.setLayout(new FlowLayout());
+                    _interfacePane.setVisible(true);
+
+                    _suggestPanel = new SuggestGUI(interfaceSize);
+
+                    _interfacePane.add(_suggestPanel);
+
+                    add(_interfacePane, BorderLayout.WEST);
+                    fc = new JFileChooser();
+
+                    //whiteboard.newProject
                     //this.setTitle(projectName);
                     _whiteboard = new WhiteboardPanel();
                     _suggestPanel.setBackend(_whiteboard.getBackend());
-                    /* NEED TO DELETE OLD SCROLL */
+                    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+                    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+                    _scrollPane = new JScrollPane(_whiteboard,v,h);
+                    //interesting stuff
+                    _scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
+                    _scrollPane.getHorizontalScrollBar().setUnitIncrement(SCROLL_INCREMENT);
+                    ViewportDragScrollListener l = new ViewportDragScrollListener(_whiteboard);
+                    _whiteboard._mouseListener = l;
+                    _whiteboard.getBackend()._mouseListener = l;
+                    JViewport vp = _scrollPane.getViewport();
+                    vp.addMouseMotionListener(l);
+                    vp.addMouseListener(l);
+                    vp.addHierarchyListener(l);
+                    add(_scrollPane, BorderLayout.CENTER);
+                    if(!_suggestPanel.networkingSet()) {
+                        _suggestPanel.setNetworking(_whiteboard.getBackend().getNetworking());
+                    }
+                    //JOptionPane.showMessageDialog(null, "You clicked the New Project menu, and added: " + projectName);
+
+                    validate();
+                    repaint();
+                   */
+                    /*
+                    //this.setTitle(projectName);
+                    removeAll();
+                    _whiteboard = new WhiteboardPanel();
+                    _suggestPanel.setBackend(_whiteboard.getBackend());
+                    /* NEED TO DELETE OLD SCROLL
                     int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
                     int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
                     _scrollPane = new JScrollPane(_whiteboard,v,h);
@@ -199,7 +245,10 @@ public class MainFrame extends JFrame {
                     if(!_suggestPanel.networkingSet()) {
                         _suggestPanel.setNetworking(_whiteboard.getBackend().getNetworking());
                     }
-                    
+                    _scrollPane.revalidate();
+                    validate();
+                    repaint();
+                    */
                     /*
                     //this.setTitle(projectName);
                     _scrollPane.removeAll();

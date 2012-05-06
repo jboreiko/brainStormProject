@@ -399,7 +399,6 @@ public class Backend {
      * @param receivedAction
      */
     public void receiveNetworkedObject(Object receivedAction) {
-        System.out.println("backend: received callback from networking");
         BoardEltExchange bex = (BoardEltExchange) receivedAction;
         SerializedBoardElt serializedElt = bex.getNode();
         BoardActionType type = bex.getAction();
@@ -411,7 +410,6 @@ public class Backend {
             boolean isBeingUsed = siu.isInUse;
             int node = siu.getUID();
             BoardElt boardNode = boardElts.get(node);
-            System.out.println(" UID is " + node + " object null? " + (boardNode == null) + ", used? " + isBeingUsed);
             if (boardNode != null)
                 boardNode.setBeingEditedStatus(isBeingUsed);
             break;

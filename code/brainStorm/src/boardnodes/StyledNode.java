@@ -273,7 +273,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			Object[] info = (Object[]) f.getContent();
 			String revertTo = (String) info[0];
 			Font display = (Font) info[1];
-			System.err.println(revertTo);
 			undos.push(new StyledNodeEdit(content.getText(), content.getFont()));
 			content.setText(revertTo);
 			content.setFont(display);
@@ -356,7 +355,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (!isBeingEdited && (_resizeLock || _dragLock)) {
-			System.out.println("releasing lock " + _resizeLock + _dragLock);
 			undos.push(new StyledNodeEdit(boundsBeforeMove));
 			notifyBackend(BoardActionType.ELT_MOD);
 			System.out.println(undos.size());
@@ -500,8 +498,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		toReturn.fontColor = content.getForeground();
         toReturn.lastText = lastText;
         toReturn.lastFont = lastFont;
-        toReturn.undos = undos;
-        toReturn.redos = redos;
+        toReturn.undos = (Stack<StyledNodeEdit>) undos.clone();
+        toReturn.redos = (Stack<StyledNodeEdit>) redos.clone();
 		return toReturn;
 	}
 

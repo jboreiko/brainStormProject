@@ -37,7 +37,6 @@ import whiteboard.SearchResult;
 import GUI.WhiteboardPanel;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
-//<<<<<<< HEAD
 	/**
 	 * 
 	 */
@@ -52,7 +51,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	boolean _resizeLock,_dragLock;
 	JMenu _styleMenu, _colorMenu, _fontSizeMenu;
 	JPopupMenu _fontMenu;
-
+	
+	String lastText; //what this text says now, or what it said before you focused and started editing
+	Font lastFont;
+	
 	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 
@@ -153,7 +155,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public class BoardCommUndoableEditListener implements UndoableEditListener {
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
-			undos.push(new StyledNodeEdit(e.getEdit()));
+			//undos.push(new StyledNodeEdit(e.getEdit()));
 			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
 					if(text.getText(text.getLength()-1, 1).equals("\n")) {
@@ -169,15 +171,14 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
 		try {
-			text.insertString(0, "\u2022 Make a node", null);
-			text.insertString(text.getLength(), "\n\u2022 Fill it in", null);
+			text.insertString(0, "\u2022 ", null);
+			//text.insertString(text.getLength(), "\n\u2022 Fill it in", null);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
 		text.addUndoableEditListener(new BoardCommUndoableEditListener());
 		JTextPane toReturn = new JTextPane(text);
 		toReturn.addFocusListener(new FocusListener() {
-			String lastText = "";
 			@Override
 			public void focusGained(FocusEvent e) {
 				if (!content.isEditable())
@@ -188,15 +189,17 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				System.out.println("Lost focus");
+				System.out.println("Lost focus " + this);
 				if (!content.isEditable())
 					return;
 				
 				content.revalidate();
-				if (!lastText.equals(content.getText())) { //send changes over the network
+				if (!lastText.equals(content.getText()) || !lastFont.equals(content.getFont())) { //send changes over the network
+					undos.push(new StyledNodeEdit(content.getText(), content.getFont()));
 					notifyBackend(BoardActionType.ELT_MOD);
 				}
 				lastText = content.getText();
+				lastFont = content.getFont();
 				backend.alertEditingStatus(StyledNode.this, false);
 			}
 
@@ -229,7 +232,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 					_fontMenu.show(StyledNode.this,e.getX(),e.getY());
 				}
 				wbp.setListFront(StyledNode.this.UID);
-				content.grabFocus();
+				//content.grabFocus();
 				StyledNode.this.repaint();
 
 			}
@@ -240,6 +243,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 			}
 		});
+		lastText = "\u2022 ";
+		lastFont = toReturn.getFont();
 		toReturn.grabFocus();
 		return toReturn;
 	}
@@ -255,13 +260,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			return;
 		StyledNodeEdit f = redos.pop();
 		if (f.getType() == StyledNodeEditType.TEXT) {
-			UndoableEdit e = (UndoableEdit) f.getContent();
-			if (e.canRedo()) {
-				e.redo();
-				undos.push(f);
-			} else {
-				System.out.println("Could not redo " + e);
-			}
+			Object[] info = (Object[]) f.getContent();
+			String revertTo = (String) info[0];
+			Font display = (Font) info[1];
+			content.setText(revertTo);
+			content.setFont(display);
+			undos.push(f);
 		} else if (f.getType() == StyledNodeEditType.DRAG) {
 			Rectangle r = (Rectangle) f.getContent();
 			undos.push(new StyledNodeEdit(new Rectangle(getBounds())));
@@ -278,13 +282,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			return;
 		StyledNodeEdit f = undos.pop();
 		if (f.getType() == StyledNodeEditType.TEXT) {
-			UndoableEdit e = (UndoableEdit) f.getContent();
-			if (e.canUndo()) {
-				e.undo();
-				redos.push(f);
-			} else {
-				System.out.println("Could not undo " + e);
-			}
+			Object[] info = (Object[]) f.getContent();
+			String revertTo = (String)info[0];
+			Font display = (Font) info[1];
+			content.setText(revertTo);
+			content.setFont(display);
+			redos.push(f);
 		} else if (f.getType() == StyledNodeEditType.DRAG) {
 			Rectangle r = (Rectangle) f.getContent();
 			redos.push(new StyledNodeEdit(new Rectangle(getBounds())));
@@ -303,6 +306,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if (isBeingEdited)
+			return;
 		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
 			backend.remove(this.getUID());
 		}
@@ -396,6 +401,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		//the added edit
 		public StyledNodeEdit(UndoableEdit e) {
 			content = e;
+			type = StyledNodeEditType.TEXT;
+		}
+		public StyledNodeEdit(String body, Font curFont) {
+			content = new Object[]{body, curFont};
 			type = StyledNodeEditType.TEXT;
 		}
 		//@param r		the old location of this node

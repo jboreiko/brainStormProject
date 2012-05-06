@@ -466,6 +466,8 @@ public class Backend {
 		if(boardElts.containsKey(e.getUID())) {
 			boardElts.get(e.getUID()).ofSerialized(e);
 		}
+		if (boardElts.get(e.getUID()) == null)
+			return null;
 		panel.extendPanel(boardElts.get(e.getUID()).getBounds());
 		panel.setListFront(e.getUID());
 		panel.repaint();

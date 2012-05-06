@@ -293,8 +293,6 @@ public class MainFrame extends JFrame {
         });
         _edit.add(_redo);
 
-
-
         return _menuBar;
     }
     public static void main(String[] args) {

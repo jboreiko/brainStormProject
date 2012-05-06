@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.HierarchyEvent;
@@ -45,12 +46,19 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 		} else {
 			Point offset = ((JViewport)e.getSource()).getViewPosition();
 			Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
+			if(loc.x<=0) {
+				loc.x = 0;
+			}
+			if(loc.y<=0) {
+				loc.y = 0;
+			}
 			//for(BoardPath p: wb.getBackend().getPaths()) {
 			if(draggedPath.isSeminalDragging()) {
 				draggedPath.setSeminal(loc);
 			} else if (draggedPath.isTerminalDragging()) {
 				draggedPath.setTerminal(loc);
 			}
+			wb.extendPanel(new Rectangle(draggedPath.getLocation(), new Dimension(draggedPath.getWidth(), draggedPath.getHeight())));
 			//}
 		}
 		wb.repaint();
@@ -82,10 +90,8 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 
 	}
 	@Override public void mouseReleased(MouseEvent e) {
-		Point offset = ((JViewport)e.getSource()).getViewPosition();
-		Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
 		if(draggedPath!=null) {
-			draggedPath.stopDrag(loc);
+			draggedPath.stopDrag();
 			draggedPath = null;
 		}
 		((JComponent)e.getSource()).setCursor(dc); //label.setCursor(dc);
@@ -100,9 +106,9 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 		Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
 		boolean deletedAPath = false;
 		if (e.getModifiers() == 16) { //left click
-			Iterator it = wb.getBackend().getPaths().iterator();
+			Iterator<BoardPath> it = wb.getBackend().getPaths().iterator();
 			while(it.hasNext()) {
-				BoardPath p = (BoardPath) it.next();
+				BoardPath p = it.next();
 				if(p.isNearDelete(loc.x, loc.y)) {
 					p.delete();
 					deletedAPath = true;

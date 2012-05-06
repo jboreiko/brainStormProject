@@ -301,13 +301,17 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
             backend.remove(this.getUID());
         }
     }
-    @Override
     public void mouseEntered(MouseEvent e) {
-    }
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
+		if(_mouseListener.draggedPath!=null) {
+			_mouseListener.draggedPath.snapTo(this);
+		}
+	}
+	@Override
+	public void mouseExited(MouseEvent e) {
+		if(_mouseListener.draggedPath!=null && (e.getX()<0 || e.getX()>this.getWidth() || e.getY()<0 || e.getY()>this.getHeight())) {
+			_mouseListener.draggedPath.unsnapFrom(this);
+		}
+	}
     Rectangle boundsBeforeMove;
     public void mousePressed(MouseEvent e) {
         wbp.setListFront(this.UID);

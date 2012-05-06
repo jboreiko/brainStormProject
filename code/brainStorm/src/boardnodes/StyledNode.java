@@ -14,6 +14,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.JMenu;
@@ -25,11 +26,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Highlighter;
 import javax.swing.text.StyledDocument;
 import javax.swing.undo.UndoableEdit;
 
 import whiteboard.BoardActionType;
+import whiteboard.SearchResult;
 import GUI.WhiteboardPanel;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
@@ -137,6 +141,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         view.revalidate();
         repaint();
         view.repaint();
+    }
+    
+    @Override
+    public String getText() {
+    	return this.content.getText();
     }
 
     public class BoardCommUndoableEditListener implements UndoableEditListener {
@@ -410,7 +419,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         
         if (isBeingEdited) { //notify the user this is being modified elsewhere
         	g.setColor(Color.ORANGE);
-        	g.fillOval(getWidth()-BORDER_WIDTH, getHeight(), BORDER_WIDTH, BORDER_WIDTH);
+        	g.fillOval(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
         }
 
 
@@ -438,5 +447,38 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
     public SerializedBoardElt toSerialized() {
         return new SerializedStyledNode(this);
     }
+
+	@Override
+	public ArrayList<SearchResult> search(String query) {
+		ArrayList<SearchResult> toReturn = new ArrayList<SearchResult>();
+		String toSearch = this.getText();
+		int lastIndex = 0;
+		while(lastIndex!=-1) {
+			System.out.println(lastIndex);
+			lastIndex = toSearch.indexOf(query, lastIndex);
+			if(lastIndex!=-1) {
+				toReturn.add(new SearchResult(this, lastIndex));
+				lastIndex++;
+			}
+		}
+		return toReturn;
+	}
+
+	@Override
+	public void highlightText(int index, int len, boolean isfocus) {
+		
+		this.content.setHighlighter(hilit);		
+		try {
+			Color toColor = isfocus?Color.YELLOW:Color.LIGHT_GRAY;
+			hilit.addHighlight(index, index+len, new DefaultHighlighter.DefaultHighlightPainter(toColor));
+		} catch (BadLocationException e) {
+			System.out.println("stylednode: the given search index does not exist in the string! ignoring..");
+		}
+	}
+
+	@Override
+	public void clearHighlight() {
+		hilit.removeAllHighlights();		
+	}
 
 }

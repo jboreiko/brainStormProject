@@ -1,8 +1,13 @@
 package boardnodes;
 
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 
 import whiteboard.BoardActionType;
+import whiteboard.SearchResult;
 import GUI.ViewportDragScrollListener;
 import GUI.WhiteboardPanel;
 
@@ -14,7 +19,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	//position on the board
 	private String textBody;
 	private static int ID_Last;
-	public BoardEltType Type;
 	//the whiteboard that this is a part of
 	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
@@ -22,7 +26,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 
 	protected static int nextUID = 0;
 
-	protected BoardEltType type;
+	public BoardEltType type;
 	protected boolean isBeingEdited; //whether this BoardElt is in focus on another computer
 	public int getUID() {
 		return UID;
@@ -34,6 +38,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		backend = w;
 		wbp = backend.getPanel();
 		setFocusable(true);
+		hilit = new DefaultHighlighter();
 	}
 
 	public whiteboard.Backend getWhiteboard() {
@@ -44,15 +49,12 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		return type;
 	}
 
-	public int containsText(String q) {
-		return getText().toLowerCase().indexOf(q.toLowerCase());
-	}	
-
 	/*@param ID - the unique ID of this object
 	 * @return a new BoardElt with specified ID at no particular location*/
 	public BoardElt(int ID) {
 		UID = ID;
 		setFocusable(true);
+		hilit = new DefaultHighlighter();
 	}
 
 	/*@param x the x location
@@ -61,6 +63,8 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public BoardElt(int ID, int x, int y) {
 		UID = ID;
 		this.setLocation(x, y);
+		setFocusable(true);
+		hilit = new DefaultHighlighter();
 	}
 
 	/*Set the initial point our */
@@ -71,6 +75,11 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	String getText() {
 		return textBody;
 	}
+	
+	public abstract ArrayList<SearchResult> search(String query);
+	public abstract void highlightText(int index, int len, boolean isfocus);
+	public abstract void clearHighlight();
+	protected Highlighter hilit;
 
 	/*Assigns this BoardElt's text to input
 	 * @param toSet - what to make this Element store

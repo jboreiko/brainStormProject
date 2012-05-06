@@ -70,6 +70,7 @@ public class MainFrame extends JFrame {
 		_interfacePane.setVisible(true);
 		
 		_suggestPanel = new SuggestGUI(interfaceSize);
+	
 		_interfacePane.add(_suggestPanel);
 		
 		add(_interfacePane, BorderLayout.WEST);
@@ -78,6 +79,7 @@ public class MainFrame extends JFrame {
 		//whiteboard.newProject
 		this.setTitle(projectName);
 		_whiteboard = new WhiteboardPanel();
+		_suggestPanel.setBackend(_whiteboard.getBackend());
 	    int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 	    int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
 		JScrollPane scrollPane = new JScrollPane(_whiteboard,v,h);

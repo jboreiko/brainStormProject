@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,7 @@ import javax.swing.JPopupMenu;
 
 
 import whiteboard.BoardActionType;
+import whiteboard.SearchResult;
 
 public class ScribbleNode extends BoardElt implements MouseListener, MouseMotionListener, Serializable {
 	/**
@@ -323,7 +325,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		
 		if (isBeingEdited) { //visual feedback that it's being changed elsewhere
 			g.setColor(Color.ORANGE);
-			g.fillOval(getWidth() - BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
+			g.fillOval(getWidth() - BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
 		}
 	}
 	
@@ -347,5 +349,18 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	}
 	public Color getDrawColor(){
 		return _drawColor;
+	}
+	@Override
+	public ArrayList<SearchResult> search(String query) {
+		return new ArrayList<SearchResult>();
+	}
+	@Override
+	public void highlightText(int index, int len, boolean isfocus) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void clearHighlight() {
+		// TODO Auto-generated method stub
 	}
 }

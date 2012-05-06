@@ -41,6 +41,10 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import whiteboard.Backend;
+
+import GUI.ResultsPanel;
+
 import networking.Networking;
 
 public class SuggestGUI extends JPanel {
@@ -64,6 +68,9 @@ public class SuggestGUI extends JPanel {
 	private int _role;
 	private ArrayList<ClickText> _textList;
 	private Stack<String> _back;
+	private ResultsPanel resultsPanel;
+	private Backend _backend;
+	private JTextField searchField;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -99,17 +106,29 @@ public class SuggestGUI extends JPanel {
 		_net.setSuggestPanel(this);
 	}
 	
+	public void setBackend(Backend b) {
+		_backend = b;
+		resultsPanel.setBackend(_backend);
+	}
+	
 	private void buildFindTab() {
 		_findPanel = new JPanel();
+		resultsPanel = new ResultsPanel();
 		JPanel searchPanel = new JPanel();
-		JTextField searchField = new JTextField(25);
+		searchField = new JTextField(25);
 		JPanel buttonPanel = new JPanel();
 		JButton searchButton = new JButton("Find it");
+		searchButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				resultsPanel.setResults(_backend.search(searchField.getText()), searchField.getText());
+			}
+		});
 		searchPanel.add(searchField, BorderLayout.CENTER);
 		buttonPanel.add(searchButton);
 		_findPanel.setLayout(new FlowLayout());
 		_findPanel.add(searchPanel);
 		_findPanel.add(buttonPanel);
+		_findPanel.add(resultsPanel);
 	}
 
 	public boolean networkingSet() {

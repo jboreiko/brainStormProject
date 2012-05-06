@@ -1,6 +1,8 @@
 package boardnodes;
 
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.swing.text.DefaultHighlighter;
@@ -18,13 +20,10 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	protected int UID;
 	//position on the board
 	private String textBody;
-	private static int ID_Last;
 	//the whiteboard that this is a part of
 	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
 	public ViewportDragScrollListener _mouseListener;
-
-	protected static int nextUID = 0;
 
 	public BoardEltType type;
 	protected boolean isBeingEdited; //whether this BoardElt is in focus on ANOTHER computer
@@ -67,10 +66,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		hilit = new DefaultHighlighter();
 	}
 
-	/*Set the initial point our */
-	static void setStartingUID(int idStart) {
-		ID_Last = idStart;
-	}
 	/*@return the body of this node as a String*/
 	String getText() {
 		return textBody;
@@ -118,9 +113,24 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		this.isBeingEdited = isBeingEdited;
 	}
 	
+	protected LinkedList<Point> getSnappedPathPoints() {
+		LinkedList<Point> toReturn = new LinkedList<Point>();
+		for(BoardPath p: backend.getPaths()) {
+			if(p._snapSeminal==this) {
+				toReturn.add(p._snapSeminalOffset);
+			}
+			if(p._snapTerminal==this) {
+				toReturn.add(p._snapTerminalOffset);
+			}
+		}
+		return toReturn;		
+	}
+	
 	public abstract void addAction(ActionObject ao);
 	
 	public abstract SerializedBoardElt toSerialized();
 	
 	public abstract void ofSerialized(SerializedBoardElt b);
+	
+	public abstract void paste(Point pos);
 }

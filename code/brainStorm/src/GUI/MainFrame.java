@@ -141,7 +141,6 @@ public class MainFrame extends JFrame {
         });
         _file.add(_newProject);
 
-
         //join project MenuItem
         _join = new JMenuItem("Join Project", KeyEvent.VK_L);
         _join.setMnemonic('J');

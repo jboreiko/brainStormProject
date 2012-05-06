@@ -9,7 +9,7 @@ import whiteboard.Backend;
 import networking.NetworkMessage.Type;
 
 public class Networking {
-	private int DEFAULT_PORT = 4567;
+	private int DEFAULT_PORT = 4568;//4567;
 	State currentState;
 	Client client;
 	Host host;

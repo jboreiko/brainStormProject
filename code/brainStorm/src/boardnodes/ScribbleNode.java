@@ -45,6 +45,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	Stack<ScribbleNodeEdit> undos;
 	Stack<ScribbleNodeEdit> redos;
 	JPopupMenu _drawMenu;
+	JPopupMenu _copyMenu;
 	Color _drawColor;
 	int _drawSize;
 
@@ -57,7 +58,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
         _drawColor = Color.BLACK;
         _drawSize = 3;
         _drawMenu = new JPopupMenu();
-        
+        _copyMenu = new JPopupMenu();
         //Different Colors
         JMenu colorMenu = new JMenu("Colors");
         final String colorNames[] = 
@@ -91,6 +92,16 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
         }
         _drawMenu.add(sizeMenu);
         add(_drawMenu);
+        
+        
+        //copy
+        JMenuItem copyItem = new JMenuItem("Copy");
+        _copyMenu.add(copyItem);
+        copyItem.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e) {
+        		backend.copy(ScribbleNode.this);
+        	}
+        });
         
 		_resizeLock = false;
 		_dragLock = false;
@@ -167,16 +178,25 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if(e.getModifiers()!=4) {
 		if (withinDelete(e.getX(), e.getY())) {
 			backend.remove(this.getUID());
+		}
+		} else {
+			_copyMenu.show(this, e.getX(), e.getY());
 		}
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if(_mouseListener.draggedPath!=null) {
+			_mouseListener.draggedPath.snapTo(this);
+		}
 	}
 	@Override
 	public void mouseExited(MouseEvent e) {
+		if(_mouseListener.draggedPath!=null) {
+			_mouseListener.draggedPath.unsnapFrom(this);
+		}
 	}
 	Rectangle boundsBeforeMove;
 	@Override
@@ -247,7 +267,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			notifyBackend(BoardActionType.ELT_MOD);
 		} else {
 	        if (e.getModifiers() == 4) {
-	            _drawMenu.show(ScribbleNode.this,e.getX(),e.getY());
+	            _drawMenu.show(this,e.getX(),e.getY());
 	        }
 	        else{
 				undos.push(new ScribbleNodeEdit(_pendingStroke));
@@ -257,6 +277,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		_resizeLock = false;
 		_dragLock = false;
+		BoardPath draggedPath = _mouseListener.draggedPath;
+		if(draggedPath!=null) {
+			draggedPath.stopDrag();
+			draggedPath = null;
+		}
 		//if(!withinDelete(e.getX(), e.getY()))
 		//	this.notifyBackend(BoardActionType.ELT_MOD);
 	}
@@ -264,13 +289,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public boolean withinDelete(int x, int y) {
 		return (x < BORDER_WIDTH && y < BORDER_WIDTH);
 	}
-
-	@Override
-	public BoardElt clone() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public void addAction(ActionObject ao) {
 		// TODO Auto-generated method stub
 	}
@@ -350,6 +368,24 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public Color getDrawColor(){
 		return _drawColor;
 	}
+	
+	@Override
+	public void paste(Point pos) {
+		ScribbleNode toPaste = (ScribbleNode) backend.getPanel().newElt(BoardEltType.SCRIBBLE, BoardPathType.NORMAL);
+		toPaste.setBounds(new Rectangle(pos, (Dimension) getBounds().getSize().clone()));
+		toPaste.undos = (Stack<ScribbleNodeEdit>) undos.clone();
+		toPaste.redos = (Stack<ScribbleNodeEdit>) redos.clone();
+		toPaste.repaint();
+	}
+	@Override
+	public BoardElt clone() {
+		ScribbleNode toReturn = new ScribbleNode(_drawSize, backend);
+		toReturn.setBounds(getBounds());
+		toReturn.undos = (Stack<ScribbleNodeEdit>) undos.clone();
+		toReturn.redos = (Stack<ScribbleNodeEdit>) redos.clone();
+		return toReturn;
+	}
+	
 	@Override
 	public ArrayList<SearchResult> search(String query) {
 		return new ArrayList<SearchResult>();

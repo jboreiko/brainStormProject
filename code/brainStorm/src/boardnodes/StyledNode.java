@@ -317,6 +317,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				return;
 			if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
 				backend.remove(this.getUID());
+				removeAllSnappedPaths();
 			}
 		} else {
 			//right click
@@ -332,7 +333,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseExited(MouseEvent e) {
 		if(_mouseListener.draggedPath!=null && (e.getX()<0 || e.getX()>this.getWidth() || e.getY()<0 || e.getY()>this.getHeight())) {
-			_mouseListener.draggedPath.unsnapFrom(this);
+			_mouseListener.draggedPath.unsnapDrag(this);
 		}
 	}
 
@@ -481,12 +482,13 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void paste(Point pos) {
-		StyledNode toPaste = (StyledNode) backend.getPanel().newElt(BoardEltType.STYLED, BoardPathType.NORMAL);
+		StyledNode toPaste = new StyledNode(0, this.getBackend());//(StyledNode) backend.getPanel().newElt(BoardEltType.STYLED, BoardPathType.NORMAL);
 		toPaste.setBounds(new Rectangle(pos, (Dimension) this.getBounds().getSize().clone()));
 		toPaste.view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
 		toPaste.content.setFont(content.getFont());
 		toPaste.content.setText(content.getText());
 		toPaste.content.setForeground(content.getForeground());
+		backend.getPanel().addElt(toPaste);
 		toPaste.repaint();
 	}
 

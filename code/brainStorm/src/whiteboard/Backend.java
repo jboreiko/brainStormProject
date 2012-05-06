@@ -184,7 +184,6 @@ public class Backend {
 	}
 
 	public void paste(Point pos) {
-		System.out.println("pasting "+clipboard);
 		clipboard.paste(pos);
 	}
 

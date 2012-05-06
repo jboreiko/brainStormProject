@@ -324,10 +324,20 @@ public class BoardPath extends BoardElt {
 		}
 	}
 
-	public boolean unsnapFrom(BoardElt b) {
+	public boolean unsnapDrag(BoardElt b) {
 		if(_snapSeminal == b && isSeminalDragging()) {
 			_snapSeminal = null;
 		} else if(_snapTerminal == b && isTerminalDragging()) {
+			_snapTerminal = null;
+		} else
+			return false;
+		return true;
+	}
+	
+	public boolean unsnapFrom(BoardElt b) {
+		if(_snapSeminal == b) {
+			_snapSeminal = null;
+		} else if(_snapTerminal == b) {
 			_snapTerminal = null;
 		} else
 			return false;

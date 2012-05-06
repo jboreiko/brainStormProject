@@ -178,6 +178,16 @@ public class WhiteboardPanel extends JPanel{
 		System.out.println("uid counter is now "+WhiteboardPanel.UIDCounter);
 	}
 
+	public void addElt(BoardElt b) {
+		//gives an elt a unique id, and a reference to the backend, and other than that just pushes it along adding it
+		b.setUID(++WhiteboardPanel.UIDCounter);
+		b.setBackend(_backend);
+		add(b, 0);
+		_backend.add(b);
+		extendPanel(b.getBounds());
+		repaint();
+	}
+	
 	//boardpathtype only has to be specified when adding a path
 	public BoardElt newElt(BoardEltType b, BoardPathType bpt) {
 		//extendPanel(); //taken out when extendPanel changed to accept rect

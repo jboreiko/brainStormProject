@@ -2,11 +2,9 @@ package whiteboard;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Stack;
-import java.util.Map.Entry;
 
 import networking.Networking;
 import GUI.ViewportDragScrollListener;
@@ -35,7 +32,7 @@ public class Backend {
 	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
 	private ArrayList<boardnodes.BoardPath> paths;
-	private Stack<BoardAction> pastActions;
+	public Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
 	private Networking networking;
 	private BoardElt clipboard;
@@ -50,6 +47,7 @@ public class Backend {
 		networking = new Networking();
 		networking.setBackend(this);
 	}
+	
 	public void save(File f) {
 		System.out.println("backend: saving to file"); 
 		/* WHAT ELSE NEEDS TO BE SAVED?? */
@@ -75,6 +73,8 @@ public class Backend {
 	public void load(File f) {
 		System.out.println("backend: loading file");
 		try {
+		    /* Make new whiteboard for opening */
+		    
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
 			LinkedList<Object> save = (LinkedList<Object>) ois.readObject();
 			SerializedBoardElt be;
@@ -82,6 +82,9 @@ public class Backend {
 				be = (SerializedBoardElt) o;
 				addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
 			}
+			/* Clear stack upon loading */
+			pastActions.clear();
+			futureActions.clear();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (ClassNotFoundException e) {

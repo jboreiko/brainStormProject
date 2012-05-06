@@ -1,14 +1,10 @@
 package GUI;
 
-
-
-import java.util.*;
 import javax.swing.*;
 import suggest.SuggestGUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.io.File;
 
 /**
  * @author bverch
@@ -35,6 +31,10 @@ import java.io.File;
  */
 
 public class MainFrame extends JFrame {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1601613810507399098L;
     protected static final int SCROLL_INCREMENT = 16;
     public JMenuItem _newProject, _save, _close, _exit, _load, _undo, _redo, _join;
     private JMenu _file, _edit;

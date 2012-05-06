@@ -14,6 +14,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -28,18 +29,13 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Highlighter;
 import javax.swing.text.StyledDocument;
-import javax.swing.undo.UndoableEdit;
 
 import whiteboard.BoardActionType;
 import whiteboard.SearchResult;
 import GUI.WhiteboardPanel;
 
 public class StyledNode extends BoardElt implements MouseListener, MouseMotionListener{
-	/**
-	 * 
-	 */
 	public static int UIDCounter = 0;
 	private Point startPt,nextPt;
 	JTextPane content;
@@ -71,7 +67,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			fontItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					content.setFont(new Font(fontName, content.getFont().getStyle(), content.getFont().getSize()));
-					notifyBackend(BoardActionType.ELT_MOD);
+					//notifyBackend(BoardActionType.ELT_MOD);
 				}
 			});
 			_styleMenu.add(fontItem);
@@ -80,7 +76,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		//Different Colors
 		_colorMenu = new JMenu("Colors");
 		final String colorNames[] = 
-		{"BLACK","BLUE","CYAN","DARK_GRAY","GRAY","LIGHT_GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW"};
+		{"BLACK","BLUE","CYAN","DARK GRAY","GRAY","LIGHT GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW"};
 		final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
 				Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW};
 		for(int i=0;i<colorNames.length;i+=1){
@@ -89,7 +85,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			fontItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					content.setForeground(color);
-					notifyBackend(BoardActionType.ELT_MOD);
+					//notifyBackend(BoardActionType.ELT_MOD);
 				}
 			});
 			_colorMenu.add(fontItem);
@@ -104,7 +100,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				public void actionPerformed(ActionEvent e) {
 					Font replaceWith = content.getFont().deriveFont((float)a);
 					content.setFont(replaceWith);
-					notifyBackend(BoardActionType.ELT_MOD);
+					//notifyBackend(BoardActionType.ELT_MOD);
 				}
 			});
 			_fontSizeMenu.add(fontSize);
@@ -145,6 +141,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		view.revalidate();
 		repaint();
 		view.repaint();
+		//notifyBackend(BoardActionType.ELT_MOD); //once you've made text change, pressing undo will revert to initial text
 	}
 
 	@Override
@@ -195,7 +192,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				
 				content.revalidate();
 				if (!lastText.equals(content.getText()) || !lastFont.equals(content.getFont())) { //send changes over the network
-					undos.push(new StyledNodeEdit(content.getText(), content.getFont()));
+					System.out.println("Adding to the undo stack");
+					undos.push(new StyledNodeEdit(lastText, lastFont));
 					notifyBackend(BoardActionType.ELT_MOD);
 				}
 				lastText = content.getText();
@@ -245,6 +243,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		});
 		lastText = "\u2022 ";
 		lastFont = toReturn.getFont();
+		undos.push(new StyledNodeEdit(lastText, lastFont));
 		toReturn.grabFocus();
 		return toReturn;
 	}
@@ -263,9 +262,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			Object[] info = (Object[]) f.getContent();
 			String revertTo = (String) info[0];
 			Font display = (Font) info[1];
+			System.err.println(revertTo);
+			undos.push(new StyledNodeEdit(content.getText(), content.getFont()));
 			content.setText(revertTo);
 			content.setFont(display);
-			undos.push(f);
 		} else if (f.getType() == StyledNodeEditType.DRAG) {
 			Rectangle r = (Rectangle) f.getContent();
 			undos.push(new StyledNodeEdit(new Rectangle(getBounds())));
@@ -285,9 +285,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			Object[] info = (Object[]) f.getContent();
 			String revertTo = (String)info[0];
 			Font display = (Font) info[1];
+			System.out.println(revertTo);
+			redos.push(new StyledNodeEdit(content.getText(), content.getFont()));
 			content.setText(revertTo);
 			content.setFont(display);
-			redos.push(f);
 		} else if (f.getType() == StyledNodeEditType.DRAG) {
 			Rectangle r = (Rectangle) f.getContent();
 			redos.push(new StyledNodeEdit(new Rectangle(getBounds())));
@@ -401,14 +402,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	}
 
-	public static class StyledNodeEdit {
+	public static class StyledNodeEdit implements Serializable{
 		private Object content;
 		private StyledNodeEditType type;
 		//the added edit
-		public StyledNodeEdit(UndoableEdit e) {
-			content = e;
-			type = StyledNodeEditType.TEXT;
-		}
 		public StyledNodeEdit(String body, Font curFont) {
 			content = new Object[]{body, curFont};
 			type = StyledNodeEditType.TEXT;
@@ -464,6 +461,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		content.setForeground(ssn.fontColor);
 		System.out.println("Setting text to " + ssn.text);
 		content.setText(ssn.text);
+		lastText = ssn.lastText;
+		lastFont = ssn.lastFont;
+		//undos = ssn.undos;
+		//redos = ssn.redos;
 		repaint();
 		content.repaint();
 		view.revalidate();

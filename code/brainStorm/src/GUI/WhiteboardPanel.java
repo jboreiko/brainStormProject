@@ -38,6 +38,7 @@ public class WhiteboardPanel extends JPanel{
 	private boolean _contIns;
 	private Backend _backend;
 	public ViewportDragScrollListener _mouseListener;
+	public MainFrame _mainFrame;
 	private Point lastClick;
 	private JMenuItem pasteItem = new JMenuItem("Paste");
 	private int _frontElt;
@@ -45,10 +46,11 @@ public class WhiteboardPanel extends JPanel{
 
 	private JPopupMenu _rightClickMenu; //the options when a user right-clicks
 
-	public WhiteboardPanel(){
+	public WhiteboardPanel(String projectName, MainFrame mf){
 		super();
+		_mainFrame = mf;
 		_lastAdded = 0;
-		_backend = new Backend(this);
+		_backend = new Backend(projectName, this);
 		_backend._mouseListener = _mouseListener;
 		setFocusable(true);
 		this.setLayout(null);

@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
 	/*
 	 * Mainframe()
 	 * 
-	 * Initializes the menus and list of whiteboardpanels.
+	 * Initializes the menus and the whiteboardpanel.
 	 * 
 	 * 
 	 */
@@ -243,19 +243,15 @@ public class MainFrame extends JFrame {
 	}
 	public static void main(String[] args) {
 		String projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
-		while(true){
-			if(projectName==null) {
-				System.exit(1);
-				return;
-			}
-			if(projectName.length()>0){
-				new MainFrame(projectName);
-				break;
-			}
-			else{
-				JOptionPane.showMessageDialog(null, "Please specify a name for the project","Error!", JOptionPane.ERROR_MESSAGE);
-				projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
-			}
+		if(projectName==null) {
+			System.exit(1);
+			return;
+		}
+		if(projectName.length()>0){
+			new MainFrame(projectName);
+		}
+		else{
+			new MainFrame("(untitled)");
 		}
 	}
 }

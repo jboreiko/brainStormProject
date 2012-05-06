@@ -45,7 +45,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
     WhiteboardPanel _wbp;
     JScrollPane view;
     boolean _resizeLock,_dragLock;
-    JMenu _styleMenu, _colorMenu, _fontSizeMenu;
     JPopupMenu _fontMenu;
 
     public final static int BORDER_WIDTH = 10;
@@ -55,7 +54,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         super(UID, w);
         _fontMenu = new JPopupMenu();
         //Different Styles of Typing
-        _styleMenu = new JMenu("Styles");
+        JMenu styleMenu = new JMenu("Styles");
         final String fonts[] = 
         {"Times New Roman","Arial","Courier New","Abberancy","Dialog","FreeSerif","Impact","SansSerif","Verdana"};
         for(int i=0;i<fonts.length;i+=1){
@@ -67,11 +66,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                 	notifyBackend(BoardActionType.ELT_MOD);
                 }
             });
-            _styleMenu.add(fontItem);
+            styleMenu.add(fontItem);
         }
 
         //Different Colors
-        _colorMenu = new JMenu("Colors");
+        JMenu colorMenu = new JMenu("Colors");
         final String colorNames[] = 
         {"BLACK","BLUE","CYAN","DARK_GRAY","GRAY","LIGHT_GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW"};
         final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
@@ -85,11 +84,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                     notifyBackend(BoardActionType.ELT_MOD);
                 }
             });
-            _colorMenu.add(fontItem);
+            colorMenu.add(fontItem);
         }
 
         //Different Sizes
-        _fontSizeMenu = new JMenu("Size");
+        JMenu fontSizeMenu = new JMenu("Size");
         final int[] sizes = {6, 7, 8, 9, 10, 12, 14, 18, 24, 36, 52, 72};
         for (final int a : sizes) {
         	JMenuItem fontSize = new JMenuItem(a+"");
@@ -100,14 +99,14 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
                     notifyBackend(BoardActionType.ELT_MOD);
         		}
         	});
-            _fontSizeMenu.add(fontSize);
+            fontSizeMenu.add(fontSize);
         }
 
-        _fontMenu.add(_styleMenu);
+        _fontMenu.add(styleMenu);
         _fontMenu.addSeparator();
-        _fontMenu.add(_fontSizeMenu);
+        _fontMenu.add(fontSizeMenu);
         _fontMenu.addSeparator();
-        _fontMenu.add(_colorMenu);
+        _fontMenu.add(colorMenu);
 
 
         type = BoardEltType.STYLED;

@@ -38,7 +38,7 @@ public class Backend {
 	private Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
 	private Networking networking;
-	private BoardElt clipboard;
+	public BoardElt clipboard;
 	public ViewportDragScrollListener _mouseListener;
 
 	public Backend(GUI.WhiteboardPanel _panel) {
@@ -179,13 +179,12 @@ public class Backend {
 
 	//Copies the given element (i.e. sets the clipboard)
 	public void copy(BoardElt b) {
-		clipboard = b;
+		clipboard = b.clone();
 	}
 
 	public void paste(Point pos) {
-		BoardElt toPaste = clipboard.clone();
-		toPaste.setLocation(pos);
-		add(toPaste);
+		System.out.println("pasting "+clipboard);
+		clipboard.paste(pos);
 	}
 
 	public Object render() {

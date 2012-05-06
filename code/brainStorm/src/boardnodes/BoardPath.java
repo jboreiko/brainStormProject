@@ -400,6 +400,10 @@ public class BoardPath extends BoardElt {
 		setPathType(future._stroke);
 	}
 
+	@Override
+	public void paste(Point pos) {
+		
+	}
 
 	@Override
 	public BoardElt clone() {

@@ -37,6 +37,9 @@ public class WhiteboardPanel extends JPanel{
 	private boolean _contIns;
 	private Backend _backend;
 	public ViewportDragScrollListener _mouseListener;
+	private Point lastClick;
+	private JMenuItem pasteItem = new JMenuItem("Paste");
+	private int _frontElt;
 	
 	private Point _addLocation; //the location you should add the next BoardElt to
 
@@ -62,6 +65,12 @@ public class WhiteboardPanel extends JPanel{
 	
 	public void displayContextMenu(Point display) {
 		_addLocation = display;
+		lastClick = (Point) display.clone();
+		if(_backend.clipboard==null) {
+			pasteItem.setEnabled(false);
+		} else {
+			pasteItem.setEnabled(true);
+		}
 		_rightClickMenu.show(this, display.x, display.y);
 	}
 	
@@ -115,7 +124,16 @@ public class WhiteboardPanel extends JPanel{
 			}
 		});
 		popup.add(dottedArrowPathItem);
+		popup.addSeparator();
 		
+		pasteItem = new JMenuItem("Paste");
+		pasteItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_backend.paste(lastClick);
+			}
+		});
+		
+		popup.add(pasteItem);
 		return popup;
 	}
 	
@@ -161,42 +179,38 @@ public class WhiteboardPanel extends JPanel{
 	}
 	
 	//boardpathtype only has to be specified when adding a path
-	private void newElt(BoardEltType b, BoardPathType bpt) {
+	public BoardElt newElt(BoardEltType b, BoardPathType bpt) {
 		//extendPanel(); //taken out when extendPanel changed to accept rect
 		Dimension size;
+		BoardElt ret = null;
 		switch(b) {
 		case STYLED:
-			System.out.println("trying to add a styled");
 			StyledNode styledNode = new StyledNode(++WhiteboardPanel.UIDCounter, _backend);
 			_lastAdded = WhiteboardPanel.STYLED;
-			System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 			size = styledNode.getSize();
 			styledNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 			add(styledNode,0);
 			_backend.add(styledNode);
 			extendPanel(styledNode.getBounds());
+			ret=styledNode;
 			break;
 		case SCRIBBLE:
-			System.out.println("trying to add a scribble");
 			ScribbleNode scribbleNode = new ScribbleNode(++WhiteboardPanel.UIDCounter, _backend);
 			_lastAdded = WhiteboardPanel.SCRIBBLE;
-			System.out.println("just created a node with UID "+WhiteboardPanel.UIDCounter);
 			size = scribbleNode.getSize();
 			scribbleNode.setBounds(_addLocation.x, _addLocation.y, size.width, size.height);
 			if (_addLocation.x + size.width > this.getWidth() || _addLocation.y + size.height > this.getHeight()) {
 				System.out.println("Extended past our bounds");
 			}
-			System.out.println("wide " + getWidth() + ", height " + getHeight());
 			add(scribbleNode,0);
 			_backend.add(scribbleNode);
 			extendPanel(scribbleNode.getBounds());
+			ret=scribbleNode;
 			break;
 		case PATH:
-			System.out.println("trying to add a path");
 			_lastAdded = WhiteboardPanel.PATH;
 			_lastPathType = bpt;
 			BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _backend);
-			System.out.println("Just created a path "+bp.getUID());
 			size = bp.getPreferredSize();
 			System.out.println(size);
 			bp.setPathType(bpt);
@@ -205,9 +219,11 @@ public class WhiteboardPanel extends JPanel{
 			//add(bp);
 			_backend.add(bp);
 			extendPanel(new Rectangle(bp.getLocation(), new Dimension(bp.getWidth(), bp.getHeight())));
+			ret=bp;
 			break;
 		}
 		repaint();
+		return ret;
 	}
 	
 	public void undo() {
@@ -231,8 +247,11 @@ public class WhiteboardPanel extends JPanel{
 		_contIns = contIns;
 	}
 	public void setListFront(int id){
-		remove(_backend.lookup(id));
-		add(_backend.lookup(id), 0);
-		repaint();
+		if(_frontElt!=id) {
+			_frontElt = id;
+			remove(_backend.lookup(id));
+			add(_backend.lookup(id), 0);
+			repaint();
+		}
 	}
 }

@@ -454,8 +454,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		SerializedStyledNode ssn = (SerializedStyledNode) b;
 		this.setBounds(ssn.bounds);
 		view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
-		//undos = ssn.undos;
-		//redos = ssn.redos;
 		content.setFont(ssn.style);
 		content.setForeground(ssn.fontColor);
 		System.out.println("Setting text to " + ssn.text);

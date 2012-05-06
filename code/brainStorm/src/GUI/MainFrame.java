@@ -360,7 +360,7 @@ public class MainFrame extends JFrame {
 		JFrame helpBox = new JFrame();
 		helpBox.setVisible(true);
 		helpBox.setSize(new Dimension(500,200));
-		JTextArea helpInfo = new JTextArea("Hello! Welcome to Brainstorm!\n\nBegin by right-clicking anywhere in the gray area.\n" +
+		JTextArea helpInfo = new JTextArea("Welcome to Brainstorm!\n\nBegin by right-clicking anywhere in the gray area.\n" +
 				"You can change internal settings of each node by right-clicking within them.\nYou can also look up information via the suggest box.\n\n" +
 				"Finally, start brainstorming with your friends!\nHost a project by typing in a username and selecting the 'host' option.\nJoin a project by typing in a username and the address of the host.");
 		helpInfo.setBackground(Color.ORANGE);

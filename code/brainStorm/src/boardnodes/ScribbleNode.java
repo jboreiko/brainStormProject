@@ -4,10 +4,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
@@ -20,7 +23,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import javax.swing.JCheckBox;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 
 import whiteboard.BoardActionType;
@@ -37,6 +44,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	List<ColoredPoint> _pendingStroke; //the last or currentldy-being-drawn List of points
 	Stack<ScribbleNodeEdit> undos;
 	Stack<ScribbleNodeEdit> redos;
+	JPopupMenu _drawMenu;
+	Color _drawColor;
+	int _drawSize;
 
 	JPanel _scribbleArea; //the scribble area must be contained in this jpanel so we can delete and drag
 	
@@ -44,6 +54,44 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	
 	public ScribbleNode(int ID, whiteboard.Backend w) {
 		super(ID, w);
+        _drawColor = Color.BLACK;
+        _drawSize = 3;
+        _drawMenu = new JPopupMenu();
+        
+        //Different Colors
+        JMenu colorMenu = new JMenu("Colors");
+        final String colorNames[] = 
+        {"BLACK","BLUE","CYAN","DARK_GRAY","GRAY","LIGHT_GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW"};
+        final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
+                Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW};
+        for(int i=0;i<colorNames.length;i+=1){
+            final Color color = colors[i];
+            JMenuItem drawItem = new JMenuItem(colorNames[i]);
+            drawItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    _drawColor = color;
+                }
+            });
+            colorMenu.add(drawItem);
+        }
+        _drawMenu.add(colorMenu);
+        
+
+        //Different Sizes
+        JMenu sizeMenu = new JMenu("Size");
+        final int[] sizes = {2,3,5,7,9,11,13,15};
+        for (final int a : sizes) {
+        	JMenuItem fontSize = new JMenuItem(a+"");
+        	fontSize.addActionListener(new ActionListener() {
+        		public void actionPerformed(ActionEvent e) {
+                    _drawSize = a;
+        		}
+        	});
+            sizeMenu.add(fontSize);
+        }
+        _drawMenu.add(sizeMenu);
+        add(_drawMenu);
+        
 		_resizeLock = false;
 		_dragLock = false;
 		setBackground(Color.WHITE);
@@ -54,6 +102,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		setPreferredSize(new Dimension(200,150));
 		setSize(150,200);
 		type = BoardEltType.SCRIBBLE;
+		//_pendingStroke = new LinkedList<ColoredPoint>();
 		this.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -148,9 +197,13 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		else {
 			LinkedList<ColoredPoint> ret = new LinkedList<ColoredPoint>();
-			Color toColor = e.getModifiers()==16?Color.BLACK:Color.white;
-			ret.add(new ColoredPoint(startPt, toColor));
-			ColoredPoint endPt = new ColoredPoint(startPt.x+1, startPt.y+1, toColor);
+			ColoredPoint endPt = new ColoredPoint(startPt.x+1, startPt.y+1, _drawColor, _drawSize);
+	        if (e.getModifiers() == 4) {
+	            _drawMenu.show(ScribbleNode.this,e.getX(),e.getY());
+	        }
+	        else{
+				ret.add(new ColoredPoint(startPt, _drawColor, _drawSize));
+	        }
 			ret.add(endPt);
 			_pendingStroke = ret;
 		}
@@ -178,12 +231,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		}
 		else{ //we're drawing
 			if (e.getModifiers() == 16) { //left click
-				_pendingStroke.add(new ColoredPoint(e.getPoint(), Color.BLACK));
-			} else if (e.getModifiers() == 4) { //right click
-				_pendingStroke.add(new ColoredPoint(e.getPoint(), Color.WHITE));
+				_pendingStroke.add(new ColoredPoint(e.getPoint(), _drawColor, _drawSize));
 			}
 		}
-		System.out.println("DRAGGING");
 		repaint();
 		backend.getPanel().repaint();
 		revalidate();
@@ -192,12 +242,23 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (_resizeLock || _dragLock) {
+			if(boundsBeforeMove.x == getBounds().x && boundsBeforeMove.y == getBounds().y
+					&& boundsBeforeMove.height == getBounds().height && boundsBeforeMove.width == getBounds().width){
+				_resizeLock = false;
+				_dragLock = false;
+				return;
+			}
 			undos.push(new ScribbleNodeEdit(boundsBeforeMove));
 			notifyBackend(BoardActionType.ELT_MOD);
 		} else {
-			undos.push(new ScribbleNodeEdit(_pendingStroke));
-			notifyBackend(BoardActionType.ELT_MOD);
-			_pendingStroke = null;
+	        if (e.getModifiers() == 4) {
+	            _drawMenu.show(ScribbleNode.this,e.getX(),e.getY());
+	        }
+	        else{
+				undos.push(new ScribbleNodeEdit(_pendingStroke));
+				notifyBackend(BoardActionType.ELT_MOD);
+				_pendingStroke = null;
+	        }
 		}
 		_resizeLock = false;
 		_dragLock = false;
@@ -229,7 +290,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		Graphics2D g = (Graphics2D) graphics;
 		g.setColor(Color.WHITE);
 		g.fillRect(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight() - 2*BORDER_WIDTH);
-		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g.setStroke(new BasicStroke(_drawSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		for (ScribbleNodeEdit edit : undos) {
 			if (edit.type != ScribbleNodeEditType.DRAW) { //only draw the DRAW objects
 				continue;
@@ -241,6 +302,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			while(it.hasNext()) {
 				ColoredPoint temp = it.next();
 				g.setColor(temp.c);
+				g.setStroke(new BasicStroke(temp.s, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				g.drawLine(prev.x, prev.y, temp.x, temp.y);
 				prev = temp;
 			}
@@ -252,6 +314,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			ColoredPoint prev = it.next();
 			while(it.hasNext()) {
 				ColoredPoint temp = it.next();
+				g.setStroke(new BasicStroke(temp.s, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				g.setColor(temp.c);
 				g.drawLine(prev.x, prev.y, temp.x, temp.y);
 				prev = temp;
@@ -294,6 +357,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		toReturn.redos = (Stack<ScribbleNodeEdit>) redos.clone();
 		return toReturn;
 	}
+	public Color getDrawColor(){
+		return _drawColor;
+	}
 	@Override
 	public ArrayList<SearchResult> search(String query) {
 		return new ArrayList<SearchResult>();
@@ -306,6 +372,5 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void clearHighlight() {
 		// TODO Auto-generated method stub
-		
 	}
 }

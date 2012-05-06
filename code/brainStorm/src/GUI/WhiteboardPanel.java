@@ -6,6 +6,7 @@ import java.util.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 
 import whiteboard.Backend;
 import networking.Networking;

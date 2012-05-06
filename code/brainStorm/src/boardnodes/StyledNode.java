@@ -316,6 +316,9 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	Rectangle boundsBeforeMove;
 	public void mousePressed(MouseEvent e) {
+		if (isBeingEdited) { //you shouldn't be able to do anything if it's already being edited elsewhere
+			return;
+		}
 		wbp.setListFront(this.UID);
 		content.grabFocus();
 		startPt = new Point(e.getX(),e.getY());
@@ -330,7 +333,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (_resizeLock || _dragLock) {
+		if (!isBeingEdited && (_resizeLock || _dragLock)) {
 			System.out.println("releasing lock " + _resizeLock + _dragLock);
 			undos.push(new StyledNodeEdit(boundsBeforeMove));
 			notifyBackend(BoardActionType.ELT_MOD);
@@ -342,6 +345,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
+		if (isBeingEdited) { //you shouldn't have control of it
+			System.out.println("not allowed to drag while someone else has it, sry");
+			return;
+		}
 		int dx = e.getX() - startPt.x;
 		int dy = e.getY() - startPt.y;
 		int screenX = e.getX() + getBounds().x;
@@ -491,7 +498,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void setBeingEditedStatus(boolean isBeingEdited) {
 		super.setBeingEditedStatus(isBeingEdited);
-		this.content.setEditable(isBeingEdited);
+		this.content.setEditable(!isBeingEdited);
 	}
 
 }

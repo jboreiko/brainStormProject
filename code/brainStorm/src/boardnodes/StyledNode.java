@@ -18,12 +18,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
@@ -47,16 +49,19 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	boolean _resizeLock,_dragLock;
 	JMenu _styleMenu, _colorMenu, _fontSizeMenu;
 	JPopupMenu _fontMenu;
-	
+	JPopupMenu _copyMenu;
+
 	String lastText; //what this text says now, or what it said before you focused and started editing
 	Font lastFont;
-	
+
 	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
 		_fontMenu = new JPopupMenu();
+		_copyMenu = new JPopupMenu();
+
 		//Different Styles of Typing
 		_styleMenu = new JMenu("Styles");
 		final String fonts[] = 
@@ -112,6 +117,14 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		_fontMenu.addSeparator();
 		_fontMenu.add(_colorMenu);
 
+		//copying
+		JMenuItem copyItem = new JMenuItem("Copy");
+		_copyMenu.add(copyItem);
+		copyItem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				backend.copy(StyledNode.this);
+			}
+		});
 
 		type = BoardEltType.STYLED;
 		setLayout(null);
@@ -136,7 +149,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				content.requestFocusInWindow();
 			}
 		});
-
 		revalidate();
 		view.revalidate();
 		repaint();
@@ -189,7 +201,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				System.out.println("Lost focus " + this);
 				if (!content.isEditable())
 					return;
-				
+
 				content.revalidate();
 				if (!lastText.equals(content.getText()) || !lastFont.equals(content.getFont())) { //send changes over the network
 					System.out.println("Adding to the undo stack");
@@ -207,7 +219,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
+				// 
 			}
 
 			@Override
@@ -224,7 +236,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
 				System.out.println(getUID());
 				if (e.getModifiers() == 4) {
 					_fontMenu.show(StyledNode.this,e.getX(),e.getY());
@@ -300,17 +311,16 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 
 	@Override
-	public BoardElt clone() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (isBeingEdited)
-			return;
-		if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
-			backend.remove(this.getUID());
+		if(e.getModifiers()!=4) {
+			if (isBeingEdited)
+				return;
+			if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
+				backend.remove(this.getUID());
+			}
+		} else {
+			//right click
+			_copyMenu.show(StyledNode.this, e.getX(), e.getY());
 		}
 	}
 	@Override
@@ -453,13 +463,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void ofSerialized(SerializedBoardElt b) {
-		System.out.println("ofSerialized stylednode");
 		SerializedStyledNode ssn = (SerializedStyledNode) b;
 		this.setBounds(ssn.bounds);
 		view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
 		content.setFont(ssn.style);
 		content.setForeground(ssn.fontColor);
-		System.out.println("Setting text to " + ssn.text);
 		content.setText(ssn.text);
 		lastText = ssn.lastText;
 		lastFont = ssn.lastFont;
@@ -472,10 +480,40 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 
 	@Override
-	public SerializedBoardElt toSerialized() {
-		return new SerializedStyledNode(this);
+	public void paste(Point pos) {
+		StyledNode toPaste = (StyledNode) backend.getPanel().newElt(BoardEltType.STYLED, BoardPathType.NORMAL);
+		toPaste.setBounds(new Rectangle(pos, (Dimension) this.getBounds().getSize().clone()));
+		toPaste.view.setBounds(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight()-2*BORDER_WIDTH);
+		toPaste.content.setFont(content.getFont());
+		toPaste.content.setText(content.getText());
+		toPaste.content.setForeground(content.getForeground());
+		toPaste.repaint();
 	}
 
+	@Override
+	public SerializedBoardElt toSerialized() {
+		SerializedStyledNode toReturn = new SerializedStyledNode();
+		toReturn.bounds = getBounds();
+		toReturn.UID = UID;
+		toReturn.text = new String(content.getText());
+		toReturn.style = content.getFont();
+		toReturn.fontColor = content.getForeground();
+        toReturn.lastText = lastText;
+        toReturn.lastFont = lastFont;
+        toReturn.undos = undos;
+        toReturn.redos = redos;
+		return toReturn;
+	}
+
+	@Override
+	public BoardElt clone() {
+		StyledNode toReturn = new StyledNode(-1, backend);
+		toReturn.setBounds(getBounds());
+		toReturn.content.setFont(content.getFont());
+		toReturn.content.setText(content.getText());
+		toReturn.content.setForeground(content.getForeground());
+		return toReturn;
+	}
 
 	@Override
 	public ArrayList<SearchResult> search(String query) {
@@ -509,7 +547,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public void clearHighlight() {
 		hilit.removeAllHighlights();		
 	}
-	
+
 	@Override
 	public void setBeingEditedStatus(boolean isBeingEdited) {
 		super.setBeingEditedStatus(isBeingEdited);

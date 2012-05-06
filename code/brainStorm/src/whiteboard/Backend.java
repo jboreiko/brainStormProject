@@ -2,6 +2,7 @@ package whiteboard;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +39,7 @@ public class Backend {
 	private Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
 	private Networking networking;
-	private BoardElt clipboard;
+	public BoardElt clipboard;
 	public ViewportDragScrollListener _mouseListener;
 
 	public Backend(GUI.WhiteboardPanel _panel) {
@@ -179,13 +180,12 @@ public class Backend {
 
 	//Copies the given element (i.e. sets the clipboard)
 	public void copy(BoardElt b) {
-		clipboard = b;
+		clipboard = b.clone();
 	}
 
 	public void paste(Point pos) {
-		BoardElt toPaste = clipboard.clone();
-		toPaste.setLocation(pos);
-		add(toPaste);
+		System.out.println("pasting "+clipboard);
+		clipboard.paste(pos);
 	}
 
 	public Object render() {
@@ -481,8 +481,12 @@ public class Backend {
 
 	public void centerNode(BoardElt boardElt) {
 		//TODO: why isn't this working?
-		panel.scrollRectToVisible(new Rectangle(new Point(0,0), panel.getSize()));
-		panel.scrollRectToVisible(new Rectangle(new Point(boardElt.getBounds().x, boardElt.getBounds().y), panel.getSize()));
+		 System.out.println("CENTERNODE");
+		 System.out.println(panel.getVisibleRect());
+		 Rectangle elementBounds = boardElt.getBounds();
+		 Rectangle visibleRect = panel.getVisibleRect();
+		 visibleRect.setLocation(elementBounds.x-(visibleRect.width/2)+(elementBounds.width)/2, elementBounds.y-(visibleRect.height)/2+(elementBounds.height)/2);
+		 panel.scrollRectToVisible(visibleRect);
 	}
 
 	public void alertEditingStatus(BoardElt b, boolean isInUse) {

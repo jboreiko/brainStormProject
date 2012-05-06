@@ -121,6 +121,7 @@ public class SuggestGUI extends JPanel {
 		searchButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				resultsPanel.setResults(_backend.search(searchField.getText()), searchField.getText());
+				
 			}
 		});
 		searchPanel.add(searchField, BorderLayout.CENTER);

@@ -124,7 +124,7 @@ public class MainFrame extends JFrame {
 		_menuBar.add(_file);
 		
 		//new project MenuItem
-		_newProject = new JMenuItem("Create a Project", KeyEvent.VK_N);
+		_newProject = new JMenuItem("New Project", KeyEvent.VK_N);
 		_newProject.setMnemonic('N');
 		_newProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
 		_newProject.getAccessibleContext().setAccessibleDescription("Creates a new project");

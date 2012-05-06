@@ -23,16 +23,8 @@ public class SerializedStyledNode extends SerializedBoardElt {
     public Color fontColor;
     public String lastText;
     public Font lastFont;
-    public SerializedStyledNode(StyledNode sn) {
-        type = BoardEltType.STYLED;
-        bounds = sn.getBounds();
-        UID = sn.UID;
-        text = new String(sn.content.getText());
-        style = sn.content.getFont();
-        fontColor = sn.content.getForeground();
-        lastText = sn.lastText;
-        lastFont = sn.lastFont;
-        undos = sn.undos;
-        redos = sn.redos;
+
+    public SerializedStyledNode() {
+    	type = BoardEltType.STYLED;
     }
 }

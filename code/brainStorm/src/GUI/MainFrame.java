@@ -343,21 +343,33 @@ public class MainFrame extends JFrame {
 
         return _menuBar;
     }
-    public static void main(String[] args) {
-        String projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
-        while(true){
-            if(projectName==null) {
-                System.exit(1);
-                return;
-            }
-            if(projectName.length()>0){
-                new MainFrame(projectName);
-                break;
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "Please specify a name for the project","Error!", JOptionPane.ERROR_MESSAGE);
-                projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
-            }
-        }
-    }
+	public static void main(String[] args) {
+		String projectName = JOptionPane.showInputDialog(null, "Project Name","New Project",JOptionPane.PLAIN_MESSAGE);
+		if(projectName==null) {
+			System.exit(1);
+			return;
+		}
+		if(projectName.length()>0){
+			new MainFrame(projectName);
+		}
+		else{
+			new MainFrame("(untitled)");
+		}
+	}
+	public void initHelpBox(){
+		JFrame helpBox = new JFrame();
+		helpBox.setVisible(true);
+		helpBox.setSize(new Dimension(500,200));
+		JTextArea helpInfo = new JTextArea("Hello! Welcome to Brainstorm!\n\nBegin by right-clicking anywhere in the gray area.\n" +
+				"You can change internal settings of each node by right-clicking within them.\nYou can also look up information via the suggest box.\n\n" +
+				"Finally, start brainstorming with your friends!\nHost a project by typing in a username and selecting the 'host' option.\nJoin a project by typing in a username and the address of the host.");
+		helpInfo.setBackground(Color.ORANGE);
+		helpBox.add(helpInfo);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		helpInfo.setEditable(false);
+		helpBox.setResizable(false);
+		helpBox.setLocation(new Point((screenSize.width/2) - (helpBox.getWidth()/2),(screenSize.height/2) - (helpBox.getHeight()/2)));
+		helpInfo.revalidate();
+		helpBox.repaint();
+	}
 }

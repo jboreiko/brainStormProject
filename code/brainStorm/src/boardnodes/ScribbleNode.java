@@ -181,6 +181,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		if(e.getModifiers()!=4) {
 		if (withinDelete(e.getX(), e.getY())) {
 			backend.remove(this.getUID());
+			removeAllSnappedPaths();
 		}
 		} else {
 			_copyMenu.show(this, e.getX(), e.getY());
@@ -195,7 +196,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	@Override
 	public void mouseExited(MouseEvent e) {
 		if(_mouseListener.draggedPath!=null) {
-			_mouseListener.draggedPath.unsnapFrom(this);
+			_mouseListener.draggedPath.unsnapDrag(this);
 		}
 	}
 	Rectangle boundsBeforeMove;
@@ -371,10 +372,11 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	
 	@Override
 	public void paste(Point pos) {
-		ScribbleNode toPaste = (ScribbleNode) backend.getPanel().newElt(BoardEltType.SCRIBBLE, BoardPathType.NORMAL);
+		ScribbleNode toPaste = new ScribbleNode(0, this.getBackend());//(ScribbleNode) backend.getPanel().newElt(BoardEltType.SCRIBBLE, BoardPathType.NORMAL);
 		toPaste.setBounds(new Rectangle(pos, (Dimension) getBounds().getSize().clone()));
 		toPaste.undos = (Stack<ScribbleNodeEdit>) undos.clone();
 		toPaste.redos = (Stack<ScribbleNodeEdit>) redos.clone();
+		backend.getPanel().addElt(toPaste);
 		toPaste.repaint();
 	}
 	@Override

@@ -17,7 +17,7 @@ import GUI.WhiteboardPanel;
  * Paths and BoardNodes*/
 public abstract class BoardElt extends JPanel implements Cloneable{
 	//the unique identifier of this BoardElt
-	protected int UID;
+	public int UID;
 	//position on the board
 	private String textBody;
 	//the whiteboard that this is a part of
@@ -40,10 +40,18 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		hilit = new DefaultHighlighter();
 	}
 
-	public whiteboard.Backend getWhiteboard() {
+	
+	public whiteboard.Backend getBackend() {
 		return backend;
 	}
 
+	public void setBackend(whiteboard.Backend b) {
+		backend = b;
+	}
+	
+	public void setUID(int i) {
+		UID = i;
+	}
 	public BoardEltType getType() {
 		return type;
 	}
@@ -89,19 +97,19 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract void redo();
 
 	protected void notifyBackend(BoardActionType b) {
-		if(this.getWhiteboard()==null) {
+		if(this.getBackend()==null) {
 			System.out.println("whiteboard reference is null - cannot notify it");
 			return;
 		}
 		switch(b) {
 		case CREATION:
-			this.getWhiteboard().addAction(new whiteboard.CreationAction(this));
+			this.getBackend().addAction(new whiteboard.CreationAction(this));
 			break;
 		case DELETION:
-			this.getWhiteboard().addAction(new whiteboard.DeletionAction(this));
+			this.getBackend().addAction(new whiteboard.DeletionAction(this));
 			break;
 		case ELT_MOD:
-			this.getWhiteboard().addAction(new whiteboard.ModificationAction(this));
+			this.getBackend().addAction(new whiteboard.ModificationAction(this));
 			break;
 		default:
 			break;
@@ -124,6 +132,12 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 			}
 		}
 		return toReturn;		
+	}
+	
+	protected void removeAllSnappedPaths() {
+		for(BoardPath p: backend.getPaths()) {
+			p.unsnapFrom(this);
+		}
 	}
 	
 	public abstract void addAction(ActionObject ao);

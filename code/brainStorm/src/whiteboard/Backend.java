@@ -31,409 +31,410 @@ import boardnodes.StyledNode;
 import boardnodes.SerializedScribbleNode;
 
 public class Backend {
-    private GUI.WhiteboardPanel panel;
-    private Hashtable<Integer, BoardElt> boardElts;
-    private ArrayList<boardnodes.BoardPath> paths;
-    public Stack<BoardAction> pastActions;
-    private Stack<BoardAction> futureActions;
-    private Networking networking;
-    public BoardElt clipboard;
-    public ViewportDragScrollListener _mouseListener;
-    private String _projectName;
+	private GUI.WhiteboardPanel panel;
+	private Hashtable<Integer, BoardElt> boardElts;
+	private ArrayList<boardnodes.BoardPath> paths;
+	public Stack<BoardAction> pastActions;
+	private Stack<BoardAction> futureActions;
+	private Networking networking;
+	public BoardElt clipboard;
+	public ViewportDragScrollListener _mouseListener;
+	private String _projectName;
 
-    public Backend(String projectName, GUI.WhiteboardPanel _panel) {
-        panel = _panel;
-        _projectName = projectName;
-        pastActions = new Stack<BoardAction>();
-        futureActions = new Stack<BoardAction>();
-        boardElts = new Hashtable<Integer, BoardElt>();
-        paths = new ArrayList<boardnodes.BoardPath>();
-        networking = new Networking();
-        networking.setBackend(this);
-    }
-    
-    public void clear() {
-        pastActions.clear();
-        futureActions.clear();
-        boardElts.clear();
-        paths.clear();
-    }
+	public Backend(String projectName, GUI.WhiteboardPanel _panel) {
+		panel = _panel;
+		_projectName = projectName;
+		pastActions = new Stack<BoardAction>();
+		futureActions = new Stack<BoardAction>();
+		boardElts = new Hashtable<Integer, BoardElt>();
+		paths = new ArrayList<boardnodes.BoardPath>();
+		networking = new Networking();
+		networking.setBackend(this);
+	}
 
-    public void save(File f) {
-        System.out.println("backend: saving to file"); 
-        /* WHAT ELSE NEEDS TO BE SAVED?? */
-        LinkedList<Object> toWriteOut = new LinkedList<Object>();
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
-            for (BoardElt be : this.boardElts.values()) {
-                System.out.println("backend: writing out boardelt of type " + be.type);
-                toWriteOut.add(be.toSerialized());
-            }
-            toWriteOut.add(new SerializedProjectSaveInfo(_projectName, WhiteboardPanel.UIDCounter));
-            oos.writeObject(toWriteOut);
-            oos.close();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-    }
+	public void clear() {
+		pastActions.clear();
+		futureActions.clear();
+		boardElts.clear();
+		paths.clear();
+	}
 
-    public LinkedList<Object> saveForNetwork() {
-        System.out.println("backend: saving to network"); 
-        /* WHAT ELSE NEEDS TO BE SAVED?? */
-        LinkedList<Object> toWriteOut = new LinkedList<Object>();
-        for (BoardElt be : this.boardElts.values()) {
-            System.out.println("backend: writing out boardelt of type " + be.type);
-            toWriteOut.add(be.toSerialized());
-        }
-        toWriteOut.add(new SerializedProjectSaveInfo(_projectName, WhiteboardPanel.UIDCounter));
-        return toWriteOut;
-    }
+	public void save(File f) {
+		System.out.println("backend: saving to file"); 
+		/* WHAT ELSE NEEDS TO BE SAVED?? */
+				LinkedList<Object> toWriteOut = new LinkedList<Object>();
+				try {
+					ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+					for (BoardElt be : this.boardElts.values()) {
+						System.out.println("backend: writing out boardelt of type " + be.type);
+						toWriteOut.add(be.toSerialized());
+					}
+					toWriteOut.add(new SerializedProjectSaveInfo(_projectName, WhiteboardPanel.UIDCounter));
+					oos.writeObject(toWriteOut);
+					oos.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+	}
 
-    public void loadFromNetwork(Object project) {
-        System.out.println("backend: loading project from network");
-        /* Make new whiteboard for opening */
-        clear();
-        panel.clearBoard();
-        SerializedBoardElt be;
-        for (Object o : (LinkedList<Object>) project) {
-            be = (SerializedBoardElt) o;
-            if (be.type == BoardEltType.INFO) {
-                setProjectName(((SerializedProjectSaveInfo) be).projectName);
-            } else {
-                addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
-            }
-        }
-        /* Clear stack upon loading */
-        pastActions.clear();
-        futureActions.clear();
-    }
+	public LinkedList<Object> saveForNetwork() {
+		System.out.println("backend: saving to network"); 
+		/* WHAT ELSE NEEDS TO BE SAVED?? */
+		LinkedList<Object> toWriteOut = new LinkedList<Object>();
+		for (BoardElt be : this.boardElts.values()) {
+			System.out.println("backend: writing out boardelt of type " + be.type);
+			toWriteOut.add(be.toSerialized());
+		}
+		toWriteOut.add(new SerializedProjectSaveInfo(_projectName, WhiteboardPanel.UIDCounter));
+		return toWriteOut;
+	}
 
-    public void load(File f) {
-        System.out.println("backend: loading file");
-        try {
-            /* Make new whiteboard for opening */
-            clear();
-            panel.clearBoard();
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
-            LinkedList<Object> save = (LinkedList<Object>) ois.readObject();
-            SerializedBoardElt be;
-            for (Object o : save) {
-                be = (SerializedBoardElt) o;
-                if (be.type == BoardEltType.INFO) {
-                    setProjectName(((SerializedProjectSaveInfo) be).projectName);
-                    panel.setStartUID(((SerializedProjectSaveInfo) be).startUID);
-                } else {
-                    addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
-                }
-            }
-            /* Clear stack upon loading */
-            pastActions.clear();
-            futureActions.clear();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+	public void loadFromNetwork(Object project) {
+		System.out.println("backend: loading project from network");
+		/* Make new whiteboard for opening */
+		clear();
+		panel.clearBoard();
+		SerializedBoardElt be;
+		for (Object o : (LinkedList<Object>) project) {
+			be = (SerializedBoardElt) o;
+			if (be.type == BoardEltType.INFO) {
+				setProjectName(((SerializedProjectSaveInfo) be).projectName);
+			} else {
+				addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
+			}
+		}
+		/* Clear stack upon loading */
+		pastActions.clear();
+		futureActions.clear();
+	}
 
-    private void setProjectName(String projectName) {
-       _projectName = projectName;
-        panel._mainFrame.setTitle(_projectName);
-    }
+	public void load(File f) {
+		System.out.println("backend: loading file");
+		try {
+			/* Make new whiteboard for opening */
+			clear();
+			panel.clearBoard();
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+			LinkedList<Object> save = (LinkedList<Object>) ois.readObject();
+			SerializedBoardElt be;
+			for (Object o : save) {
+				be = (SerializedBoardElt) o;
+				if (be.type == BoardEltType.INFO) {
+					setProjectName(((SerializedProjectSaveInfo) be).projectName);
+					panel.setStartUID(((SerializedProjectSaveInfo) be).startUID);
+				} else {
+					addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
+				}
+			}
+			/* Clear stack upon loading */
+			pastActions.clear();
+			futureActions.clear();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
-    //Adds the given board elt and adds the "addition" action to the stack
-    public void add(BoardElt b) {
-        b._mouseListener = _mouseListener;
-        boardElts.put(b.getUID(), b);
-        BoardAction committed = new CreationAction(b);
-        addAction(committed);
-        if(b.getType() == BoardEltType.PATH) {
-            paths.add((boardnodes.BoardPath)b);
-        }
-    }
-    public void addFromNetwork(BoardElt b) {
-        b._mouseListener = _mouseListener;
-        boardElts.put(b.getUID(), b);
-        if(b.getType() == BoardEltType.PATH)
-            paths.add((boardnodes.BoardPath)b);
+	private void setProjectName(String projectName) {
+		_projectName = projectName;
+		panel._mainFrame.setTitle(_projectName);
+	}
 
-    }
+	//Adds the given board elt and adds the "addition" action to the stack
+	public void add(BoardElt b) {
+		b._mouseListener = _mouseListener;
+		boardElts.put(b.getUID(), b);
+		BoardAction committed = new CreationAction(b);
+		addAction(committed);
+		if(b.getType() == BoardEltType.PATH) {
+			paths.add((boardnodes.BoardPath)b);
+		}
+	}
+	public void addFromNetwork(BoardElt b) {
+		b._mouseListener = _mouseListener;
+		boardElts.put(b.getUID(), b);
+		if(b.getType() == BoardEltType.PATH)
+			paths.add((boardnodes.BoardPath)b);
 
-    //Returns the board elt with given UID. Returns null if no elt with that UID exists
-    public BoardElt lookup(int UID) {
-        return boardElts.get(UID);
-    }
+	}
 
-    //Returns and removes the board elt with given UID. Returns null if no elt with that UID exists
-    //If the remove happens, then add a "removal" action to the stack
-    public BoardElt remove(int UID) {
-        BoardElt toReturn = boardElts.remove(UID);
-        if(toReturn!=null) {
-            if(toReturn.getType()!=BoardEltType.PATH) {
-                panel.remove(toReturn);
-            }
-            BoardAction committed = new DeletionAction(toReturn);
-            addAction(committed);
-            if (lookup(UID) != null) {
-            } else  {
-                System.err.println("Couldn't find UID of remove and tried to send " + UID);
-            }
-        }
-        panel.repaint();
-        return toReturn;
-    }
+	//Returns the board elt with given UID. Returns null if no elt with that UID exists
+	public BoardElt lookup(int UID) {
+		return boardElts.get(UID);
+	}
 
-    public BoardElt removeFromNetwork(int UID) {
-        BoardElt toReturn = boardElts.remove(UID);
-        if(toReturn!=null) {
-            if(toReturn.getType()!=BoardEltType.PATH) {
-                panel.remove(toReturn);
-            }
-            if (lookup(UID) != null) {
-            } else  {
-                System.err.println("Couldn't find UID of remove and tried to send " + UID);
-            }
-        }
-        panel.repaint();
-        return toReturn;
-    }
+	//Returns and removes the board elt with given UID. Returns null if no elt with that UID exists
+	//If the remove happens, then add a "removal" action to the stack
+	public BoardElt remove(int UID) {
+		BoardElt toReturn = boardElts.remove(UID);
+		if(toReturn!=null) {
+			if(toReturn.getType()!=BoardEltType.PATH) {
+				panel.remove(toReturn);
+			}
+			BoardAction committed = new DeletionAction(toReturn);
+			addAction(committed);
+			if (lookup(UID) != null) {
+			} else  {
+				System.err.println("Couldn't find UID of remove and tried to send " + UID);
+			}
+		}
+		panel.repaint();
+		return toReturn;
+	}
 
-    //Keeps track of the event that the board element with given UID was just modified, so the whiteboard knows which
-    //	one to ask to undo when necessary
-    public void modifyBoardElt(int UID) {
-        BoardElt b = (BoardElt) boardElts.get(UID);
-        if(b!=null) {
-            BoardAction committed = new ModificationAction(b);
-            addAction(committed);
-        }
-    }
+	public BoardElt removeFromNetwork(int UID) {
+		BoardElt toReturn = boardElts.remove(UID);
+		if(toReturn!=null) {
+			if(toReturn.getType()!=BoardEltType.PATH) {
+				panel.remove(toReturn);
+			}
+			if (lookup(UID) != null) {
+			} else  {
+				System.err.println("Couldn't find UID of remove and tried to send " + UID);
+			}
+		}
+		panel.repaint();
+		return toReturn;
+	}
 
-    //Adds the given action to the stack, and erases all future actions because we've started a new "branch"
-    public void addAction(BoardAction ba) {
-        addActionHelper(ba, false);
-    }
+	//Keeps track of the event that the board element with given UID was just modified, so the whiteboard knows which
+	//	one to ask to undo when necessary
+	public void modifyBoardElt(int UID) {
+		BoardElt b = (BoardElt) boardElts.get(UID);
+		if(b!=null) {
+			BoardAction committed = new ModificationAction(b);
+			addAction(committed);
+		}
+	}
 
-    //does same thing as above except doesnt send it as a message across
-    public void addActionFromNetwork(BoardAction ba) {
-        addActionHelper(ba, true);
-    }
+	//Adds the given action to the stack, and erases all future actions because we've started a new "branch"
+	public void addAction(BoardAction ba) {
+		addActionHelper(ba, false);
+	}
 
-    private void addActionHelper(BoardAction ba, boolean fromNetwork) {
-        pastActions.push(ba);
-        futureActions.clear();
-        if(!fromNetwork) {
-            /* VERY IMPORTANT EFFECT WHICK NODES GET SENT ACROSS */
-            if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE || ba.target.getType() == BoardEltType.STYLED) {
-                networking.sendAction(new BoardEltExchange(ba.getTarget().toSerialized(), ba.getType()));
-            }
-        }
-    }
+	//does same thing as above except doesnt send it as a message across
+	public void addActionFromNetwork(BoardAction ba) {
+		addActionHelper(ba, true);
+	}
 
-    //Copies the given element (i.e. sets the clipboard)
-    public void copy(BoardElt b) {
-        clipboard = b.clone();
-    }
+	private void addActionHelper(BoardAction ba, boolean fromNetwork) {
+		pastActions.push(ba);
+		futureActions.clear();
+		if(!fromNetwork) {
+			/* VERY IMPORTANT EFFECT WHICK NODES GET SENT ACROSS */
+			if(ba.target.getType()==BoardEltType.PATH || ba.target.getType() == BoardEltType.SCRIBBLE || ba.target.getType() == BoardEltType.STYLED) {
+				networking.sendAction(new BoardEltExchange(ba.getTarget().toSerialized(), ba.getType()));
+			}
+		}
+	}
 
-    public void paste(Point pos) {
-        System.out.println("pasting "+clipboard);
-        clipboard.paste(pos);
-    }
+	//Copies the given element (i.e. sets the clipboard)
+	public void copy(BoardElt b) {
+		clipboard = b.clone();
+	}
 
-    public Object render() {
-        //TODO: will render everything in each list. Discuss with brandon exactly how I should return this/do this
-        return null;
-    }
+	public void paste(Point pos) {
+		clipboard.paste(pos);
+	}
 
-    public void undo() {
-        undoHelper(false);
-    }
+	public Object render() {
+		//TODO: will render everything in each list. Discuss with brandon exactly how I should return this/do this
+		return null;
+	}
 
-    public void undoFromNetwork() {
-        undoHelper(true);
-    }
+	public void undo() {
+		undoHelper(false);
+	}
 
-    private void undoHelper(boolean fromNetwork) {
+	public void undoFromNetwork() {
+		undoHelper(true);
+	}
 
-        //get the top of the action stack, handle it, and push it to the future actions stack for redo
-        if(pastActions.empty()) {
-            System.out.println("no actions to undo!");
-            return;
-        }
-        if(!fromNetwork)
-            networking.sendAction(new BoardEltExchange(null, BoardActionType.UNDO));
-        BoardAction b = pastActions.pop();
-        BoardElt be;
-        switch(b.getType()) {
-        case ELT_MOD:
-            //			boardElts   
-            //			System.out.println("undoing a modification on node "+b.getTarget());
-            b.getTarget().undo();
-            b.getTarget().repaint();
-            futureActions.push(b);
-            break;
-        case CREATION:
-            //undoing a creation means doing a deletion
-            be = b.getTarget();
-            if(be==null)
-                return;
-            boardElts.remove(be.getUID());
-            if(be.getType()==BoardEltType.PATH) {
-                paths.remove(be);
-            } else {
-                panel.remove(be);
-            }
-            futureActions.push(new CreationAction(be));
-            break;
-        case DELETION:
-            //undoing a deletion means doing a creation
-            be = b.getTarget();
-            if(be==null)
-                return;
-            boardElts.put(be.getUID(), be);
-            if(be.getType()==BoardEltType.PATH) {
-                paths.add((boardnodes.BoardPath)be);
-            } else {
-                panel.add(be);
-            }
-            futureActions.push(new DeletionAction(be));
-            break;
-        }
-        panel.repaint();
-    }
+	private void undoHelper(boolean fromNetwork) {
 
-    public void redo() {
-        redoHelper(false);
-    }
+		//get the top of the action stack, handle it, and push it to the future actions stack for redo
+		if(pastActions.empty()) {
+			System.out.println("no actions to undo!");
+			return;
+		}
+		if(!fromNetwork)
+			networking.sendAction(new BoardEltExchange(null, BoardActionType.UNDO));
+		BoardAction b = pastActions.pop();
+		BoardElt be;
+		switch(b.getType()) {
+		case ELT_MOD:
+			//			boardElts   
+			//			System.out.println("undoing a modification on node "+b.getTarget());
+			b.getTarget().undo();
+			b.getTarget().repaint();
+			futureActions.push(b);
+			break;
+		case CREATION:
+			//undoing a creation means doing a deletion
+			be = b.getTarget();
+			if(be==null)
+				return;
+			boardElts.remove(be.getUID());
+			if(be.getType()==BoardEltType.PATH) {
+				paths.remove(be);
+			} else {
+				panel.remove(be);
+			}
+			futureActions.push(new CreationAction(be));
+			break;
+		case DELETION:
+			//undoing a deletion means doing a creation
+			be = b.getTarget();
+			if(be==null)
+				return;
+			boardElts.put(be.getUID(), be);
+			if(be.getType()==BoardEltType.PATH) {
+				paths.add((boardnodes.BoardPath)be);
+			} else {
+				panel.add(be);
+			}
+			futureActions.push(new DeletionAction(be));
+			break;
+		}
+		panel.repaint();
+	}
 
-    public void redoFromNetwork() {
-        redoHelper(true);
-    }
+	public void redo() {
+		redoHelper(false);
+	}
 
-    private void redoHelper(boolean fromNetwork) {
-        //get the top of the action stack, handle it, and push it to the past actions stack for undo
-        if(futureActions.empty()) {
-            System.out.println("no actions to redo!");
-            return;
-        }
-        if(!fromNetwork)
-            networking.sendAction(new BoardEltExchange(null, BoardActionType.REDO));
-        BoardElt be;
-        BoardAction b = futureActions.pop();
-        switch(b.getType()) {
-        case ELT_MOD:
-            b.getTarget().redo();
-            b.getTarget().repaint();
-            pastActions.push(b);
-            break;
-        case CREATION:
-            //redoing a creation means doing a creation
-            be = b.getTarget();
-            if(be==null)
-                return;
-            boardElts.put(be.getUID(), be);
-            if(be.getType()==BoardEltType.PATH) {
-                paths.add((boardnodes.BoardPath)be);
-            } else {
-                panel.add(be);
-            }
-            pastActions.push(new CreationAction(be));
-            break;			
-        case DELETION:
-            //redoing a deletion means doing a deletion
-            be = b.getTarget();
-            if(be==null)
-                return;
-            boardElts.remove(be.getUID());
-            if(be.getType()==BoardEltType.PATH) {
-                paths.remove(be);
-            } else {
-                panel.remove(be);
-            }
-            pastActions.push(new DeletionAction(be));
-            break;
-        }
-        panel.repaint();
-    }
+	public void redoFromNetwork() {
+		redoHelper(true);
+	}
 
-    public Networking getNetworking() {
-        return networking;
-    }
+	private void redoHelper(boolean fromNetwork) {
+		//get the top of the action stack, handle it, and push it to the past actions stack for undo
+		if(futureActions.empty()) {
+			System.out.println("no actions to redo!");
+			return;
+		}
+		if(!fromNetwork)
+			networking.sendAction(new BoardEltExchange(null, BoardActionType.REDO));
+		BoardElt be;
+		BoardAction b = futureActions.pop();
+		switch(b.getType()) {
+		case ELT_MOD:
+			b.getTarget().redo();
+			b.getTarget().repaint();
+			pastActions.push(b);
+			break;
+		case CREATION:
+			//redoing a creation means doing a creation
+			be = b.getTarget();
+			if(be==null)
+				return;
+			boardElts.put(be.getUID(), be);
+			if(be.getType()==BoardEltType.PATH) {
+				paths.add((boardnodes.BoardPath)be);
+			} else {
+				panel.add(be);
+			}
+			pastActions.push(new CreationAction(be));
+			break;			
+		case DELETION:
+			//redoing a deletion means doing a deletion
+			be = b.getTarget();
+			if(be==null)
+				return;
+			boardElts.remove(be.getUID());
+			if(be.getType()==BoardEltType.PATH) {
+				paths.remove(be);
+			} else {
+				panel.remove(be);
+			}
+			pastActions.push(new DeletionAction(be));
+			break;
+		}
+		panel.repaint();
+	}
 
-    public GUI.WhiteboardPanel getPanel() {
-        return panel;
-    }
+	public Networking getNetworking() {
+		return networking;
+	}
 
-    public ArrayList<boardnodes.BoardPath> getPaths() {
-        return paths;
-    }
-    /**
-     * @author aabeshou
-     * call boardelt.encode on all of the elements in the board, and concatenate them all into one XML string that this will return
-     * @return
-     * An XML string encoding the whiteboard.
-     */
-    public String encode() {
-        return null;
-    }
+	public GUI.WhiteboardPanel getPanel() {
+		return panel;
+	}
 
-    public static Backend decode() {
-        return null;
-        //TODO: take in XML/JSON and create a whiteboard object out of it, compelte with all the elements that are in it
-    }
+	public ArrayList<boardnodes.BoardPath> getPaths() {
+		return paths;
+	}
+	/**
+	 * @author aabeshou
+	 * call boardelt.encode on all of the elements in the board, and concatenate them all into one XML string that this will return
+	 * @return
+	 * An XML string encoding the whiteboard.
+	 */
+	public String encode() {
+		return null;
+	}
 
-    //returns a map from elements that contain the term to the first index of that term in the element's text field
-    public ArrayList<SearchResult> search(String query) {
-        ArrayList<SearchResult> toReturn = new ArrayList<SearchResult>();
-        for(BoardElt b: boardElts.values()) {
-            toReturn.addAll(b.search(query));
-        }
-        return toReturn;
-    }
+	public static Backend decode() {
+		return null;
+		//TODO: take in XML/JSON and create a whiteboard object out of it, compelte with all the elements that are in it
+	}
 
-    /**callback for when the networking object associated with
-     * this backend has received a new Object reflecting a change 
-     * in the state of the hosted Whiteboard.
-     * We simply replace our outdated object with the one
-     * contained in this BoardEltExchange object
-     * 
-     * @param receivedAction
-     */
-    public void receiveNetworkedObject(Object receivedAction) {
-        BoardEltExchange bex = (BoardEltExchange) receivedAction;
-        SerializedBoardElt serializedElt = bex.getNode();
-        BoardActionType type = bex.getAction();
-        BoardAction action = null;
-        switch (type) {
-        case IN_USE:
-            System.out.print("Backend: receiving that someone is using a node");
-            SerializedInUse siu = (SerializedInUse) serializedElt;
-            boolean isBeingUsed = siu.isInUse;
-            int node = siu.getUID();
-            BoardElt boardNode = boardElts.get(node);
-            if (boardNode != null)
-                boardNode.setBeingEditedStatus(isBeingUsed);
-            break;
-        case CREATION:
-            action = new CreationAction(receiveNetworkCreationObject(serializedElt));
-            addActionFromNetwork(action);
-            break;
-        case ELT_MOD:
-            action = new ModificationAction(receiveNetworkModificationObject(serializedElt));
-            addActionFromNetwork(action);
-            break;
-        case DELETION:
-            action = new DeletionAction(receiveNetworkDeletionObject(serializedElt));
-            addActionFromNetwork(action);
-            break;
-        case REDO:
-            redoFromNetwork();
-            break;
-        case UNDO:
-            undoFromNetwork();
-            break;
-        }
+	//returns a map from elements that contain the term to the first index of that term in the element's text field
+	public ArrayList<SearchResult> search(String query) {
+		ArrayList<SearchResult> toReturn = new ArrayList<SearchResult>();
+		for(BoardElt b: boardElts.values()) {
+			toReturn.addAll(b.search(query));
+		}
+		return toReturn;
+	}
 
-        /*
+	/**callback for when the networking object associated with
+	 * this backend has received a new Object reflecting a change 
+	 * in the state of the hosted Whiteboard.
+	 * We simply replace our outdated object with the one
+	 * contained in this BoardEltExchange object
+	 * 
+	 * @param receivedAction
+	 */
+	public void receiveNetworkedObject(Object receivedAction) {
+		System.out.println("backend: received callback from networking");
+		BoardEltExchange bex = (BoardEltExchange) receivedAction;
+		SerializedBoardElt serializedElt = bex.getNode();
+		BoardActionType type = bex.getAction();
+		BoardAction action = null;
+		switch (type) {
+		case IN_USE:
+			System.out.print("Backend: receiving that someone is using a node");
+			SerializedInUse siu = (SerializedInUse) serializedElt;
+			boolean isBeingUsed = siu.isInUse;
+			int node = siu.getUID();
+			BoardElt boardNode = boardElts.get(node);
+			System.out.println(" UID is " + node + " object null? " + (boardNode == null) + ", used? " + isBeingUsed);
+			if (boardNode != null)
+				boardNode.setBeingEditedStatus(isBeingUsed);
+			break;
+		case CREATION:
+			action = new CreationAction(receiveNetworkCreationObject(serializedElt));
+			addActionFromNetwork(action);
+			break;
+		case ELT_MOD:
+			action = new ModificationAction(receiveNetworkModificationObject(serializedElt));
+			addActionFromNetwork(action);
+			break;
+		case DELETION:
+			action = new DeletionAction(receiveNetworkDeletionObject(serializedElt));
+			addActionFromNetwork(action);
+			break;
+		case REDO:
+			redoFromNetwork();
+			break;
+		case UNDO:
+			undoFromNetwork();
+			break;
+		}
+
+		/*
 		if (nodeToReplace.getType() != BoardEltType.PATH) {
 			//panel.updateMember(nodeToReplace);
 		}
@@ -529,13 +530,10 @@ public class Backend {
 	}
 
 	public void centerNode(BoardElt boardElt) {
-		//TODO: why isn't this working?
-		 System.out.println("CENTERNODE");
-		 System.out.println(panel.getVisibleRect());
-		 Rectangle elementBounds = boardElt.getBounds();
-		 Rectangle visibleRect = panel.getVisibleRect();
-		 visibleRect.setLocation(elementBounds.x-(visibleRect.width/2)+(elementBounds.width)/2, elementBounds.y-(visibleRect.height)/2+(elementBounds.height)/2);
-		 panel.scrollRectToVisible(visibleRect);
+		Rectangle elementBounds = boardElt.getBounds();
+		Rectangle visibleRect = panel.getVisibleRect();
+		visibleRect.setLocation(elementBounds.x-(visibleRect.width/2)+(elementBounds.width)/2, elementBounds.y-(visibleRect.height)/2+(elementBounds.height)/2);
+		panel.scrollRectToVisible(visibleRect);
 	}
 
 	public void alertEditingStatus(BoardElt b, boolean isInUse) {

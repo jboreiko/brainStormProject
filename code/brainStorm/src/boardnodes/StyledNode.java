@@ -17,12 +17,14 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
@@ -151,7 +153,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				content.requestFocusInWindow();
 			}
 		});
-
 		revalidate();
 		view.revalidate();
 		repaint();

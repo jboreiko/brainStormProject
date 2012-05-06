@@ -37,7 +37,7 @@ public class WhiteboardPanel extends JPanel{
 	private boolean _contIns;
 	private Backend _backend;
 	public ViewportDragScrollListener _mouseListener;
-	
+
 	private Point _addLocation; //the location you should add the next BoardElt to
 
 	private JPopupMenu _rightClickMenu; //the options when a user right-clicks
@@ -55,16 +55,16 @@ public class WhiteboardPanel extends JPanel{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		_rightClickMenu = initPopupMenu();
 	}
-	
+
 	public Backend getBackend() {
 		return _backend;
 	}
-	
+
 	public void displayContextMenu(Point display) {
 		_addLocation = display;
 		_rightClickMenu.show(this, display.x, display.y);
 	}
-	
+
 	//initialize the right-click menu to allow for adding of nodes
 	private JPopupMenu initPopupMenu() {
 		JPopupMenu popup = new JPopupMenu("Context Menu");
@@ -75,7 +75,7 @@ public class WhiteboardPanel extends JPanel{
 			}
 		});
 		popup.add(styledNodeMenuItem);
-		
+
 		JMenuItem drawNodeMenuItem = new JMenuItem("Add Scribble Node");
 		drawNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -91,7 +91,7 @@ public class WhiteboardPanel extends JPanel{
 			}
 		});
 		popup.add(addPathItem);
-		
+
 		JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
 		dottedPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -99,7 +99,7 @@ public class WhiteboardPanel extends JPanel{
 			}
 		});
 		popup.add(dottedPathItem);
-		
+
 		JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
 		arrowPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -107,7 +107,7 @@ public class WhiteboardPanel extends JPanel{
 			}
 		});
 		popup.add(arrowPathItem);
-		
+
 		JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
 		dottedArrowPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -115,10 +115,10 @@ public class WhiteboardPanel extends JPanel{
 			}
 		});
 		popup.add(dottedArrowPathItem);
-		
+
 		return popup;
 	}
-	
+
 	/**
 	 * 
 	 * @param obtrusion		the shape that may or may not extend beyond the bounds of this panel
@@ -141,7 +141,7 @@ public class WhiteboardPanel extends JPanel{
 		if(_contIns){
 			_addLocation = p;
 			if(_lastAdded == 0){
-				
+
 			}
 			else if(_lastAdded == WhiteboardPanel.SCRIBBLE){
 				newElt(BoardEltType.SCRIBBLE, BoardPathType.NORMAL);
@@ -154,12 +154,12 @@ public class WhiteboardPanel extends JPanel{
 		}
 		//repaint();
 	}
-	
+
 	public void setStartUID(int id) {
 		WhiteboardPanel.UIDCounter = id;
 		System.out.println("uid counter is now "+WhiteboardPanel.UIDCounter);
 	}
-	
+
 	//boardpathtype only has to be specified when adding a path
 	private void newElt(BoardEltType b, BoardPathType bpt) {
 		//extendPanel(); //taken out when extendPanel changed to accept rect
@@ -209,11 +209,11 @@ public class WhiteboardPanel extends JPanel{
 		}
 		repaint();
 	}
-	
+
 	public void undo() {
 		_backend.undo();
 	}
-	
+
 	public void redo() {
 		_backend.redo();
 	}
@@ -234,5 +234,8 @@ public class WhiteboardPanel extends JPanel{
 		remove(_backend.lookup(id));
 		add(_backend.lookup(id), 0);
 		repaint();
+	}
+	public void clearBoard(){
+		this.removeAll();
 	}
 }

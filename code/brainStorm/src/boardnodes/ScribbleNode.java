@@ -54,6 +54,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		setPreferredSize(new Dimension(200,150));
 		setSize(150,200);
 		type = BoardEltType.SCRIBBLE;
+		//_pendingStroke = new LinkedList<ColoredPoint>();
 		this.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -178,7 +179,6 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 				_pendingStroke.add(new ColoredPoint(e.getPoint(), Color.WHITE));
 			}
 		}
-		System.out.println("DRAGGING");
 		repaint();
 		backend.getPanel().repaint();
 		revalidate();

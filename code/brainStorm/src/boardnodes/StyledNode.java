@@ -471,8 +471,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		content.setText(ssn.text);
 		lastText = ssn.lastText;
 		lastFont = ssn.lastFont;
-		//undos = ssn.undos;
-		//redos = ssn.redos;
+		undos = ssn.undos;
+		redos = ssn.redos;
 		repaint();
 		content.repaint();
 		view.revalidate();

@@ -1,5 +1,6 @@
 package networking;
 
+import java.awt.Color;
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -158,10 +159,40 @@ public class Host extends Thread{
             System.out.println("server: client already has received an id ERROR");
         }
     }
+    
+    public Color pickColor() {
+    	Color color;
+    	switch(activeUsers.size()) {
+    	case 0:
+    		color = new Color(2, 65, 237);
+    		break;
+    	case 1:
+    		color = new Color(2, 237, 65);
+    		break;
+    	case 2:
+    		color = new Color(189, 21, 9);
+    		break;
+    	case 3:
+    		color = new Color(100, 25, 191);
+    		break;
+    	case 4:
+    		color = new Color(240, 185, 5);
+    		break;
+    	case 5:
+    		color = new Color(247, 129, 232);
+    		break;
+    	default:
+    		color = new Color(2, 237, 65);
+    		break;
+    	}
+    	return color;
+    }
 
     @SuppressWarnings("unchecked")
     private void registerClient(ClientHandler ch) {
-        activeUsers.add(new ClientInfo(ch.ip, ch.id, ch.username));
+    	Color color = pickColor();
+    	System.out.println("COLOR:    " + color);
+        activeUsers.add(new ClientInfo(ch.ip, ch.id, ch.username, color));
         System.out.println(activeUsers.size());
         broadcastMessage(new UpdateUsersMessage(0, (LinkedList<ClientInfo>) activeUsers.clone()), null);
     }

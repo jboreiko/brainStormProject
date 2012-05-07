@@ -224,6 +224,7 @@ public class SuggestGUI extends JPanel {
 							} catch (BadLocationException e2) {
 								e2.printStackTrace();
 							}
+							
 						}
 						else {
 							// handle port error
@@ -431,6 +432,15 @@ public class SuggestGUI extends JPanel {
 		_portLabel.setText("Port:  " + port);
 	}
 	
+	public ClientInfo getCurrentClientInfo() {
+		for(ClientInfo ci:activeUsers) {
+			if (ci.username.equals(_usernameField.getText())) {
+				return ci;
+			}
+		}
+		return null;
+	}
+	
 	// Customized entering and exiting methods below
 	
 //	// networking needs to call me please
@@ -608,7 +618,13 @@ public class SuggestGUI extends JPanel {
 			StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
 			doc.setParagraphAttributes(doc.getLength(), text.length(), set, true);
 			StyleConstants.setBold(set, true);
-			StyleConstants.setForeground(set, Color.BLUE);
+			Color color = Color.BLACK;
+			for(ClientInfo ci:activeUsers) {
+				if (ci.username.equals(_usernameField.getText())) {
+					color = ci.color;
+				}
+			}
+			StyleConstants.setForeground(set, color);
 			StyleConstants.setFontSize(set, 16);
 			try {
 				doc.insertString(doc.getLength(), "Me:   ", set);
@@ -632,6 +648,7 @@ public class SuggestGUI extends JPanel {
 	    activeUsers = users;
 	    activeUserList.setText("");
 	    for (ClientInfo ci : activeUsers) {
+//	    	System.out.println(ci.color);
 	        activeUserList.append(ci.username + "\n");
 	    }
 	}
@@ -644,7 +661,13 @@ public class SuggestGUI extends JPanel {
 		StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
 		doc.setParagraphAttributes(doc.getLength(), message.length(), set, true);
 		StyleConstants.setBold(set, true);
-		StyleConstants.setForeground(set, Color.GREEN);
+		Color color = Color.BLACK;
+		for(ClientInfo ci:activeUsers) {
+			if (ci.username.equals(username)) {
+				color = ci.color;
+			}
+		}
+		StyleConstants.setForeground(set, color);
 		StyleConstants.setFontSize(set, 16);
 		try {
 			doc.insertString(doc.getLength(), username + ":   ", set);

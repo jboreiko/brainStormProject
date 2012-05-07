@@ -199,9 +199,9 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			@Override
 			public void focusLost(FocusEvent e) {
 				System.out.println("Lost focus " + this);
-				if (!content.isEditable())
+				if (!content.isEditable()) {
 					return;
-
+				}
 				content.revalidate();
 				if (!lastText.equals(content.getText()) || !lastFont.equals(content.getFont())) { //send changes over the network
 					System.out.println("Adding to the undo stack");
@@ -211,6 +211,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 					backend.alertEditingStatus(StyledNode.this, false);
 					notifyBackend(BoardActionType.ELT_MOD);
 				}
+				backend.alertEditingStatus(StyledNode.this, false);
 			}
 
 

@@ -64,7 +64,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
 		BORDER_WIDTH = 10;
-		autoBullet = true;
+		autoBullet = false;
 		_fontMenu = new JPopupMenu();
 		popup = new JPopupMenu();
 
@@ -117,7 +117,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			_fontSizeMenu.add(fontSize);
 		}
 		
-		final JMenuItem bulletMenu = new JMenuItem("Turn Off Bullets");
+		final JMenuItem bulletMenu = new JMenuItem("Turn On Bullets");
 		bulletMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -235,7 +235,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	private JTextPane createEditorPane() {
 		text = new DefaultStyledDocument();
 		try {
-			text.insertString(0, "\u2022 ", null);
+			//text.insertString(0, "\u2022 ", null);
+			text.insertString(0, "", null);
 			//text.insertString(text.getLength(), "\n\u2022 Fill it in", null);
 		} catch (BadLocationException e) {
 			e.printStackTrace();

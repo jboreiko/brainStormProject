@@ -80,6 +80,7 @@ class Client extends Thread{
 		//InetAddress addr = null;
 		Socket sock = null;
 		sock = new Socket(addrName, port);
+		sock.setSoTimeout(100);
 		return sock;
 	}
 

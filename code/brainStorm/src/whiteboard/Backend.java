@@ -137,7 +137,7 @@ public class Backend {
 		}
 	}
 
-	private void setProjectName(String projectName) {
+	public void setProjectName(String projectName) {
 		_projectName = projectName;
 		panel._mainFrame.setTitle(_projectName);
 	}

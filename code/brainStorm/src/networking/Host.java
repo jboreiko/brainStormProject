@@ -16,7 +16,8 @@ import networking.NetworkMessage.Type;
  **********************************************************/
 public class Host extends Thread{
     private int localport;               //The local port the server will listen on.
-    private ServerSocket serverSocket;   //The socket the server will accept connections on.
+    private ServerSocket serverSocket;   //The socket the server will accept connections on
+    private final int MAX_CLIENTS = 6;
 
     private static int START_UID = 0;
     private static final int ELTS_PER_CLIENT = 5000;
@@ -97,11 +98,16 @@ public class Host extends Thread{
         while(true)	{
             try {
                 System.out.println("server: waiting to accept client");
-                clientSocket = serverSocket.accept();
-                handler = new ClientHandler(this, clientSocket);
-                clients.add(handler);
-                System.out.println("server: starting new client handler");
-                handler.start();
+                if (activeUsers.size() <= MAX_CLIENTS) {
+                    clientSocket = serverSocket.accept();
+                    System.out.println("server: accepting, new client and starting new client handler");
+                    handler = new ClientHandler(this, clientSocket);
+                    clients.add(handler);
+                    handler.start();
+                } else {
+                    //We have reached the capacity, drop the client
+                    //System.out.println("server: at capacity, rejecting client");
+                }
             } catch (IOException e) {
                 System.out.println("server: closing serversocket and shuting down");
                 break;
@@ -129,6 +135,13 @@ public class Host extends Thread{
     public synchronized void respondHandshake(Handshake message, ClientHandler clientHandler) {
         if (message.sender_id == -1) {
             String username = message.client_username;
+            for (ClientInfo ci : activeUsers) {
+                if (ci.username.equals(username)) {
+                    System.out.println("server: client attempted to use an already in use username :" + username);
+                    clientHandler.send(message);
+                    return;
+                }
+            }
             int temp = getNextOpenId();
             //System.out.println("server: replying to handshake with id: " + temp);
             clientHandler.setUsernameAndId(username, temp);

@@ -189,7 +189,6 @@ class Client extends Thread{
          * Make sure to catch exceptions.      
          ***********************************************************************/
         public ClientWriteThread() {
-            /* TODO */
             try {
                 //writer = new PrintWriter(socket.getOutputStream());
                 writer = new ObjectOutputStream(socket.getOutputStream());
@@ -320,6 +319,11 @@ class Client extends Thread{
                         chatReceived.offer((ChatMessage) message);
                     } else if (message.type == Type.HANDSHAKE) {
                         clientId = ((Handshake) message).client_id;
+                        if (clientId == -1) {
+                            //Error condition, username is already in use
+                            //_net._suggestPanel
+                           signOff();
+                        }
                         System.out.println("client: udpate start uid to: "+((Handshake) message).getStartUID());
                         _net.getBackend().setStartUID(((Handshake) message).getStartUID());
                         System.out.println("client: update id to: " + clientId);
@@ -337,7 +341,6 @@ class Client extends Thread{
                     break;
                 }
             }
-            /* TODO */
         }
     }
 }

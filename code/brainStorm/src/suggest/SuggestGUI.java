@@ -69,7 +69,7 @@ public class SuggestGUI extends JPanel {
 	private BlockingQueue<String> _bqueue;
 	private SuggestThread _suggestThread;
 	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton, _backButton, _sourceButton;
-	private int _role, _defaultPort;
+	private int _role, _defaultPort, _chatHeight;
 	private ArrayList<ClickText> _textList;
 	private Stack<String> _back;
 	private ResultsPanel resultsPanel;
@@ -92,6 +92,8 @@ public class SuggestGUI extends JPanel {
 		
 		mainFrame = main;
 		_originalSize = mainFrame.getSize().getHeight();
+		
+		_chatHeight = (int) (_originalSize - 450);
 		
 		buildSuggestTab();
 		buildNetworkTab();
@@ -361,7 +363,7 @@ public class SuggestGUI extends JPanel {
 		_chatPane = createChatPane();
 		_chatScrollPane = new JScrollPane(_chatPane);
 		_chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_chatScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, CHAT_HEIGHT));
+		_chatScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _chatHeight));
 		chatPanel.add(_chatScrollPane);
 		JPanel messagePanel = new JPanel();
 		_chatMessage = new JTextArea(5, 20);
@@ -584,13 +586,13 @@ public class SuggestGUI extends JPanel {
 		System.out.println("height:  " + height);
 		System.out.println("delta:  " + delta);
 		_wikiScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
-		_wikiPane.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
+		_wikiPane.setSize(CHAT_WIDTH, SUGGEST_HEIGHT-delta);
 		_duckScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
-		duckoutput.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
+		duckoutput.setSize(CHAT_WIDTH, SUGGEST_HEIGHT-delta);
 		_dictScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
-		dictoutput.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
-		_chatScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, CHAT_HEIGHT-delta));
-		_chatPane.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
+		dictoutput.setSize(CHAT_WIDTH, SUGGEST_HEIGHT-delta);
+		_chatScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _chatHeight-delta));
+		_chatPane.setSize(CHAT_WIDTH, _chatHeight-delta);
 		_suggestPanel.repaint();
 		_networkPanel.repaint();
 		repaint();

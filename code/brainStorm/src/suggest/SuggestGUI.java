@@ -320,7 +320,7 @@ public class SuggestGUI extends JPanel {
 		_chatPane = createChatPane();
 		_chatScrollPane = new JScrollPane(_chatPane);
 		_chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_chatScrollPane.setPreferredSize(new Dimension(340, 600));
+		_chatScrollPane.setPreferredSize(new Dimension(340, 500));
 		chatPanel.add(_chatScrollPane);
 		JPanel messagePanel = new JPanel();
 		_chatMessage = new JTextArea(5, 20);

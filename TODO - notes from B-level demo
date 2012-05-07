@@ -3,6 +3,7 @@ Suggest (left) side should shrink dynamically
 Path should be copy-able
 Find bug: not highlighting ALL results
 Too hard to find exact point when you delete a path
+.storm files
 
 possible:
   different colors for different editors

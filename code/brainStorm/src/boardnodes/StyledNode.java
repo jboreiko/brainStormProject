@@ -116,11 +116,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			_fontSizeMenu.add(fontSize);
 		}
 		
-		JMenuItem bulletMenu = new JMenuItem("Toggle Bullets");
+		final JMenuItem bulletMenu = new JMenuItem("Turn Off Bullets");
 		bulletMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				autoBullet = !autoBullet;
+				bulletMenu.setText("Turn " + (autoBullet ? "Off" : "On") + " Bullets");
 			}
 		});
 

@@ -93,7 +93,7 @@ public class SuggestGUI extends JPanel {
 		mainFrame = main;
 		_originalSize = mainFrame.getSize().getHeight();
 		
-		_chatHeight = (int) (_originalSize - 450);
+		_chatHeight = (int) (_originalSize - 480);
 		
 		buildSuggestTab();
 		buildNetworkTab();

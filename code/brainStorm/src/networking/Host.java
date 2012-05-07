@@ -21,7 +21,7 @@ public class Host extends Thread{
     private static int START_UID = 0;
     private static final int ELTS_PER_CLIENT = 5000;
     private LinkedList<ClientHandler> clients; //The list of currently connected clients.
-    private Queue<ClientInfo> recoveryPriority;
+    private LinkedList<ClientInfo> activeUsers;
     public Client localClient;
     private int hostId = 0;
     
@@ -37,7 +37,7 @@ public class Host extends Thread{
     	serverSocket = new ServerSocket(localport);
     	clients = new LinkedList<ClientHandler>();
     	localClient = new Client("localhost", localport, username, net);
-    	recoveryPriority = new LinkedList<ClientInfo>();
+    	activeUsers = new LinkedList<ClientInfo>();
     	localClient.start();
     	openId = 1;
     }
@@ -131,9 +131,21 @@ public class Host extends Thread{
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void registerClient(ClientHandler ch) {
-		recoveryPriority.add(new ClientInfo(ch.ip, ch.id, ch.username));
+		activeUsers.add(new ClientInfo(ch.ip, ch.id, ch.username));
+		System.out.println(activeUsers.size());
+        broadcastMessage(new UpdateUsersMessage(0, (LinkedList<ClientInfo>) activeUsers.clone()), null);
 	}
+    private void unregisterClient(ClientHandler ch) {
+        for (ClientInfo ci : activeUsers) {
+            if (ci.id == ch.id) {
+                activeUsers.remove(ci);
+                break;
+            }
+        }
+        broadcastMessage(new UpdateUsersMessage(0, activeUsers), null);
+    }
 
 	/**************************************************************************
      * Remove the given client from the clients list.
@@ -141,6 +153,7 @@ public class Host extends Thread{
      * Return whether the client was found or not.
      **************************************************************************/
     public synchronized boolean removeClient(ClientHandler client) {
+        unregisterClient(client);
     	if (clients.contains(client)) {
     		return clients.remove(client);
     	}

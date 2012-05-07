@@ -311,6 +311,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		lastText = "\u2022 ";
 		lastFont = toReturn.getFont();
 		undos.push(new StyledNodeEdit(lastText, lastFont));
+		toReturn.setCaretPosition(toReturn.getDocument().getLength());
 		toReturn.grabFocus();
 		return toReturn;
 	}

@@ -169,10 +169,10 @@ public class Host extends Thread{
         for (ClientInfo ci : activeUsers) {
             if (ci.id == ch.id) {
                 activeUsers.remove(ci);
+                broadcastMessage(new UpdateUsersMessage(0, activeUsers), null);
                 break;
             }
         }
-        broadcastMessage(new UpdateUsersMessage(0, activeUsers), null);
     }
 
     /**************************************************************************

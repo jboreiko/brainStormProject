@@ -285,7 +285,6 @@ public class SuggestGUI extends JPanel {
 							_ipField.setEnabled(false);
 							_beHostButton.setEnabled(false);
 							_joinButton.setEnabled(false);
-							retryUsername();
 							SimpleAttributeSet set = new SimpleAttributeSet();
 							StyleConstants.setFontSize(set, 18);
 							StyleConstants.setForeground(set, Color.CYAN);
@@ -294,7 +293,7 @@ public class SuggestGUI extends JPanel {
 							StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
 							doc.setParagraphAttributes(doc.getLength(), 15, set, true);
 							try {
-								doc.insertString(doc.getLength(), "You just joined the Brainstrom!\n", set);
+								doc.insertString(doc.getLength(), "You just joined the Brainstorm!\n", set);
 							} catch (BadLocationException e2) {
 								e2.printStackTrace();
 							}
@@ -421,6 +420,7 @@ public class SuggestGUI extends JPanel {
 	// networking should call me
 	public String retryUsername() {
 		String ret = JOptionPane.showInputDialog(_networkPanel, "The username, "+ _usernameField.getText() + ", you choose is already being used. Please pick another.", "");
+		if (ret != null) _usernameField.setText(ret);
 		return ret;
 	}
 	

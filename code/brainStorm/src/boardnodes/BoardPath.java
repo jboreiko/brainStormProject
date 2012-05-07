@@ -18,9 +18,10 @@ public class BoardPath extends BoardElt {
 	public final static double ARROW_ANGLE = Math.PI/4;
 	public final static int DRAG_RADIUS = 20; //the size of the zone you can click to start dragging
 	public final static int DRAG_SQUARE_RADIUS = (int) (DRAG_RADIUS/1.7); //the size of the marker of the zone you can click to start dragging (needs to be a bit smaller)
-	public final static int SNAP_CIRCLE_RADIUS = 10;
-	final static BasicStroke dashedStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f}, 0.0f);
-	final static BasicStroke normalStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+	public final static int SNAP_CIRCLE_RADIUS = 17;
+	final static Color pathColor = Color.WHITE;
+	final static BasicStroke dashedStroke = new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f}, 0.0f);
+	final static BasicStroke normalStroke = new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	public final static Color START_COLOR = new Color(Color.GREEN.getRed(),Color.GREEN.getGreen(),Color.GREEN.getBlue(),210);
 	public final static Color END_COLOR = new Color(Color.YELLOW.getRed(),Color.YELLOW.getGreen(),Color.YELLOW.getBlue(),210);
 	public final static Color DELETE_COLOR = Color.RED;
@@ -151,7 +152,7 @@ public class BoardPath extends BoardElt {
 			_terminal.translate(xoff, yoff);
 		}
 
-		g2.setColor(Color.BLACK);
+		g2.setColor(pathColor);
 		if(_snapSeminal!=null) {
 			g2.fillOval(_seminal.x - SNAP_CIRCLE_RADIUS/2, _seminal.y - SNAP_CIRCLE_RADIUS/2, SNAP_CIRCLE_RADIUS, SNAP_CIRCLE_RADIUS);
 			//draw a black circle to show snappiness

@@ -62,6 +62,13 @@ public class MainFrame extends JFrame {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(0,0,screenSize.width,screenSize.height);
 
+     
+        fc = new JFileChooser();
+
+        //whiteboard.newProject
+        this.setTitle(projectName);
+        _whiteboard = new WhiteboardPanel(projectName, this);
+        
         _interfacePane = new InterfacePanel(_whiteboard);
         Dimension interfaceSize = new Dimension(350, screenSize.height);
         _interfacePane.setPreferredSize(interfaceSize);
@@ -75,11 +82,8 @@ public class MainFrame extends JFrame {
         _interfacePane.add(_suggestPanel);
 
         add(_interfacePane, BorderLayout.WEST);
-        fc = new JFileChooser();
-
-        //whiteboard.newProject
-        this.setTitle(projectName);
-        _whiteboard = new WhiteboardPanel(projectName, this);
+        
+        
         _suggestPanel.setBackend(_whiteboard.getBackend());
         int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
         int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;

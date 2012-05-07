@@ -113,7 +113,6 @@ public class MainFrame extends JFrame {
 
         //whiteboard.newProject
         this.setTitle(projectName);
-        _whiteboard = new WhiteboardPanel(projectName, this);
         _suggestPanel.setBackend(_whiteboard.getBackend());
         int v = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
         int h = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;

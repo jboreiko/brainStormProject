@@ -30,7 +30,6 @@ public class InterfacePanel extends JPanel {
 		public ContinuousInsertionListener(){
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("changing");
 			_whiteboard._mouseListener.toggleContInsertion();
 		}
 	}

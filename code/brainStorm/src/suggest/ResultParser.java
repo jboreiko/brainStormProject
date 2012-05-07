@@ -166,7 +166,7 @@ public class ResultParser {
 	    String article = revisionObj.getString("*");
 	    
 	    // TODO handle redirects
-	    if (article.startsWith("#REDIRECT")) {
+	    if (article.startsWith("#REDIRECT") || article.startsWith("#redirect")) {
 	    	return article;
 	    }
 	    
@@ -176,6 +176,7 @@ public class ResultParser {
 	    article = removeFiles(article);
 	    article = removeTags(article);
 	    article  = removeTagBraces(article);
+	    article = removeDouble(article);
 	    while (article.startsWith("\n") || article.startsWith(":") || article.startsWith(" ")) {
 	    	article = article.substring(1, article.length());
 	    }
@@ -191,33 +192,9 @@ public class ResultParser {
 	    
 	    
 	    indexOf = article.indexOf("==");
-	    article = article.substring(0, indexOf);
-	    
-	    
-//	    substring = "";
-//	    int index = article.indexOf("'''");
-//	    System.out.println(index);
-//	    
-//	    
-//	    
-//	    // TODO handle parsing
-//	    //done briefly below
-//	    int index2 = article.indexOf("==", index);
-//	    System.out.println(index2);
-//	    if (index < 0 || index2 < 0) {
-//	    	System.out.println("WHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHYYYYYYYYYYYYYYYYYYYYYYYYY");
-//	    	System.out.println(article);
-//	    	System.out.println("WHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHYYYYYYYYYYYYYYYYYYYYYYYYY");
-//	    }
-//	    else {
-//	    	article = article.substring(index, index2);
-//	    }
-	    //remove <*> tags
-//	    while (text.contains("<")) {
-//	    	int indexOf = text.indexOf("<");
-//	    	int indexOf2 = text.indexOf(">");
-//	    	text= text.substring(0,indexOf) + text.substring(indexOf2+1, text.length());
-//	    }
+	    if (indexOf >=0) {
+	    	article = article.substring(0, indexOf);
+	    }
 	    
 		return article;
 	}
@@ -234,7 +211,11 @@ public class ResultParser {
 				index2 = sb.indexOf("]]", index2+2);
 				index3 = sb.indexOf("[[", index3+2);
 			}
-			sb.delete(index, index2+2);
+			if (index >= 0 && index2 >= 0) {
+				sb.delete(index, index2+2);
+			} else {
+				break;
+			}
 			
 			index = sb.indexOf("[[Image:");
 		}
@@ -253,8 +234,11 @@ public class ResultParser {
 				index2 = sb.indexOf("]]", index2+2);
 				index3 = sb.indexOf("[[", index3+2);
 			}
-			sb.delete(index, index2+2);
-			
+			if (index >= 0 && index2 >= 0) {
+				sb.delete(index, index2+2);
+			} else {
+				break;
+			}
 			index = sb.indexOf("[[File:");
 		}
 		return sb.toString();
@@ -283,7 +267,9 @@ public class ResultParser {
 			}
 			if (done) {
 				i = i - end + start - 1;
-				sb.delete(start, end+1);
+				if (start >= 0 && end >= 0) {
+					sb.delete(start, end+1);
+				}
 				done = false;
 			}
 		}
@@ -294,10 +280,20 @@ public class ResultParser {
 		StringBuilder sb = new StringBuilder(article);
 		int index = sb.indexOf("<ref");
 		int index2 = sb.indexOf("/ref>", index);
-		while (index != -1 && index2 != -1) {
+		while (index >= 0 && index2 >= 0) {
 			sb.delete(index, index2+5);
 			index = sb.indexOf("<ref");
 			index2 = sb.indexOf("/ref>", index);
+		}
+		return sb.toString();
+	}
+	
+	private String removeTriple(String article) {
+		StringBuilder sb = new StringBuilder(article);
+		int index = sb.indexOf("'''");
+		while(index != -1) {
+			sb.delete(index, index+3);
+			index = sb.indexOf("'''");
 		}
 		return sb.toString();
 	}
@@ -306,28 +302,20 @@ public class ResultParser {
 	// the deletion of everything between doubles is tough at the same time as just deleting the triples
 	// probably should break them up or do a better job of if-else statements
 	// ex: systems engineering, commonwealth of nations, Geology
-	private String removeTriple(String article) {
+	private String removeDouble(String article) {
 		StringBuilder sb = new StringBuilder(article);
 		int index = sb.indexOf("''");
-		int index2 = 0;
+		int index2 = sb.indexOf("''", index+2);
 		boolean erase = false;
-		while (index != -1) {
-			if(sb.charAt(index+2) == '\'') {
-				sb.delete(index, index+3);
+		while (index >= 0 && index2 >= 0) {
+			if (erase) {
+				sb.delete(index, index2+2);
+				erase = false;
+			} else {
+				erase = true;
 			}
-			else if (sb.charAt(index-1) == '\'') {
-				sb.delete(index-1, index+2);
-			}
-			else {
-				if (erase) {
-					sb.delete(index, sb.indexOf("''", index+2)+2);
-					erase = false;
-				} else {
-					erase = true;
-				}
-			}
-			index = sb.indexOf("''");
-			
+		index = sb.indexOf("''");
+		index2 = sb.indexOf("''", index+2);
 		}
 		return sb.toString();
 	}
@@ -356,7 +344,9 @@ public class ResultParser {
 			}
 			if (done) {
 				i = i - end + start - 1;
-				sb.delete(start, end+1);
+				if (start >= 0 && end >= 0) {
+					sb.delete(start, end+1);
+				}
 				done = false;
 			}
 		}
@@ -387,7 +377,9 @@ public class ResultParser {
 			}
 			if (done) {
 				i = i - end + start - 1;
-				sb.delete(start, end+1);
+				if (start >= 0 && end >= 0) {
+					sb.delete(start, end+1);
+				}
 				done = false;
 			}
 		}

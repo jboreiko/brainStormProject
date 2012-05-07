@@ -789,7 +789,7 @@ public class SuggestGUI extends JPanel {
 			try {
 				String result = future.get();
 				if (j == 0) {
-					if (result.startsWith("#REDIRECT")) {
+					if (result.startsWith("#REDIRECT") || result.startsWith("#redirect")) {
 						int index = result.indexOf("[");
 						int index2 = result.indexOf("]", index);
 						String requery = result.substring(index+2, index2);
@@ -800,7 +800,6 @@ public class SuggestGUI extends JPanel {
 					} catch (BadLocationException e) {
 						e.printStackTrace();
 					}
-					//wikioutput.setText(result);
 				}
 				else if (j==1) {
 					dictoutput.setText(result);

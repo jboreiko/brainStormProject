@@ -23,6 +23,7 @@ public class SerializedStyledNode extends SerializedBoardElt {
     public Color fontColor;
     public String lastText;
     public Font lastFont;
+	public boolean autoBullet;
 
     public SerializedStyledNode() {
     	type = BoardEltType.STYLED;

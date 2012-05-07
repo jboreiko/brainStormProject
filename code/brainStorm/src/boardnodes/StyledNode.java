@@ -54,11 +54,14 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	String lastText; //what this text says now, or what it said before you focused and started editing
 	Font lastFont;
 
+	boolean autoBullet; //whether we should add in a bullet every time;
+	
 	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
+		autoBullet = true;
 		_fontMenu = new JPopupMenu();
 		_copyMenu = new JPopupMenu();
 
@@ -167,7 +170,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			//undos.push(new StyledNodeEdit(e.getEdit()));
 			if(e.getEdit().getPresentationName().equals("addition")) {
 				try {
-					if(text.getText(text.getLength()-1, 1).equals("\n")) {
+					if(autoBullet && text.getText(text.getLength()-1, 1).equals("\n")) {
 						text.insertString(text.getLength(), "\u2022 ", null);
 					}
 				} catch (BadLocationException e1) {
@@ -472,6 +475,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		lastFont = ssn.lastFont;
 		undos = ssn.undos;
 		redos = ssn.redos;
+		this.autoBullet = ssn.autoBullet;
 		repaint();
 		content.repaint();
 		view.revalidate();
@@ -502,6 +506,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
         toReturn.lastFont = lastFont;
         toReturn.undos = (Stack<StyledNodeEdit>) undos.clone();
         toReturn.redos = (Stack<StyledNodeEdit>) redos.clone();
+        toReturn.autoBullet = this.autoBullet;
 		return toReturn;
 	}
 

@@ -4,6 +4,9 @@ Path should be copy-able
 Find bug: not highlighting ALL results
 Too hard to find exact point when you delete a path
 .storm files
+continuous insertion of nodes button -> doesn't do anything, needs fix
+open new project (file -> new)
+rename project
 
 possible:
   different colors for different editors

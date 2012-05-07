@@ -224,7 +224,6 @@ public class WhiteboardPanel extends JPanel{
 			_lastPathType = bpt;
 			BoardPath bp = new BoardPath(++WhiteboardPanel.UIDCounter, _backend);
 			size = bp.getPreferredSize();
-			System.out.println(size);
 			bp.setPathType(bpt);
 			bp.setSeminal(_addLocation);
 			bp.setTerminal(new Point(_addLocation.x + BoardPath.START_WIDTH, _addLocation.y + BoardPath.START_HEIGHT));

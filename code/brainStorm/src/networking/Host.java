@@ -24,43 +24,55 @@ public class Host extends Thread{
     private LinkedList<ClientInfo> activeUsers;
     public Client localClient;
     private int hostId = 0;
-    
+
     private int openId;
 
     /**************************************************************************
      * The constructor must initialize 'serverSocket' and 'clients'.
      * @param localport - the port the server will listen on
+     * @throws IOException 
      * @throws IOException
      **************************************************************************/
     public Host(int _localport, String username, Networking net) throws IOException {
-    	localport = _localport;
-    	serverSocket = new ServerSocket(localport);
-    	clients = new LinkedList<ClientHandler>();
-    	localClient = new Client("localhost", localport, username, net);
-    	activeUsers = new LinkedList<ClientInfo>();
-    	localClient.start();
-    	openId = 1;
+        localport = _localport;
+        while (true) {
+            try {
+                serverSocket = new ServerSocket(localport);
+            } catch (IOException e) {
+                //Location to catch bad port listener
+                System.out.println("server: bad port at " + localport + " now trying " + (localport + 1));
+                localport++;
+                continue;
+            }
+            break;
+        }
+        clients = new LinkedList<ClientHandler>();
+        localClient = new Client("localhost", localport, username, net);
+        activeUsers = new LinkedList<ClientInfo>();
+        localClient.start();
+        //localClient._net._suggestPanel
+        openId = 1;
     }
-    
+
     public boolean send(NetworkMessage nm) {
         return localClient.send(nm);
     }
-    
+
     public boolean signOff() {
-    	if(localClient.signOff())
-    		return this.shutDown();
-    	else
-    		return false;
+        if(localClient.signOff())
+            return this.shutDown();
+        else
+            return false;
     }
-    
+
     public NetworkMessage receive (Type t) {
         return localClient.receive(t);
     }
-    
+
     public int getNextOpenId() {
         return openId++;
     }
-    
+
     /***************************************************************************************
      * Accept connections and add them to the clients queue.
      * This function should, in a while loop:
@@ -69,7 +81,7 @@ public class Host extends Thread{
      * - Add the ClientHandler to the clients list. This is so that
      * broadcastMessage() function will be able to access it.
      * - Start the ClientHandler thread so that it can begin reading any incoming messages.
-      **************************************************************************************/
+     **************************************************************************************/
     public void run() {
         Socket clientSocket;
         ClientHandler handler;
@@ -80,20 +92,20 @@ public class Host extends Thread{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		*/
+         */
         /*TODO*/
         while(true)	{
-        	try {
-        	    System.out.println("server: waiting to accept client");
-				clientSocket = serverSocket.accept();
-				handler = new ClientHandler(this, clientSocket);
-				clients.add(handler);
-				System.out.println("server: starting new client handler");
-				handler.start();
-			} catch (IOException e) {
-				System.out.println("server: closing serversocket and shuting down");
-				break;
-			}
+            try {
+                System.out.println("server: waiting to accept client");
+                clientSocket = serverSocket.accept();
+                handler = new ClientHandler(this, clientSocket);
+                clients.add(handler);
+                System.out.println("server: starting new client handler");
+                handler.start();
+            } catch (IOException e) {
+                System.out.println("server: closing serversocket and shuting down");
+                break;
+            }
         }
     }
 
@@ -102,21 +114,21 @@ public class Host extends Thread{
      * @param message - message to broadcast
      * looping through the clients list.
      * Warning: More than one ClientHandler can call this function at a time. 
-    ***************************************************************************/
+     ***************************************************************************/
     public synchronized void broadcastMessage(NetworkMessage message, ClientHandler client) {
         /*TODO*/
         //System.out.println("server: broadcasting msg: " + message);
-    	for (ClientHandler ch: clients) {
-    	    if (ch != client) {
-    	        //System.out.println("server: sending msg to client: " + ch.id);
-    	        ch.send(message);
-    	    }
-    	}
+        for (ClientHandler ch: clients) {
+            if (ch != client) {
+                //System.out.println("server: sending msg to client: " + ch.id);
+                ch.send(message);
+            }
+        }
     }
-    
+
     public synchronized void respondHandshake(Handshake message, ClientHandler clientHandler) {
         if (message.sender_id == -1) {
-        	String username = message.client_username;
+            String username = message.client_username;
             int temp = getNextOpenId();
             //System.out.println("server: replying to handshake with id: " + temp);
             clientHandler.setUsernameAndId(username, temp);
@@ -133,10 +145,10 @@ public class Host extends Thread{
 
     @SuppressWarnings("unchecked")
     private void registerClient(ClientHandler ch) {
-		activeUsers.add(new ClientInfo(ch.ip, ch.id, ch.username));
-		System.out.println(activeUsers.size());
+        activeUsers.add(new ClientInfo(ch.ip, ch.id, ch.username));
+        System.out.println(activeUsers.size());
         broadcastMessage(new UpdateUsersMessage(0, (LinkedList<ClientInfo>) activeUsers.clone()), null);
-	}
+    }
     private void unregisterClient(ClientHandler ch) {
         for (ClientInfo ci : activeUsers) {
             if (ci.id == ch.id) {
@@ -147,33 +159,33 @@ public class Host extends Thread{
         broadcastMessage(new UpdateUsersMessage(0, activeUsers), null);
     }
 
-	/**************************************************************************
+    /**************************************************************************
      * Remove the given client from the clients list.
      * Warning: More than one ClientHandler can call this function at a time. 
      * Return whether the client was found or not.
      **************************************************************************/
     public synchronized boolean removeClient(ClientHandler client) {
         unregisterClient(client);
-    	if (clients.contains(client)) {
-    		return clients.remove(client);
-    	}
+        if (clients.contains(client)) {
+            return clients.remove(client);
+        }
         return false;
     }
     /* TODO: need to have this shut down gracefully */
     public synchronized boolean shutDown() {
         this.broadcastMessage(new ChatMessage(0, "BrainStorming session has now ended", "Host"), null);
-    	ClientHandler ch = null;
-    	while (clients.size() >= 1) {
+        ClientHandler ch = null;
+        while (clients.size() >= 1) {
             ch = clients.removeFirst();
-    		ch.shutdown();
-    	}
-    	try {
-			serverSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	return true;
+            ch.shutdown();
+        }
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return true;
     }
 
     /*
@@ -199,5 +211,5 @@ public class Host extends Thread{
 
         s.run();
     }
-    */
+     */
 }

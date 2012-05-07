@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 import networking.Networking;
 import GUI.ViewportDragScrollListener;
@@ -32,7 +33,7 @@ import boardnodes.SerializedScribbleNode;
 
 public class Backend {
 	private GUI.WhiteboardPanel panel;
-	private Hashtable<Integer, BoardElt> boardElts;
+	private ConcurrentHashMap<Integer, BoardElt> boardElts;
 	private ArrayList<boardnodes.BoardPath> paths;
 	public Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
@@ -46,7 +47,7 @@ public class Backend {
 		_projectName = projectName;
 		pastActions = new Stack<BoardAction>();
 		futureActions = new Stack<BoardAction>();
-		boardElts = new Hashtable<Integer, BoardElt>();
+		boardElts = new ConcurrentHashMap<Integer, BoardElt>(50);
 		paths = new ArrayList<boardnodes.BoardPath>();
 		networking = new Networking();
 		networking.setBackend(this);

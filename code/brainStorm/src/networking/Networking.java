@@ -128,4 +128,8 @@ public class Networking {
 		System.out.println(ret);
 		return ret;
 	}
+
+	public ClientInfo getMyClientInfo() {
+		return _suggestPanel.getCurrentClientInfo();
+	}
 }

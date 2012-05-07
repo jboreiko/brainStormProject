@@ -33,6 +33,8 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
+import networking.ClientInfo;
+
 import whiteboard.BoardActionType;
 import whiteboard.SearchResult;
 import GUI.WhiteboardPanel;
@@ -55,7 +57,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	Font lastFont;
 
 	boolean autoBullet; //whether we should add in a bullet every time;
-	
+
 	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 
@@ -113,12 +115,22 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			});
 			_fontSizeMenu.add(fontSize);
 		}
+		
+		JMenuItem bulletMenu = new JMenuItem("Toggle Bullets");
+		bulletMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				autoBullet = !autoBullet;
+			}
+		});
 
 		_fontMenu.add(_styleMenu);
 		_fontMenu.addSeparator();
 		_fontMenu.add(_fontSizeMenu);
 		_fontMenu.addSeparator();
 		_fontMenu.add(_colorMenu);
+		_fontMenu.addSeparator();
+		_fontMenu.add(bulletMenu);
 
 		//copying
 		JMenuItem copyItem = new JMenuItem("Copy");
@@ -456,11 +468,12 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		g.fillRect(getWidth()-BORDER_WIDTH, getHeight()-BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH);
 
 		if (isBeingEdited) { //notify the user this is being modified elsewhere
-			g.setColor(Color.ORANGE);
-			g.fillOval(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
+			if (currentEditor == null) System.err.println("Being edited by null editor");
+			else {
+				g.setColor(currentEditor.color);
+				g.fillOval(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, BORDER_WIDTH);
+			}
 		}
-
-
 	}
 
 	@Override
@@ -502,11 +515,11 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		toReturn.text = new String(content.getText());
 		toReturn.style = content.getFont();
 		toReturn.fontColor = content.getForeground();
-        toReturn.lastText = lastText;
-        toReturn.lastFont = lastFont;
-        toReturn.undos = (Stack<StyledNodeEdit>) undos.clone();
-        toReturn.redos = (Stack<StyledNodeEdit>) redos.clone();
-        toReturn.autoBullet = this.autoBullet;
+		toReturn.lastText = lastText;
+		toReturn.lastFont = lastFont;
+		toReturn.undos = (Stack<StyledNodeEdit>) undos.clone();
+		toReturn.redos = (Stack<StyledNodeEdit>) redos.clone();
+		toReturn.autoBullet = this.autoBullet;
 		return toReturn;
 	}
 
@@ -517,6 +530,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		toReturn.content.setFont(content.getFont());
 		toReturn.content.setText(content.getText());
 		toReturn.content.setForeground(content.getForeground());
+		toReturn.autoBullet = this.autoBullet;
 		return toReturn;
 	}
 
@@ -553,8 +567,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	}
 
 	@Override
-	public void setBeingEditedStatus(boolean isBeingEdited) {
-		super.setBeingEditedStatus(isBeingEdited);
+	public void setBeingEditedStatus(boolean isBeingEdited, ClientInfo sender) {
+		super.setBeingEditedStatus(isBeingEdited, sender);
 		this.content.setEditable(!isBeingEdited);
 	}
 

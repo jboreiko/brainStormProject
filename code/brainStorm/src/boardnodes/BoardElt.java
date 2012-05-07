@@ -8,6 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 
+import networking.ClientInfo;
+
 import whiteboard.BoardActionType;
 import whiteboard.SearchResult;
 import GUI.ViewportDragScrollListener;
@@ -83,6 +85,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract void highlightText(int index, int len, boolean isfocus);
 	public abstract void clearHighlight();
 	protected Highlighter hilit;
+	protected ClientInfo currentEditor;
 
 	/*Assigns this BoardElt's text to input
 	 * @param toSet - what to make this Element store
@@ -116,9 +119,14 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		}
 	}
 
-	public void setBeingEditedStatus(boolean isBeingEdited) {
+	public void setBeingEditedStatus(boolean isBeingEdited, ClientInfo sender) {
 		System.out.println("BoardElt: EDITING STATUS CHANGED: " + isBeingEdited);
 		this.isBeingEdited = isBeingEdited;
+		if (!isBeingEdited) {
+			this.currentEditor = null;
+		} else {
+			this.currentEditor = sender;
+		}
 	}
 	
 	protected LinkedList<Point> getSnappedPathPoints() {

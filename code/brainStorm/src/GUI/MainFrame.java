@@ -44,6 +44,7 @@ public class MainFrame extends JFrame {
     private WhiteboardPanel _whiteboard;
     private JFileChooser fc;
     private JScrollPane _scrollPane;
+    private MainFrame _frame;
 
     /*
      * Mainframe()
@@ -73,6 +74,30 @@ public class MainFrame extends JFrame {
         _suggestPanel = new SuggestGUI(interfaceSize, this);
 
         _interfacePane.add(_suggestPanel);
+        _frame = this;
+        this.addComponentListener(new ComponentListener() {
+			
+			@Override
+			public void componentShown(ComponentEvent e) {
+				
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				_suggestPanel.textResize(_frame.getSize().getHeight());
+				
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				
+			}
+		});
 
         add(_interfacePane, BorderLayout.WEST);
         fc = new JFileChooser();

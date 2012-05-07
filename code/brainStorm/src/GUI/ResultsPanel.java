@@ -101,7 +101,7 @@ public class ResultsPanel extends javax.swing.JPanel {
 			nextButton.setEnabled(true);
 			clearButton.setEnabled(true);
 		} else {
-			resNum.setText("no results found!");
+			resNum.setText("no results!");
 			prevButton.setEnabled(false);
 			nextButton.setEnabled(false);
 			clearButton.setEnabled(false);

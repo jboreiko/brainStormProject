@@ -4,20 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +27,6 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -44,44 +38,38 @@ import javax.swing.JTextPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import networking.ClientInfo;
+import networking.Networking;
+import whiteboard.Backend;
+import GUI.MainFrame;
+import GUI.ResultsPanel;
 import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
-import whiteboard.Backend;
-
-import GUI.MainFrame;
-import GUI.ResultsPanel;
-
-import networking.ClientInfo;
-import networking.Networking;
-
 public class SuggestGUI extends JPanel {
     private MainFrame mainFrame;
 	private JTextField input;
-	private JTextArea wikioutput;
 	private JTextArea duckoutput;
 	private JTextArea dictoutput;
 	private QueryService queryService;
 	private JPanel _suggestPanel;
 	private JPanel _networkPanel;
 	public JTextField _usernameField;
-	private JTextField _ipField;
+	private JTextField _ipField, _portField;
 	private JPanel _findPanel;
 	private Networking _net;
 	private JTextPane _chatPane, _wikiPane;
 	private JTextArea _chatMessage;
-	private JScrollPane _chatScrollPane;
+	private JScrollPane _chatScrollPane, _userScrollPane, _wikiScrollPane, _dictScrollPane, _duckScrollPane;
 	private BlockingQueue<String> _bqueue;
 	private SuggestThread _suggestThread;
 	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton, _backButton, _sourceButton;
-	private int _role;
+	private int _role, _defaultPort;
 	private ArrayList<ClickText> _textList;
 	private Stack<String> _back;
 	private ResultsPanel resultsPanel;
@@ -92,11 +80,18 @@ public class SuggestGUI extends JPanel {
 	public JTabbedPane tabbedPane;
 	private LinkedList<ClientInfo> activeUsers;
 	private JTextArea activeUserList;
+	private Double _originalSize;
+	private JLabel _ipLabel, _portLabel;
+	
+	final int CHAT_WIDTH = 340;
+	final int CHAT_HEIGHT = 480;
+	final int SUGGEST_HEIGHT = 600;
 	
 	public SuggestGUI(Dimension interfaceSize, MainFrame main) {
 		super(new java.awt.BorderLayout());
 		
 		mainFrame = main;
+		_originalSize = mainFrame.getSize().getHeight();
 		
 		buildSuggestTab();
 		buildNetworkTab();
@@ -136,6 +131,8 @@ public class SuggestGUI extends JPanel {
 	public void setNetworking(Networking net) {
 		_net = net;
 		_net.setSuggestPanel(this);
+		_defaultPort = _net.DEFAULT_PORT;
+		_portField.setText(String.valueOf(_defaultPort));
 	}
 	
 	public void setBackend(Backend b) {
@@ -153,7 +150,6 @@ public class SuggestGUI extends JPanel {
 		searchButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				resultsPanel.setResults(_backend.search(searchField.getText()), searchField.getText());
-				
 			}
 		});
 		searchPanel.add(searchField, BorderLayout.CENTER);
@@ -177,6 +173,10 @@ public class SuggestGUI extends JPanel {
 		JLabel usernamelabel = new JLabel("Username: ");
 		_usernameField = new JTextField(15);
 		_usernameField.setEditable(true);
+		JPanel ipPanel = new JPanel();
+		_ipLabel = new JLabel("");
+		JPanel portPanel = new JPanel();
+		_portLabel = new JLabel("");
 		_beHostButton = new JButton("Host a Brainstorm");
 		_beHostButton.addActionListener(new ActionListener() {
 			
@@ -193,13 +193,20 @@ public class SuggestGUI extends JPanel {
 					if (_net != null) {
 						_role = 1;
 						if (_net.becomeHost(_usernameField.getText())) {
-	                          mainFrame._load.setEnabled(false);
+							mainFrame._load.setEnabled(false);
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
+							_userScrollPane.setEnabled(true);
+							try {
+								_ipLabel.setText("IP Address:  " + InetAddress.getLocalHost().toString());
+							} catch (UnknownHostException e1) {
+								e1.printStackTrace();
+							}
 							_sendMessageButton.setEnabled(true);
 							_leaveButton.setEnabled(true);
 							_chatMessage.grabFocus();
 							_usernameField.setEnabled(false);
+							_portField.setEnabled(false);
 							_ipField.setEnabled(false);
 							_beHostButton.setEnabled(false);
 							_joinButton.setEnabled(false);
@@ -217,7 +224,7 @@ public class SuggestGUI extends JPanel {
 							}
 						}
 						else {
-							// handle connection error
+							// handle port error
 							connectionError();
 						}
 					} else {
@@ -228,8 +235,12 @@ public class SuggestGUI extends JPanel {
 		});
 		
 		JLabel ipLabel = new JLabel("IP Address: ");
-		_ipField = new JTextField(18);
+		_ipField = new JTextField(10);
 		_ipField.setEditable(true);
+		JLabel portLabel = new JLabel("Port: ");
+		_portField = new JTextField(4);
+		_portField.setEditable(true);
+		_portField.setText(String.valueOf(_defaultPort));
 		
 		JPanel joinPanel = new JPanel();
 		_joinButton = new JButton("Join a Brainstorm");
@@ -237,9 +248,9 @@ public class SuggestGUI extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(_ipField.getText().isEmpty()) {
+				if(_ipField.getText().isEmpty() || _portField.getText().isEmpty()) {
 					// no ip address specified
-					JOptionPane.showMessageDialog(_networkPanel, "You must enter the host's IP address to connect to.", "Invalid IP Address", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(_networkPanel, "You must enter the host's IP address and port to connect to.", "Invalid Connection", JOptionPane.ERROR_MESSAGE);
 				} else if(_usernameField.getText().isEmpty()) {
 					// no username specified
 					JOptionPane.showMessageDialog(_networkPanel, "You must enter a username before connecting.", "No Username ", JOptionPane.ERROR_MESSAGE);
@@ -261,17 +272,20 @@ public class SuggestGUI extends JPanel {
 		                    }
 		                }
 						
-						if(_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
+						if(_net.becomeClient(_ipField.getText(), _usernameField.getText(), Integer.valueOf(_portField.getText()))) {
 						    mainFrame._load.setEnabled(false);
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
+							_userScrollPane.setEnabled(true);
 							_leaveButton.setEnabled(true);
+							_portField.setEnabled(false);
 							_sendMessageButton.setEnabled(true);
 							_chatMessage.grabFocus();
 							_usernameField.setEnabled(false);
 							_ipField.setEnabled(false);
 							_beHostButton.setEnabled(false);
 							_joinButton.setEnabled(false);
+							retryUsername();
 							SimpleAttributeSet set = new SimpleAttributeSet();
 							StyleConstants.setFontSize(set, 18);
 							StyleConstants.setForeground(set, Color.CYAN);
@@ -306,6 +320,11 @@ public class SuggestGUI extends JPanel {
 			    activeUserList.setText("");
 				_chatMessage.setEnabled(false);
 				_chatPane.setEnabled(false);
+				_userScrollPane.setEnabled(false);
+				_ipLabel.setText("");
+				_portLabel.setText("");
+				_portField.setText(String.valueOf(_defaultPort));
+				_portField.setEnabled(true);
 				_sendMessageButton.setEnabled(false);
 				_leaveButton.setEnabled(false);
 				_usernameField.grabFocus();
@@ -334,15 +353,16 @@ public class SuggestGUI extends JPanel {
 		JLabel users = new JLabel("Active Users:");
 		activeUserList = new JTextArea(4, 18);
 		activeUserList.setEditable(false);
-		JScrollPane userScrollPane = new JScrollPane(activeUserList);
+		_userScrollPane = new JScrollPane(activeUserList);
+		
 		activeUserPanel.add(users, BorderLayout.WEST);
-		activeUserPanel.add(userScrollPane, BorderLayout.EAST);
+		activeUserPanel.add(_userScrollPane, BorderLayout.EAST);
 		
 		JPanel chatPanel = new JPanel();
 		_chatPane = createChatPane();
 		_chatScrollPane = new JScrollPane(_chatPane);
 		_chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_chatScrollPane.setPreferredSize(new Dimension(340, 500));
+		_chatScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, CHAT_HEIGHT));
 		chatPanel.add(_chatScrollPane);
 		JPanel messagePanel = new JPanel();
 		_chatMessage = new JTextArea(5, 20);
@@ -378,19 +398,35 @@ public class SuggestGUI extends JPanel {
 		usernamePanel.add(usernamelabel,BorderLayout.WEST);
 		usernamePanel.add(_usernameField, BorderLayout.EAST);
 		hostPanel.add(_beHostButton, BorderLayout.CENTER);
+		ipPanel.add(_ipLabel, BorderLayout.CENTER);
+		portPanel.add(_portLabel, BorderLayout.CENTER);
 		clientPanel.add(ipLabel, BorderLayout.WEST);
-		clientPanel.add(_ipField, BorderLayout.EAST);
+		clientPanel.add(_ipField, BorderLayout.WEST);
+		clientPanel.add(portLabel, BorderLayout.EAST);
+		clientPanel.add(_portField, BorderLayout.EAST);
 		joinPanel.add(_joinButton, BorderLayout.CENTER);
 		
 		_networkPanel.add(usernamePanel);
 		_networkPanel.add(hostPanel);
+		_networkPanel.add(ipPanel);
+		_networkPanel.add(portPanel);
 		_networkPanel.add(clientPanel);
 		_networkPanel.add(joinPanel);
 		_networkPanel.add(leavePanel);
 		_networkPanel.add(activeUserPanel);
 		_networkPanel.add(chatPanel);
 		_networkPanel.add(messagePanel);
-		
+	}
+	
+	// networking should call me
+	public String retryUsername() {
+		String ret = JOptionPane.showInputDialog(_networkPanel, "The username, "+ _usernameField.getText() + ", you choose is already being used. Please pick another.", "");
+		return ret;
+	}
+	
+	// networking should call me maybe
+	public void setPortLabel(int port) {
+		_portLabel.setText("Port:  " + port);
 	}
 	
 	// Customized entering and exiting methods below
@@ -429,10 +465,15 @@ public class SuggestGUI extends JPanel {
 			// retry
 			if (_role == 1) {
 				if (_net.becomeHost(_usernameField.getText())) {
-	                mainFrame._load.setEnabled(true);
-	                activeUserList.setText("");
+	                _userScrollPane.setEnabled(true);
 					_chatMessage.setEnabled(true);
 					_chatPane.setEnabled(true);
+					try {
+						_ipLabel.setText("IP Address:  " + InetAddress.getLocalHost().toString());
+					} catch (UnknownHostException e1) {
+						e1.printStackTrace();
+					}
+					_portField.setEnabled(false);
 					_sendMessageButton.setEnabled(true);
 					_leaveButton.setEnabled(true);
 					_chatMessage.grabFocus();
@@ -458,13 +499,15 @@ public class SuggestGUI extends JPanel {
 				
 			} else if (_role == 2) {
 				// retry
-				if (_net.becomeClient(_ipField.getText(), _usernameField.getText())) {
+				if (_net.becomeClient(_ipField.getText(), _usernameField.getText(), Integer.valueOf(_portField.getText()))) {
 					_chatMessage.setEnabled(true);
 					_chatPane.setEnabled(true);
+					_userScrollPane.setEnabled(true);
 					_sendMessageButton.setEnabled(true);
 					_leaveButton.setEnabled(true);
 					_chatMessage.grabFocus();
 					_usernameField.setEnabled(false);
+					_portField.setEnabled(false);
 					_ipField.setEnabled(false);
 					_beHostButton.setEnabled(false);
 					_joinButton.setEnabled(false);
@@ -497,7 +540,14 @@ public class SuggestGUI extends JPanel {
 			} catch (BadLocationException e1) {
 				e1.printStackTrace();
 			}
+            mainFrame._load.setEnabled(true);
+            activeUserList.setText("");
 			_chatPane.setEnabled(false);
+			_userScrollPane.setEnabled(false);
+			_ipLabel.setText("");
+			_portLabel.setText("");
+			_portField.setText(String.valueOf(_defaultPort));
+			_portField.setEnabled(true);
 			_sendMessageButton.setEnabled(false);
 			_leaveButton.setEnabled(false);
 			_usernameField.grabFocus();
@@ -527,6 +577,23 @@ public class SuggestGUI extends JPanel {
 		}
 		
 		return pane;
+	}
+	
+	public void textResize(Double height) {
+		int delta = (int) (_originalSize-height);
+		System.out.println("height:  " + height);
+		System.out.println("delta:  " + delta);
+		_wikiScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
+		_wikiPane.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
+		_duckScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
+		duckoutput.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
+		_dictScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
+		dictoutput.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
+		_chatScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, CHAT_HEIGHT-delta));
+		_chatPane.setSize(CHAT_WIDTH, CHAT_HEIGHT-delta);
+		_suggestPanel.repaint();
+		_networkPanel.repaint();
+		repaint();
 	}
 
 	public void addMessage(){
@@ -618,36 +685,25 @@ public class SuggestGUI extends JPanel {
 		
 		JPanel wikiPanel = new JPanel();
 		
-//		wikioutput = new JTextArea(20, 50);
-//		wikioutput.setEditable(false);
-//		wikioutput.setLineWrap(true);
-//		wikioutput.setWrapStyleWord(true);
-//		JScrollPane wikiScrollPane = new JScrollPane(wikioutput);
-		
 		_wikiPane = new JTextPane();
 		_wikiPane.setSize(20, 50);
 		_wikiPane.setEditable(false);
-		// Chat Header
 		_wikiPane.addMouseListener(new MouseListener() {
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
-				
 			}
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
-				
 			}
 			
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				
 			}
 			
 			@Override
@@ -660,11 +716,11 @@ public class SuggestGUI extends JPanel {
 		});
 		_textList = new ArrayList<ClickText>();
 		
-		JScrollPane wikiScrollPane = new JScrollPane(_wikiPane);
-		wikiScrollPane.setVerticalScrollBarPolicy(
+		_wikiScrollPane = new JScrollPane(_wikiPane);
+		_wikiScrollPane.setVerticalScrollBarPolicy(
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		wikiScrollPane.setPreferredSize(new Dimension(340, 600));
-		wikiPanel.add(wikiScrollPane);
+		_wikiScrollPane.setPreferredSize(new Dimension(340, 600));
+		wikiPanel.add(_wikiScrollPane);
 		JPanel backPanel = new JPanel();
 		_backButton = new JButton("Back");
 		_backButton.setEnabled(false);
@@ -706,28 +762,10 @@ public class SuggestGUI extends JPanel {
 						launcher.setNewWindowPolicy(true);
 						launcher.openURLinBrowser(open);
 					} catch (BrowserLaunchingInitializingException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					} catch (UnsupportedOperatingSystemException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-//					System.out.println("open   " + open);
-//					
-//					try {
-//						open = URLEncoder.encode(open, "UTF-8");
-//					} catch (UnsupportedEncodingException e2) {
-//						e2.printStackTrace();
-//					}
-//					System.out.println("URLENCODE:   " + open);
-//					URI uri = URI.create(open);
-//					System.out.println("uri  " + uri);
-//					try {
-//						_desktop.browse(uri);
-//					} catch (IOException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
 				}
 				else {
 					JOptionPane.showMessageDialog(_suggestPanel, "No Browser Supported. Sorry.", "Browser Issue", JOptionPane.WARNING_MESSAGE);
@@ -741,22 +779,22 @@ public class SuggestGUI extends JPanel {
 		dictoutput.setEditable(false);
 		dictoutput.setLineWrap(true);
 		dictoutput.setWrapStyleWord(true);
-		JScrollPane dictScrollPane = new JScrollPane(dictoutput);
-		dictScrollPane.setVerticalScrollBarPolicy(
+		_dictScrollPane = new JScrollPane(dictoutput);
+		_dictScrollPane.setVerticalScrollBarPolicy(
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		dictScrollPane.setPreferredSize(new Dimension(340, 600));
-		dictPanel.add(dictScrollPane);
+		_dictScrollPane.setPreferredSize(new Dimension(340, 600));
+		dictPanel.add(_dictScrollPane);
 		
 		JPanel duckPanel = new JPanel();
 		duckoutput = new JTextArea(20, 50);
 		duckoutput.setEditable(false);
 		duckoutput.setLineWrap(true);
 		duckoutput.setWrapStyleWord(true);
-		JScrollPane duckScrollPane = new JScrollPane(duckoutput);
-		duckScrollPane.setVerticalScrollBarPolicy(
+		_duckScrollPane = new JScrollPane(duckoutput);
+		_duckScrollPane.setVerticalScrollBarPolicy(
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		duckScrollPane.setPreferredSize(new Dimension(340, 600));
-		duckPanel.add(duckScrollPane);
+		_duckScrollPane.setPreferredSize(new Dimension(340, 600));
+		duckPanel.add(_duckScrollPane);
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		

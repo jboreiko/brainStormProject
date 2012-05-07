@@ -17,7 +17,7 @@ public class NetworkingMain {
     		System.out.println("main: done sending 'test2'");
     	} else {
     		System.out.println("main: becoming client");
-    		net.becomeClient("127.0.0.1", "Client");
+    		net.becomeClient("127.0.0.1", "Client", net.DEFAULT_PORT);
             net.sendMessage("test3");
             System.out.println("main: sent 'test3'");
     	}

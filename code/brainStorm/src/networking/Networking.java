@@ -9,7 +9,7 @@ import whiteboard.Backend;
 import networking.NetworkMessage.Type;
 
 public class Networking {
-	private int DEFAULT_PORT = 4568;//4567;
+	public int DEFAULT_PORT = 4568;//4567;
 	State currentState;
 	Client client;
 	Host host;
@@ -60,10 +60,10 @@ public class Networking {
 		return (host != null);
 	}
 
-	public boolean becomeClient(String hostIp, String username) {
+	public boolean becomeClient(String hostIp, String username, int port) {
 		currentState = State.CLIENT;
 		try {
-			client = new Client(hostIp, DEFAULT_PORT, username, this);
+			client = new Client(hostIp, port, username, this);
 		} catch (IOException e) {
 			System.out.println("client: failed to connect socket");
 			return false;

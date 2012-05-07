@@ -24,6 +24,7 @@ public class Host extends Thread{
     private LinkedList<ClientInfo> activeUsers;
     public Client localClient;
     private int hostId = 0;
+    private final int portAttemptLimit = 1000;
 
     private int openId;
 
@@ -35,6 +36,7 @@ public class Host extends Thread{
      **************************************************************************/
     public Host(int _localport, String username, Networking net) throws IOException {
         localport = _localport;
+        int count = 0;
         while (true) {
             try {
                 serverSocket = new ServerSocket(localport);
@@ -42,6 +44,7 @@ public class Host extends Thread{
                 //Location to catch bad port listener
                 System.out.println("server: bad port at " + localport + " now trying " + (localport + 1));
                 localport++;
+                if (++count > portAttemptLimit) break;
                 continue;
             }
             break;
@@ -50,7 +53,7 @@ public class Host extends Thread{
         localClient = new Client("localhost", localport, username, net);
         activeUsers = new LinkedList<ClientInfo>();
         localClient.start();
-        //localClient._net._suggestPanel
+        localClient._net._suggestPanel.setPortLabel(localport);
         openId = 1;
     }
 

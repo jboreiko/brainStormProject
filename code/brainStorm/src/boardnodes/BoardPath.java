@@ -241,6 +241,38 @@ public class BoardPath extends BoardElt {
 		_oldTerminal = (Point) _terminal.clone();
 		_snapTerminal = null;
 	}
+	
+	public void autoSnapTo(BoardElt b, Point p) {
+		_seminalDrag = true;
+		if(p.x>b.getWidth()-b.getBorderWidth()) {
+			p.x = b.getWidth()+1;
+		} else if(p.x<b.getBorderWidth()) {
+			p.x = -1;
+		}
+		if(p.y>b.getHeight()-b.getBorderWidth()) {
+			p.y = b.getHeight()+1;
+		} else if(p.y<b.getBorderWidth()) {
+			p.y = -1;
+		}
+		setSeminal(new Point(p.x + b.getX(), p.y + b.getY()));
+		snapTo(b);
+		setTerminal((Point)_seminal.clone());
+		_seminalDrag = false;
+		switch(_snapSeminalOffset.x) {
+		case 0:
+			_terminal.translate(START_WIDTH, 0);
+			break;
+		case 1:
+			_terminal.translate(0, -START_HEIGHT);
+			break;
+		case 2:
+			_terminal.translate(-START_WIDTH, 0);
+			break;
+		case 3:
+			_terminal.translate(0, START_HEIGHT);
+			break;
+		}
+	}
 
 	public void stopDrag() {
 		if(!_seminal.equals(_oldSeminal) || !_terminal.equals(_oldTerminal)) {

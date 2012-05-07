@@ -2,11 +2,9 @@ package whiteboard;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,10 +13,10 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Stack;
-import java.util.Map.Entry;
 
 import networking.Networking;
 import GUI.ViewportDragScrollListener;
+import GUI.WhiteboardPanel;
 import boardnodes.BoardElt;
 import boardnodes.BoardEltType;
 import boardnodes.BoardPath;
@@ -26,6 +24,7 @@ import boardnodes.ScribbleNode;
 import boardnodes.SerializedBoardElt;
 import boardnodes.SerializedBoardPath;
 import boardnodes.SerializedInUse;
+import boardnodes.SerializedProjectSaveInfo;
 import boardnodes.SerializedStyledNode;
 import boardnodes.StyledNode;
 //import boardnodes.SerializedScribbleNode;
@@ -35,14 +34,16 @@ public class Backend {
 	private GUI.WhiteboardPanel panel;
 	private Hashtable<Integer, BoardElt> boardElts;
 	private ArrayList<boardnodes.BoardPath> paths;
-	private Stack<BoardAction> pastActions;
+	public Stack<BoardAction> pastActions;
 	private Stack<BoardAction> futureActions;
 	private Networking networking;
-	private BoardElt clipboard;
+	public BoardElt clipboard;
 	public ViewportDragScrollListener _mouseListener;
+	private String _projectName;
 
-	public Backend(GUI.WhiteboardPanel _panel) {
+	public Backend(String projectName, GUI.WhiteboardPanel _panel) {
 		panel = _panel;
+		_projectName = projectName;
 		pastActions = new Stack<BoardAction>();
 		futureActions = new Stack<BoardAction>();
 		boardElts = new Hashtable<Integer, BoardElt>();
@@ -50,43 +51,94 @@ public class Backend {
 		networking = new Networking();
 		networking.setBackend(this);
 	}
+
+	public void clear() {
+		pastActions.clear();
+		futureActions.clear();
+		boardElts.clear();
+		paths.clear();
+	}
+
 	public void save(File f) {
 		System.out.println("backend: saving to file"); 
 		/* WHAT ELSE NEEDS TO BE SAVED?? */
+				LinkedList<Object> toWriteOut = new LinkedList<Object>();
+				try {
+					ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+					for (BoardElt be : this.boardElts.values()) {
+						System.out.println("backend: writing out boardelt of type " + be.type);
+						toWriteOut.add(be.toSerialized());
+					}
+					toWriteOut.add(new SerializedProjectSaveInfo(_projectName, WhiteboardPanel.UIDCounter));
+					oos.writeObject(toWriteOut);
+					oos.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+	}
+
+	public LinkedList<Object> saveForNetwork() {
+		System.out.println("backend: saving to network"); 
+		/* WHAT ELSE NEEDS TO BE SAVED?? */
 		LinkedList<Object> toWriteOut = new LinkedList<Object>();
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
-			for (BoardElt be : this.boardElts.values()) {
-				System.out.println("backend: writing out boardelt of type " + be.type);
-				toWriteOut.add(be.toSerialized());
-			}
-			/*
-            for (BoardPath bp : this.paths) {
-                toWriteOut.add(bp.toSerialized());
-            }
-			 */
-			oos.writeObject(toWriteOut);
-			oos.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		for (BoardElt be : this.boardElts.values()) {
+			System.out.println("backend: writing out boardelt of type " + be.type);
+			toWriteOut.add(be.toSerialized());
 		}
+		toWriteOut.add(new SerializedProjectSaveInfo(_projectName, WhiteboardPanel.UIDCounter));
+		return toWriteOut;
+	}
+
+	public void loadFromNetwork(Object project) {
+		System.out.println("backend: loading project from network");
+		/* Make new whiteboard for opening */
+		clear();
+		panel.clearBoard();
+		SerializedBoardElt be;
+		for (Object o : (LinkedList<Object>) project) {
+			be = (SerializedBoardElt) o;
+			if (be.type == BoardEltType.INFO) {
+				setProjectName(((SerializedProjectSaveInfo) be).projectName);
+			} else {
+				addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
+			}
+		}
+		/* Clear stack upon loading */
+		pastActions.clear();
+		futureActions.clear();
 	}
 
 	public void load(File f) {
 		System.out.println("backend: loading file");
 		try {
+			/* Make new whiteboard for opening */
+			clear();
+			panel.clearBoard();
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
 			LinkedList<Object> save = (LinkedList<Object>) ois.readObject();
 			SerializedBoardElt be;
 			for (Object o : save) {
 				be = (SerializedBoardElt) o;
-				addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
+				if (be.type == BoardEltType.INFO) {
+					setProjectName(((SerializedProjectSaveInfo) be).projectName);
+					panel.setStartUID(((SerializedProjectSaveInfo) be).startUID);
+				} else {
+					addActionFromNetwork(new CreationAction(receiveNetworkCreationObject(be)));
+				}
 			}
+			/* Clear stack upon loading */
+			pastActions.clear();
+			futureActions.clear();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void setProjectName(String projectName) {
+		_projectName = projectName;
+		panel._mainFrame.setTitle(_projectName);
 	}
 
 	//Adds the given board elt and adds the "addition" action to the stack
@@ -179,13 +231,11 @@ public class Backend {
 
 	//Copies the given element (i.e. sets the clipboard)
 	public void copy(BoardElt b) {
-		clipboard = b;
+		clipboard = b.clone();
 	}
 
 	public void paste(Point pos) {
-		BoardElt toPaste = clipboard.clone();
-		toPaste.setLocation(pos);
-		add(toPaste);
+		clipboard.paste(pos);
 	}
 
 	public Object render() {
@@ -480,9 +530,10 @@ public class Backend {
 	}
 
 	public void centerNode(BoardElt boardElt) {
-		//TODO: why isn't this working?
-		panel.scrollRectToVisible(new Rectangle(new Point(0,0), panel.getSize()));
-		panel.scrollRectToVisible(new Rectangle(new Point(boardElt.getBounds().x, boardElt.getBounds().y), panel.getSize()));
+		Rectangle elementBounds = boardElt.getBounds();
+		Rectangle visibleRect = panel.getVisibleRect();
+		visibleRect.setLocation(elementBounds.x-(visibleRect.width/2)+(elementBounds.width)/2, elementBounds.y-(visibleRect.height)/2+(elementBounds.height)/2);
+		panel.scrollRectToVisible(visibleRect);
 	}
 
 	public void alertEditingStatus(BoardElt b, boolean isInUse) {

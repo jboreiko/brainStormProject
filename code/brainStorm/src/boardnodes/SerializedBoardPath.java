@@ -9,11 +9,13 @@ public class SerializedBoardPath extends SerializedBoardElt {
     public BoardPathType _stroke; 
     public int _snapSeminal;
     public int _snapTerminal;
-    public double _snapAngle;
     public Point _seminal;
     public Point _terminal;
     public Stack<ActionObject> pastPositions;
     public Stack<ActionObject> futurePositions;
+
+	public Point _snapSeminalOffset;
+	public Point _snapTerminalOffset;
     
     public SerializedBoardPath() {
         type = BoardEltType.PATH;

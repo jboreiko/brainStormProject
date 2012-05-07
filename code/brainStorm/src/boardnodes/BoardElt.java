@@ -1,6 +1,8 @@
 package boardnodes;
 
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.swing.text.DefaultHighlighter;
@@ -15,19 +17,16 @@ import GUI.WhiteboardPanel;
  * Paths and BoardNodes*/
 public abstract class BoardElt extends JPanel implements Cloneable{
 	//the unique identifier of this BoardElt
-	protected int UID;
+	public int UID;
 	//position on the board
 	private String textBody;
-	private static int ID_Last;
 	//the whiteboard that this is a part of
 	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
 	public ViewportDragScrollListener _mouseListener;
 
-	protected static int nextUID = 0;
-
 	public BoardEltType type;
-	protected boolean isBeingEdited; //whether this BoardElt is in focus on another computer
+	protected boolean isBeingEdited; //whether this BoardElt is in focus on ANOTHER computer
 	public int getUID() {
 		return UID;
 	}
@@ -41,10 +40,18 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		hilit = new DefaultHighlighter();
 	}
 
-	public whiteboard.Backend getWhiteboard() {
+	
+	public whiteboard.Backend getBackend() {
 		return backend;
 	}
 
+	public void setBackend(whiteboard.Backend b) {
+		backend = b;
+	}
+	
+	public void setUID(int i) {
+		UID = i;
+	}
 	public BoardEltType getType() {
 		return type;
 	}
@@ -67,10 +74,6 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		hilit = new DefaultHighlighter();
 	}
 
-	/*Set the initial point our */
-	static void setStartingUID(int idStart) {
-		ID_Last = idStart;
-	}
 	/*@return the body of this node as a String*/
 	String getText() {
 		return textBody;
@@ -94,19 +97,19 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public abstract void redo();
 
 	protected void notifyBackend(BoardActionType b) {
-		if(this.getWhiteboard()==null) {
+		if(this.getBackend()==null) {
 			System.out.println("whiteboard reference is null - cannot notify it");
 			return;
 		}
 		switch(b) {
 		case CREATION:
-			this.getWhiteboard().addAction(new whiteboard.CreationAction(this));
+			this.getBackend().addAction(new whiteboard.CreationAction(this));
 			break;
 		case DELETION:
-			this.getWhiteboard().addAction(new whiteboard.DeletionAction(this));
+			this.getBackend().addAction(new whiteboard.DeletionAction(this));
 			break;
 		case ELT_MOD:
-			this.getWhiteboard().addAction(new whiteboard.ModificationAction(this));
+			this.getBackend().addAction(new whiteboard.ModificationAction(this));
 			break;
 		default:
 			break;
@@ -118,9 +121,30 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 		this.isBeingEdited = isBeingEdited;
 	}
 	
+	protected LinkedList<Point> getSnappedPathPoints() {
+		LinkedList<Point> toReturn = new LinkedList<Point>();
+		for(BoardPath p: backend.getPaths()) {
+			if(p._snapSeminal==this) {
+				toReturn.add(p._snapSeminalOffset);
+			}
+			if(p._snapTerminal==this) {
+				toReturn.add(p._snapTerminalOffset);
+			}
+		}
+		return toReturn;		
+	}
+	
+	protected void removeAllSnappedPaths() {
+		for(BoardPath p: backend.getPaths()) {
+			p.unsnapFrom(this);
+		}
+	}
+	
 	public abstract void addAction(ActionObject ao);
 	
 	public abstract SerializedBoardElt toSerialized();
 	
 	public abstract void ofSerialized(SerializedBoardElt b);
+	
+	public abstract void paste(Point pos);
 }

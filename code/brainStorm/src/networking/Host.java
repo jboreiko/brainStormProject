@@ -121,7 +121,8 @@ public class Host extends Thread{
             //System.out.println("server: replying to handshake with id: " + temp);
             clientHandler.setUsernameAndId(username, temp);
             START_UID += ELTS_PER_CLIENT;
-            clientHandler.send(new Handshake(hostId, temp, username, START_UID));
+            /* Send over current project */
+            clientHandler.send(new Handshake(hostId, temp, username, START_UID, localClient._net.backend.saveForNetwork()));
             registerClient(clientHandler);
             System.out.println("server: registered client with id: " + temp + ", uname: " + username);
             broadcastMessage(new ChatMessage(temp, username + " just joined the Brainstrom!", "Host"), clientHandler);

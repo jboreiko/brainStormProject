@@ -23,7 +23,7 @@ class Client extends Thread{
     private LinkedBlockingQueue<ChatMessage> chatReceived; 
     private LinkedBlockingQueue<ActionMessage> actionReceived;
     private Lock isRegistered;
-    private Networking _net;
+    public Networking _net;
     private volatile boolean shutdown;
 
     /*
@@ -322,6 +322,7 @@ class Client extends Thread{
                         System.out.println("client: udpate start uid to: "+((Handshake) message).getStartUID());
                         _net.getBackend().setStartUID(((Handshake) message).getStartUID());
                         System.out.println("client: update id to: " + clientId);
+                        _net.getBackend().loadFromNetwork(((Handshake) message).project);
                         parent.isRegistered.release();
                     }
                 } else {

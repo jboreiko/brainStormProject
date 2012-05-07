@@ -285,4 +285,11 @@ public class WhiteboardPanel extends JPanel{
 	public void clearBoard(){
 		this.removeAll();
 	}
+
+	public void extendAll() {
+		for(BoardElt a : _backend.getElts())
+			extendPanel(a.getBounds());
+		for (BoardPath a : _backend.getPaths()) //TODO MAKE IT EXTEND ON PATHS. GETBOUNDS DOESN'T DO ANYTHING
+			extendPanel(a.getBounds());
+	}
 }

@@ -2,8 +2,15 @@ ScribbleNode should be wrapped in a JScrollPane
 Suggest (left) side should shrink dynamically
 Path should be copy-able
 Find bug: not highlighting ALL results
+Too hard to find exact point when you delete a path
+.storm files
 
 possible:
   different colors for different editors
   names display by who is editing a node
   minimap
+  an option for StyledNode with no bullets
+
+
+Presentation idea:
+  make projects beforehand

@@ -63,7 +63,7 @@ public class SuggestGUI extends JPanel {
 	private JTextField _ipField, _portField;
 	private JPanel _findPanel;
 	private Networking _net;
-	private JTextPane _chatPane, _wikiPane;
+	private JTextPane _chatPane, _wikiPane, _activeUserList;
 	private JTextArea _chatMessage;
 	private JScrollPane _chatScrollPane, _userScrollPane, _wikiScrollPane, _dictScrollPane, _duckScrollPane;
 	private BlockingQueue<String> _bqueue;
@@ -79,7 +79,6 @@ public class SuggestGUI extends JPanel {
 	private java.awt.Desktop _desktop;
 	public JTabbedPane tabbedPane;
 	private LinkedList<ClientInfo> activeUsers;
-	private JTextArea activeUserList;
 	private Double _originalSize;
 	private JLabel _ipLabel, _portLabel;
 	
@@ -319,7 +318,6 @@ public class SuggestGUI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			    mainFrame._load.setEnabled(true);
-			    activeUserList.setText("");
 				_chatMessage.setEnabled(false);
 				_chatPane.setEnabled(false);
 				_userScrollPane.setEnabled(false);
@@ -336,6 +334,8 @@ public class SuggestGUI extends JPanel {
 				_joinButton.setEnabled(true);
 				_role = 0;
 				try {
+					StyledDocument userdoc = _activeUserList.getStyledDocument();
+					userdoc.remove(0, userdoc.getLength());
 					StyledDocument document = _chatPane.getStyledDocument();
 					document.remove(0, document.getLength());
 					document.insertString(0, "Chat:\n", null);
@@ -353,10 +353,11 @@ public class SuggestGUI extends JPanel {
 		JPanel activeUserPanel = new JPanel();
 		activeUserPanel.setLayout(new FlowLayout());
 		JLabel users = new JLabel("Active Users:");
-		activeUserList = new JTextArea(4, 18);
-		activeUserList.setEditable(false);
-		_userScrollPane = new JScrollPane(activeUserList);
-		
+		_activeUserList = new JTextPane();
+		_activeUserList.setEditable(false);
+		_userScrollPane = new JScrollPane(_activeUserList);
+		_userScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		_userScrollPane.setPreferredSize(new Dimension(250, 40));
 		activeUserPanel.add(users, BorderLayout.WEST);
 		activeUserPanel.add(_userScrollPane, BorderLayout.EAST);
 		
@@ -546,6 +547,8 @@ public class SuggestGUI extends JPanel {
 			_role = 0;
 			_chatMessage.setEnabled(false);
 			try {
+				StyledDocument userdoc = _activeUserList.getStyledDocument();
+				userdoc.remove(0, userdoc.getLength());
 				StyledDocument document = _chatPane.getStyledDocument();
 				document.remove(0, document.getLength());
 				document.insertString(0, "Chat:\n", null);
@@ -553,7 +556,6 @@ public class SuggestGUI extends JPanel {
 				e1.printStackTrace();
 			}
             mainFrame._load.setEnabled(true);
-            activeUserList.setText("");
 			_chatPane.setEnabled(false);
 			_userScrollPane.setEnabled(false);
 			_ipLabel.setText("");
@@ -646,10 +648,19 @@ public class SuggestGUI extends JPanel {
 	
 	public void updateUsers(LinkedList<ClientInfo> users) {
 	    activeUsers = users;
-	    activeUserList.setText("");
+	    SimpleAttributeSet set = new SimpleAttributeSet();
+	    StyledDocument doc = _activeUserList.getStyledDocument();
+	    try {
+			doc.remove(0, doc.getLength());
 	    for (ClientInfo ci : activeUsers) {
+	    	StyleConstants.setForeground(set, ci.color);
+	    	doc.insertString(doc.getLength(), ci.username, set);
+	    	StyleConstants.setForeground(set, Color.BLACK);
+	    	doc.insertString(doc.getLength(), ", ", set);
 //	    	System.out.println(ci.color);
-	        activeUserList.append(ci.username + "\n");
+	    }
+	    } catch (BadLocationException e) {
+	    	e.printStackTrace();
 	    }
 	}
 	

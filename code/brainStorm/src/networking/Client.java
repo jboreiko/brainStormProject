@@ -299,6 +299,7 @@ class Client extends Thread{
                     if (shutdown)
                         System.err.println("client<" + clientId + ", " + username + ">: reading thread has quit on connection loss");
                     else {
+                        e.printStackTrace();
                         System.out.println("client<" + clientId + ", " + username + ">: connection with host has closed, shutting down");
                         _net._suggestPanel.connectionError();
                     }
@@ -324,6 +325,12 @@ class Client extends Thread{
                         System.out.println("client: update id to: " + clientId);
                         _net.getBackend().loadFromNetwork(((Handshake) message).project);
                         parent.isRegistered.release();
+                    } else if (message.type == Type.USER_UPDATE) {
+                        System.out.println("client: received updated client list");
+                        for(ClientInfo ci : ((UpdateUsersMessage) message).activeUsers) {
+                            System.out.println(ci.username);
+                        }
+                        _net._suggestPanel.updateUsers(((UpdateUsersMessage) message).activeUsers);
                     }
                 } else {
                     System.err.println("client<" + clientId + ", " + username + ">: reading thread has quit");

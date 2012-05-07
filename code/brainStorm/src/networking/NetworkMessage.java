@@ -10,7 +10,7 @@ public class NetworkMessage implements Serializable{
 	int sender_id;
 	Type type;
 	protected enum Type {
-		CHAT, HANDSHAKE, ACTION
+		CHAT, HANDSHAKE, ACTION, USER_UPDATE
 	}
 	protected NetworkMessage(int id, Type _type) {
 		type = _type;

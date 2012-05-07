@@ -81,9 +81,9 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		//Different Colors
 		_colorMenu = new JMenu("Colors");
 		final String colorNames[] = 
-		{"BLACK","BLUE","CYAN","DARK GRAY","GRAY","LIGHT GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW"};
+		{"BLACK","BLUE","CYAN","DARK GRAY","GRAY","LIGHT GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW", "GREEN"};
 		final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
-				Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW};
+				Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW, Color.GREEN};
 		for(int i=0;i<colorNames.length;i+=1){
 			final Color color = colors[i];
 			JMenuItem fontItem = new JMenuItem(colorNames[i]);

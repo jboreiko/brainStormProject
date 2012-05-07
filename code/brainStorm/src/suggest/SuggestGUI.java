@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
@@ -58,6 +59,7 @@ import whiteboard.Backend;
 import GUI.MainFrame;
 import GUI.ResultsPanel;
 
+import networking.ClientInfo;
 import networking.Networking;
 
 public class SuggestGUI extends JPanel {
@@ -88,6 +90,8 @@ public class SuggestGUI extends JPanel {
 	private boolean _browse;
 	private java.awt.Desktop _desktop;
 	public JTabbedPane tabbedPane;
+	private LinkedList<ClientInfo> activeUsers;
+	private JTextArea activeUserList;
 	
 	public SuggestGUI(Dimension interfaceSize, MainFrame main) {
 		super(new java.awt.BorderLayout());
@@ -165,6 +169,7 @@ public class SuggestGUI extends JPanel {
 	}
 
 	private void buildNetworkTab() {
+	    activeUsers = new LinkedList<ClientInfo>();
 		_networkPanel = new JPanel();
 		JPanel hostPanel = new JPanel();
 		JPanel clientPanel = new JPanel();
@@ -298,6 +303,7 @@ public class SuggestGUI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			    mainFrame._load.setEnabled(true);
+			    activeUserList.setText("");
 				_chatMessage.setEnabled(false);
 				_chatPane.setEnabled(false);
 				_sendMessageButton.setEnabled(false);
@@ -317,18 +323,26 @@ public class SuggestGUI extends JPanel {
 				}
 				// tell networking you are leaving
 				_net.signOff();
-				
 			}
 			
 		});
 		_leaveButton.setEnabled(false);
 		leavePanel.add(_leaveButton);
+        
+		JPanel activeUserPanel = new JPanel();
+		activeUserPanel.setLayout(new FlowLayout());
+		JLabel users = new JLabel("Active Users:");
+		activeUserList = new JTextArea(4, 18);
+		activeUserList.setEditable(false);
+		JScrollPane userScrollPane = new JScrollPane(activeUserList);
+		activeUserPanel.add(users, BorderLayout.WEST);
+		activeUserPanel.add(userScrollPane, BorderLayout.EAST);
 		
 		JPanel chatPanel = new JPanel();
 		_chatPane = createChatPane();
 		_chatScrollPane = new JScrollPane(_chatPane);
 		_chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_chatScrollPane.setPreferredSize(new Dimension(340, 600));
+		_chatScrollPane.setPreferredSize(new Dimension(340, 500));
 		chatPanel.add(_chatScrollPane);
 		JPanel messagePanel = new JPanel();
 		_chatMessage = new JTextArea(5, 20);
@@ -373,6 +387,7 @@ public class SuggestGUI extends JPanel {
 		_networkPanel.add(clientPanel);
 		_networkPanel.add(joinPanel);
 		_networkPanel.add(leavePanel);
+		_networkPanel.add(activeUserPanel);
 		_networkPanel.add(chatPanel);
 		_networkPanel.add(messagePanel);
 		
@@ -414,6 +429,8 @@ public class SuggestGUI extends JPanel {
 			// retry
 			if (_role == 1) {
 				if (_net.becomeHost(_usernameField.getText())) {
+	                mainFrame._load.setEnabled(true);
+	                activeUserList.setText("");
 					_chatMessage.setEnabled(true);
 					_chatPane.setEnabled(true);
 					_sendMessageButton.setEnabled(true);
@@ -540,6 +557,14 @@ public class SuggestGUI extends JPanel {
 			_chatPane.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
 			_chatPane.repaint();
 		}
+	}
+	
+	public void updateUsers(LinkedList<ClientInfo> users) {
+	    activeUsers = users;
+	    activeUserList.setText("");
+	    for (ClientInfo ci : activeUsers) {
+	        activeUserList.append(ci.username + "\n");
+	    }
 	}
 	
 	public void newMessage(String username, String message) {

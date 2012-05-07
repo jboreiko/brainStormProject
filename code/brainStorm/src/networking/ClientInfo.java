@@ -1,9 +1,14 @@
 package networking;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 
-public class ClientInfo {
-	public InetAddress ip;
+public class ClientInfo implements Serializable {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -6998955098723046796L;
+    public InetAddress ip;
 	public int id;
 	public String username;
 	

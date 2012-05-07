@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -205,7 +206,7 @@ public class BoardPath extends BoardElt {
 	}
 	@Override
 	public boolean contains(int x, int y) {
-		return isNearSeminal(x,y)||isNearTerminal(x,y)||isNearDelete(x,y);
+		return isNearLine(x,y);
 	}
 
 	public boolean isNearSeminal(int x, int y) {
@@ -218,6 +219,10 @@ public class BoardPath extends BoardElt {
 
 	public boolean isNearDelete(int x, int y) {
 		return isNearPoint(x, y, new Point((_terminal.x+_seminal.x)/2, (_terminal.y+_seminal.y)/2));
+	}
+	
+	public boolean isNearLine(int x, int y) {
+		return Line2D.ptSegDistSq(_seminal.x, _seminal.y, _terminal.x, _terminal.y,x, y) < 10*DRAG_RADIUS;
 	}
 
 	//helper method for the above methods

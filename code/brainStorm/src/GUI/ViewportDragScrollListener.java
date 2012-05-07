@@ -81,7 +81,6 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 				break;
 			}
 		}
-
 		if(draggedPath==null) {
 			((JComponent)e.getSource()).setCursor(hc); //label.setCursor(hc);
 			startPt.setLocation(e.getPoint());
@@ -114,6 +113,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 					p.delete();
 					deletedAPath = true;
 					it.remove();
+					break;
 				}
 			}
 			if(!deletedAPath && _contInsertion) {
@@ -133,14 +133,21 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		boolean nearAPath = false;
 		Point offset = ((JViewport)e.getSource()).getViewPosition();
 		Point loc = new Point(e.getX() + offset.x, e.getY() + offset.y);
 		for(BoardPath p: wb.getBackend().getPaths()) {
 			if(p.contains(loc.x, loc.y)) {
 				p.setHighlighted(true);
+				nearAPath = true;
 			} else {
 				p.setHighlighted(false);
 			}
+		}
+		if(nearAPath) {
+			((JComponent)e.getSource()).setCursor(hc);
+		} else {
+			((JComponent)e.getSource()).setCursor(dc);
 		}
 		wb.repaint();
 	}

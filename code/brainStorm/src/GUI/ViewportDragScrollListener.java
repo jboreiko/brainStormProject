@@ -24,10 +24,12 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	private Point startPt = new Point();
 	private Point move    = new Point();
 	public BoardPath draggedPath;
+	private boolean _contInsertion;
 
 	public ViewportDragScrollListener(WhiteboardPanel comp) {
 		this.wb = comp;
 		this.dc = comp.getCursor();
+		_contInsertion = true;
 	}
 	@Override public void hierarchyChanged(HierarchyEvent e) {
 		JComponent c = (JComponent)e.getSource();
@@ -114,8 +116,11 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 					it.remove();
 				}
 			}
-			if(!deletedAPath)
-				wb.addNode(loc);	
+			if(!deletedAPath && _contInsertion) {
+				System.out.println("continuously inserting!");
+				wb.addNode(loc);
+			}
+				
 		} else if (e.getModifiers() == 4) { //right click
 			wb.displayContextMenu(loc);
 		}
@@ -138,5 +143,9 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 			}
 		}
 		wb.repaint();
+	}
+	public void toggleContInsertion() {
+		_contInsertion = !_contInsertion;
+		System.out.println(_contInsertion);
 	}
 }

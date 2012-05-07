@@ -4,7 +4,11 @@ import java.awt.*;
 
 import java.util.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 
@@ -43,6 +47,7 @@ public class WhiteboardPanel extends JPanel{
 	private JMenuItem pasteItem = new JMenuItem("Paste");
 	private int _frontElt;
 	private Point _addLocation; //the location you should add the next BoardElt to
+	private BufferedImage tile;
 
 	private JPopupMenu _rightClickMenu; //the options when a user right-clicks
 
@@ -55,7 +60,12 @@ public class WhiteboardPanel extends JPanel{
 		setFocusable(true);
 		this.setLayout(null);
 		this.setVisible(true);
-		this.setBackground(Color.GRAY);
+		try {
+			tile = ImageIO.read(new File("./lib/tile_blackboard_green.jpg"));
+		} catch (IOException e) {
+			System.out.println("no file found to tile! setting bg to gray");
+			this.setBackground(Color.GRAY);
+		}
 		_contIns = true;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		_rightClickMenu = initPopupMenu();
@@ -127,14 +137,14 @@ public class WhiteboardPanel extends JPanel{
 		});
 		popup.add(dottedArrowPathItem);
 		popup.addSeparator();
-		
+
 		pasteItem = new JMenuItem("Paste");
 		pasteItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				_backend.paste(lastClick);
 			}
 		});
-		
+
 		popup.add(pasteItem);
 		return popup;
 	}
@@ -189,7 +199,7 @@ public class WhiteboardPanel extends JPanel{
 		extendPanel(b.getBounds());
 		repaint();
 	}
-	
+
 	//boardpathtype only has to be specified when adding a path
 	public BoardElt newElt(BoardEltType b, BoardPathType bpt) {
 		//extendPanel(); //taken out when extendPanel changed to accept rect
@@ -246,6 +256,13 @@ public class WhiteboardPanel extends JPanel{
 	}
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
+		if(tile!=null) {
+			for(int i=0;i<this.getWidth();i+=tile.getWidth()) {
+				for(int j=0;j<this.getHeight();j+=tile.getHeight()) {
+					g.drawImage(tile, i, j, null);
+				}
+			}
+		}
 		Graphics2D g2 = (Graphics2D)g;
 		for(BoardPath b: _backend.getPaths()) {
 			b.paintComponent(g2);

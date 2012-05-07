@@ -92,7 +92,8 @@ public class MainFrame extends JFrame {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				_suggestPanel.textResize(_frame.getSize().getHeight());
-				System.out.println(_frame.getSize());
+				_whiteboard.extendAll();
+
 				
 			}
 			

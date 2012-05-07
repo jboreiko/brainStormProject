@@ -244,7 +244,6 @@ public class BoardPath extends BoardElt {
 	public void stopDrag() {
 		if(!_seminal.equals(_oldSeminal) || !_terminal.equals(_oldTerminal)) {
 			//if either of them have changed, it's an event!
-			System.out.println("it's a move event!");
 			pastPositions.push(new ActionObject(new Point[]{(Point)_oldSeminal.clone(), (Point)_oldTerminal.clone()}));
 			notifyBackend(BoardActionType.ELT_MOD);
 		}
@@ -373,7 +372,6 @@ public class BoardPath extends BoardElt {
 		toReturn._snapTerminal = _snapTerminal==null?-1:_snapTerminal.getUID();
 		toReturn._snapTerminalOffset = _snapTerminalOffset==null?null:(Point) _snapTerminalOffset.clone();
 		toReturn._snapSeminalOffset = _snapSeminalOffset==null?null:(Point) _snapSeminalOffset.clone();
-		System.out.println("sending: my seminal is "+_snapSeminal);
 		toReturn._seminal = _seminal;
 		toReturn._terminal = _terminal;
 		toReturn.pastPositions = (Stack<ActionObject>) pastPositions.clone();
@@ -386,11 +384,9 @@ public class BoardPath extends BoardElt {
 		UID = _future.getUID();
 		_snapSeminal = future._snapSeminal==-1?null:backend.lookup(future._snapSeminal);
 		_snapTerminal = future._snapTerminal==-1?null:backend.lookup(future._snapTerminal);
-		System.out.println("boardpath ofserialized: "+_snapSeminal+"  "+_snapTerminal);
 		_seminal = future._seminal;
 		_terminal = future._terminal;
 		_snapSeminalOffset = future._snapSeminalOffset;
-		System.out.println("receiving: my seminal is: "+_snapSeminal);
 		_snapTerminalOffset = future._snapTerminalOffset;
 		//TODO: this is not how we want to do undoing/redoing - copy the whole stack!!!
 		pastPositions = future.pastPositions;

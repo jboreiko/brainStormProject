@@ -1,4 +1,16 @@
-screen not extending bottom right
-right click on scribble -> stroke, color options
-size options for styled, not just type
-give a signal that a user is editing something
+ScribbleNode should be wrapped in a JScrollPane
+Suggest (left) side should shrink dynamically
+Path should be copy-able
+Find bug: not highlighting ALL results
+Too hard to find exact point when you delete a path
+.storm files
+
+possible:
+  different colors for different editors
+  names display by who is editing a node
+  minimap
+  an option for StyledNode with no bullets
+
+
+Presentation idea:
+  make projects beforehand

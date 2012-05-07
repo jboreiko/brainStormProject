@@ -368,7 +368,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (isBeingEdited) { //you shouldn't have control of it
-			System.out.println("not allowed to drag while someone else has it, sry");
 			return;
 		}
 		int dx = e.getX() - startPt.x;

@@ -62,9 +62,9 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
         //Different Colors
         JMenu colorMenu = new JMenu("Colors");
         final String colorNames[] = 
-        {"BLACK","BLUE","CYAN","DARK GRAY","GRAY","LIGHT GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW", "GREEN"};
+        {"BLACK","BLUE","CYAN","DARK GRAY","GRAY","LIGHT GRAY","MAGENTA","ORANGE","PINK","RED","WHITE","YELLOW", "GREEN", "MAROON"};
         final Color colors[] = {Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.LIGHT_GRAY,Color.MAGENTA,
-                Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW, Color.GREEN};
+                Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW, Color.GREEN, new Color(0x800000)};
         for(int i=0;i<colorNames.length;i+=1){
             final Color color = colors[i];
             JMenuItem drawItem = new JMenuItem(colorNames[i]);
@@ -330,7 +330,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			}
 		}
 		//draw the border
-		g.setColor(Color.BLACK);
+		g.setColor(new Color(0x691F01));
 		g.fillRect(0, 0, getWidth(), BORDER_WIDTH);
 		g.fillRect(0, 0, BORDER_WIDTH, getHeight());
 		g.fillRect(getWidth()-BORDER_WIDTH, 0, BORDER_WIDTH, getHeight());

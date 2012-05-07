@@ -22,6 +22,7 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	public int UID;
 	//position on the board
 	private String textBody;
+	protected int BORDER_WIDTH;
 	//the whiteboard that this is a part of
 	protected whiteboard.Backend backend;
 	protected WhiteboardPanel wbp;
@@ -34,6 +35,10 @@ public abstract class BoardElt extends JPanel implements Cloneable{
 	}
 	public abstract BoardElt clone();
 
+	public int getBorderWidth() {
+		return BORDER_WIDTH;
+	}
+	
 	public BoardElt(int _UID, whiteboard.Backend w) {
 		UID = _UID;
 		backend = w;

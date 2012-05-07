@@ -83,7 +83,6 @@ public class SuggestGUI extends JPanel {
 	private JLabel _ipLabel, _portLabel;
 	
 	final int CHAT_WIDTH = 340;
-	final int CHAT_HEIGHT = 480;
 	final int SUGGEST_HEIGHT = 600;
 	
 	public SuggestGUI(Dimension interfaceSize, MainFrame main) {
@@ -92,7 +91,7 @@ public class SuggestGUI extends JPanel {
 		mainFrame = main;
 		_originalSize = mainFrame.getSize().getHeight();
 		
-		_chatHeight = (int) (_originalSize - 480);
+		_chatHeight = (int) (_originalSize - 470);
 		
 		buildSuggestTab();
 		buildNetworkTab();
@@ -153,6 +152,14 @@ public class SuggestGUI extends JPanel {
 				resultsPanel.setResults(_backend.search(searchField.getText()), searchField.getText());
 			}
 		});
+		Action action = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				resultsPanel.setResults(_backend.search(searchField.getText()), searchField.getText());
+		}};
+		KeyStroke keyStroke = KeyStroke.getKeyStroke("ENTER");
+		InputMap im = searchField.getInputMap();
+		searchField.getActionMap().put(im.get(keyStroke), action);
 		searchPanel.add(searchField, BorderLayout.CENTER);
 		buttonPanel.add(searchButton);
 		_findPanel.setLayout(new FlowLayout());
@@ -199,7 +206,12 @@ public class SuggestGUI extends JPanel {
 							_chatPane.setEnabled(true);
 							_userScrollPane.setEnabled(true);
 							try {
-								_ipLabel.setText("IP Address:  " + InetAddress.getLocalHost().toString());
+								String ip = InetAddress.getLocalHost().toString();
+								if (ip.indexOf('/') >= 0) {
+									String[] split = ip.split("/");
+									ip = split[0] + " or " + split[1];
+								}
+								_ipLabel.setText("IP Address:  " + ip);
 							} catch (UnknownHostException e1) {
 								e1.printStackTrace();
 							}
@@ -250,12 +262,14 @@ public class SuggestGUI extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(_ipField.getText().isEmpty() || _portField.getText().isEmpty()) {
+				if(_ipField.getText().isEmpty()) {
 					// no ip address specified
-					JOptionPane.showMessageDialog(_networkPanel, "You must enter the host's IP address and port to connect to.", "Invalid Connection", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(_networkPanel, "You must enter the host's IP address to connect to.", "Invalid Connection", JOptionPane.ERROR_MESSAGE);
 				} else if(_usernameField.getText().isEmpty()) {
 					// no username specified
 					JOptionPane.showMessageDialog(_networkPanel, "You must enter a username before connecting.", "No Username ", JOptionPane.ERROR_MESSAGE);
+				} else if(_portField.getText().isEmpty() || !isGoodPort(_portField.getText())) {
+					JOptionPane.showMessageDialog(_networkPanel, "Port must be a integer greater than 1024.", "Bad Port", JOptionPane.ERROR_MESSAGE);
 				}
 				else {
 					// call networking becomeclient method
@@ -309,6 +323,7 @@ public class SuggestGUI extends JPanel {
 					}
 				}
 			}
+
 		});
 		
 		JPanel leavePanel = new JPanel();
@@ -421,6 +436,18 @@ public class SuggestGUI extends JPanel {
 		_networkPanel.add(messagePanel);
 	}
 	
+	private boolean isGoodPort(String port) {
+		try {
+			Integer num = Integer.valueOf(port);
+			if (num <= 1024) {
+				return false;
+			}
+		} catch(NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+
 	// networking should call me
 	public String retryUsername() {
 		String ret = JOptionPane.showInputDialog(_networkPanel, "The username, "+ _usernameField.getText() + ", you choose is already being used. Please pick another.", "");
@@ -482,7 +509,12 @@ public class SuggestGUI extends JPanel {
 					_chatMessage.setEnabled(true);
 					_chatPane.setEnabled(true);
 					try {
-						_ipLabel.setText("IP Address:  " + InetAddress.getLocalHost().toString());
+						String ip = InetAddress.getLocalHost().toString();
+						if (ip.indexOf('/') >= 0) {
+							String[] split = ip.split("/");
+							ip = split[0] + " or " + split[1];
+						}
+						_ipLabel.setText("IP Address:  " + ip);
 					} catch (UnknownHostException e1) {
 						e1.printStackTrace();
 					}
@@ -654,7 +686,7 @@ public class SuggestGUI extends JPanel {
 			doc.remove(0, doc.getLength());
 	    for (ClientInfo ci : activeUsers) {
 	    	StyleConstants.setForeground(set, ci.color);
-	    	doc.insertString(doc.getLength(), ci.username, set);
+	    	doc.insertString(doc.getLength(), "\u2022 " + ci.username, set);
 	    	StyleConstants.setForeground(set, Color.BLACK);
 	    	doc.insertString(doc.getLength(), ", ", set);
 //	    	System.out.println(ci.color);
@@ -777,7 +809,7 @@ public class SuggestGUI extends JPanel {
 			}
 		});
 		backPanel.add(_backButton);
-		_sourceButton = new JButton("View Source");
+		_sourceButton = new JButton("View Source Wiki");
 		_sourceButton.setEnabled(false);
 		_sourceButton.addActionListener(new ActionListener() {
 			

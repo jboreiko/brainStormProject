@@ -328,7 +328,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			public void mousePressed(MouseEvent e) {
 				System.out.println(getUID());
 				if (e.getModifiers() == 4) {
-					_fontMenu.show(StyledNode.this,e.getX(),e.getY());
+					_fontMenu.show(StyledNode.this,e.getX()-view.getViewport().getViewPosition().x,e.getY()-view.getViewport().getViewPosition().y);
 				}
 				wbp.setListFront(StyledNode.this.UID);
 				//content.grabFocus();

@@ -11,6 +11,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -41,6 +48,10 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
+import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
+
 import whiteboard.Backend;
 
 import GUI.ResultsPanel;
@@ -64,13 +75,15 @@ public class SuggestGUI extends JPanel {
 	private JScrollPane _chatScrollPane;
 	private BlockingQueue<String> _bqueue;
 	private SuggestThread _suggestThread;
-	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton, _backButton;
+	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton, _backButton, _sourceButton;
 	private int _role;
 	private ArrayList<ClickText> _textList;
 	private Stack<String> _back;
 	private ResultsPanel resultsPanel;
 	private Backend _backend;
 	private JTextField searchField;
+	private boolean _browse;
+	private java.awt.Desktop _desktop;
 	
 	public SuggestGUI(Dimension interfaceSize) {
 		super(new java.awt.BorderLayout());
@@ -99,6 +112,15 @@ public class SuggestGUI extends JPanel {
 		_suggestThread.start();
 		_role = 0;
 		_back = new Stack<String>();
+		_browse = false;
+		if (java.awt.Desktop.isDesktopSupported()) {
+			_desktop = java.awt.Desktop.getDesktop();
+			if (_desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
+				_browse = true;
+				System.out.println(_browse);
+			}
+		}
+		
 	}
 	
 	public void setNetworking(Networking net) {
@@ -176,7 +198,7 @@ public class SuggestGUI extends JPanel {
 							StyleConstants.setAlignment(set, StyleConstants.ALIGN_LEFT);
 							doc.setParagraphAttributes(doc.getLength(), 15, set, true);
 							try {
-								doc.insertString(doc.getLength(), "You just joined the Brainstrom!\n", set);
+								doc.insertString(doc.getLength(), "You just joined the Brainstorm!\n", set);
 							} catch (BadLocationException e2) {
 								e2.printStackTrace();
 							}
@@ -611,10 +633,63 @@ public class SuggestGUI extends JPanel {
 				input.setText(popBack);
 				if(_back.size() <= 1) {
 					_backButton.setEnabled(false);
+					if (_back.size() == 0) {
+						_sourceButton.setEnabled(false);
+					}
 				}
 			}
 		});
 		backPanel.add(_backButton);
+		_sourceButton = new JButton("View Source");
+		_sourceButton.setEnabled(false);
+		_sourceButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (_browse) {
+					String top = _back.peek();
+					String open = "http://en.wikipedia.org/wiki/" + top;
+					for (int i = 0; i < open.length(); i++) {
+						if (open.charAt(i) == ' ') {
+							open = open.substring(0, i) + '_' + open.substring(i+1, open.length());
+						}
+					}
+					System.out.println(open);
+					BrowserLauncher launcher;
+					try {
+						launcher = new BrowserLauncher();
+						launcher.setNewWindowPolicy(true);
+						launcher.openURLinBrowser(open);
+					} catch (BrowserLaunchingInitializingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (UnsupportedOperatingSystemException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+//					System.out.println("open   " + open);
+//					
+//					try {
+//						open = URLEncoder.encode(open, "UTF-8");
+//					} catch (UnsupportedEncodingException e2) {
+//						e2.printStackTrace();
+//					}
+//					System.out.println("URLENCODE:   " + open);
+//					URI uri = URI.create(open);
+//					System.out.println("uri  " + uri);
+//					try {
+//						_desktop.browse(uri);
+//					} catch (IOException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
+				}
+				else {
+					JOptionPane.showMessageDialog(_suggestPanel, "No Browser Supported. Sorry.", "Browser Issue", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
+		backPanel.add(_sourceButton);
 		
 		JPanel dictPanel = new JPanel();
 		dictoutput = new JTextArea(20, 50);
@@ -665,16 +740,6 @@ public class SuggestGUI extends JPanel {
 				System.out.println(text.getQuery());
 				input.setText(text.getQuery());
 				suggest(text.getQuery());
-//				try {
-//					String result = queryService.submit(text.getQuery(), 0).get();
-//					styleWiki(result);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				} catch (ExecutionException e) {
-//					e.printStackTrace();
-//				} catch (BadLocationException e) {
-//					e.printStackTrace();
-//				}
 				break;
 			}
 		}
@@ -690,6 +755,7 @@ public class SuggestGUI extends JPanel {
 
 	public void submitQuery(String query) {
 		_back.push(query);
+		_sourceButton.setEnabled(true);
 		if(_back.size() > 1) {
 			_backButton.setEnabled(true);
 		}
@@ -764,7 +830,10 @@ public class SuggestGUI extends JPanel {
 				_textList.add(clickText);
 				result = result.substring(0, index) + result.substring(index+2, index2) + result.substring(index2+2, result.length());
 			}
-			
+			if (doc.getLength() > 33000) {
+				doc.insertString(doc.getLength(), "Content stops here.  See source for more content.", set);
+				return;
+			}
 			index = result.indexOf("[[");
 			index2 = result.indexOf("]]", index);
 		}

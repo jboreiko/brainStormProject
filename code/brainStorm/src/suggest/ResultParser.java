@@ -170,13 +170,13 @@ public class ResultParser {
 	    	return article;
 	    }
 	    
+	    article = removeTriple(article);
+	    article  = removeImages(article);
 	    article = removeBraces(article);
 	    article = removeFiles(article);
-	    article = removeTriple(article);
 	    article = removeTags(article);
 	    article  = removeTagBraces(article);
-	    article  = removeImages(article);
-	    while (article.startsWith("\n")) {
+	    while (article.startsWith("\n") || article.startsWith(":") || article.startsWith(" ")) {
 	    	article = article.substring(1, article.length());
 	    }
 	    // TODO handle multiple options
@@ -185,7 +185,7 @@ public class ResultParser {
 	    	return article;
 	    }
 	    article = removeParens(article);
-	    while (article.startsWith("\n")) {
+	    while (article.startsWith("\n") || article.startsWith(":") || article.startsWith(" ")) {
 	    	article = article.substring(1, article.length());
 	    }
 	    
@@ -302,12 +302,32 @@ public class ResultParser {
 		return sb.toString();
 	}
 
+	// this needs to be fixed
+	// the deletion of everything between doubles is tough at the same time as just deleting the triples
+	// probably should break them up or do a better job of if-else statements
+	// ex: systems engineering, commonwealth of nations, Geology
 	private String removeTriple(String article) {
 		StringBuilder sb = new StringBuilder(article);
-		int index = sb.indexOf("'''");
+		int index = sb.indexOf("''");
+		int index2 = 0;
+		boolean erase = false;
 		while (index != -1) {
-			sb.delete(index, index+3);
-			index = sb.indexOf("'''");
+			if(sb.charAt(index+2) == '\'') {
+				sb.delete(index, index+3);
+			}
+			else if (sb.charAt(index-1) == '\'') {
+				sb.delete(index-1, index+2);
+			}
+			else {
+				if (erase) {
+					sb.delete(index, sb.indexOf("''", index+2)+2);
+					erase = false;
+				} else {
+					erase = true;
+				}
+			}
+			index = sb.indexOf("''");
+			
 		}
 		return sb.toString();
 	}

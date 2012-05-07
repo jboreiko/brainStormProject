@@ -491,7 +491,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public void setBeingEditedStatus(boolean isBeingEdited) {
 		super.setBeingEditedStatus(isBeingEdited);
-		this.content.setEditable(isBeingEdited);
+		this.content.setEditable(!isBeingEdited);
 	}
 
 }

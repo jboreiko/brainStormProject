@@ -45,20 +45,20 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	Stack<ScribbleNodeEdit> undos;
 	Stack<ScribbleNodeEdit> redos;
 	JPopupMenu _drawMenu;
-	JPopupMenu _copyMenu;
+	JPopupMenu popup;
 	Color _drawColor;
 	int _drawSize;
+	private Point lastClick;
 
 	JPanel _scribbleArea; //the scribble area must be contained in this jpanel so we can delete and drag
 	
-	public final static int BORDER_WIDTH = 11; //the size of the red square signifying a delete
-	
 	public ScribbleNode(int ID, whiteboard.Backend w) {
 		super(ID, w);
+		BORDER_WIDTH = 11;
         _drawColor = Color.BLACK;
         _drawSize = 3;
         _drawMenu = new JPopupMenu();
-        _copyMenu = new JPopupMenu();
+        popup = new JPopupMenu();
         //Different Colors
         JMenu colorMenu = new JMenu("Colors");
         final String colorNames[] = 
@@ -96,12 +96,49 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
         
         //copy
         JMenuItem copyItem = new JMenuItem("Copy");
-        _copyMenu.add(copyItem);
+        popup.add(copyItem);
         copyItem.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent e) {
         		backend.copy(ScribbleNode.this);
         	}
         });
+        popup.addSeparator();
+		JMenuItem addPathItem = new JMenuItem("Add Path");
+		addPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.NORMAL);
+				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+			}
+		});
+		popup.add(addPathItem);
+
+		JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
+		dottedPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
+				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+			}
+		});
+		popup.add(dottedPathItem);
+
+		JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
+		arrowPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.ARROW);
+				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+			}
+		});
+		popup.add(arrowPathItem);
+
+		JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
+		dottedArrowPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED_ARROW);
+				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+			}
+		});
+		popup.add(dottedArrowPathItem);
+        
         
 		_resizeLock = false;
 		_dragLock = false;
@@ -178,13 +215,14 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		lastClick = (Point) e.getPoint().clone();
 		if(e.getModifiers()!=4) {
 		if (withinDelete(e.getX(), e.getY())) {
 			backend.remove(this.getUID());
 			removeAllSnappedPaths();
 		}
 		} else {
-			_copyMenu.show(this, e.getX(), e.getY());
+			popup.show(this, e.getX(), e.getY());
 		}
 	}
 	@Override

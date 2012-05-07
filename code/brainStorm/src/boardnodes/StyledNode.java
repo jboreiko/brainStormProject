@@ -51,21 +51,22 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	boolean _resizeLock,_dragLock;
 	JMenu _styleMenu, _colorMenu, _fontSizeMenu;
 	JPopupMenu _fontMenu;
-	JPopupMenu _copyMenu;
+	JPopupMenu popup;
 
 	String lastText; //what this text says now, or what it said before you focused and started editing
 	Font lastFont;
+	Point lastClick;
 
 	boolean autoBullet; //whether we should add in a bullet every time;
 
-	public final static int BORDER_WIDTH = 10;
 	public final static Dimension DEFAULT_SIZE = new Dimension(200,150);
 
 	public StyledNode(int UID, whiteboard.Backend w){
 		super(UID, w);
+		BORDER_WIDTH = 10;
 		autoBullet = true;
 		_fontMenu = new JPopupMenu();
-		_copyMenu = new JPopupMenu();
+		popup = new JPopupMenu();
 
 		//Different Styles of Typing
 		_styleMenu = new JMenu("Styles");
@@ -135,12 +136,50 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 		//copying
 		JMenuItem copyItem = new JMenuItem("Copy");
-		_copyMenu.add(copyItem);
+		popup.add(copyItem);
 		copyItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				backend.copy(StyledNode.this);
 			}
 		});
+		
+		 popup.addSeparator();
+			JMenuItem addPathItem = new JMenuItem("Add Path");
+			addPathItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.NORMAL);
+					newPath.autoSnapTo(StyledNode.this, lastClick);
+				}
+			});
+			popup.add(addPathItem);
+
+			JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
+			dottedPathItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
+					newPath.autoSnapTo(StyledNode.this, lastClick);
+				}
+			});
+			popup.add(dottedPathItem);
+
+			JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
+			arrowPathItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.ARROW);
+					newPath.autoSnapTo(StyledNode.this, lastClick);
+				}
+			});
+			popup.add(arrowPathItem);
+
+			JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
+			dottedArrowPathItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED_ARROW);
+					newPath.autoSnapTo(StyledNode.this, lastClick);
+				}
+			});
+			popup.add(dottedArrowPathItem);
+		
 
 		type = BoardEltType.STYLED;
 		setLayout(null);
@@ -328,6 +367,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		lastClick = (Point) e.getPoint().clone();
 		if(e.getModifiers()!=4) {
 			if (isBeingEdited)
 				return;
@@ -337,7 +377,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			}
 		} else {
 			//right click
-			_copyMenu.show(StyledNode.this, e.getX(), e.getY());
+			popup.show(StyledNode.this, e.getX(), e.getY());
 		}
 	}
 	@Override

@@ -136,6 +136,11 @@ public class MainFrame extends JFrame {
         validate();
         repaint();
     }
+    
+    public SuggestGUI getSuggestPanel() {
+    	return _suggestPanel;
+    }
+    
     /*
      * Method initMenu()
      * 

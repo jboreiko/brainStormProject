@@ -116,13 +116,38 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			});
 			_fontSizeMenu.add(fontSize);
 		}
-		
+
 		final JMenuItem bulletMenu = new JMenuItem("Turn On Bullets");
 		bulletMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				autoBullet = !autoBullet;
 				bulletMenu.setText("Turn " + (autoBullet ? "Off" : "On") + " Bullets");
+			}
+		});
+
+		final JMenuItem loadWikiItem = new JMenuItem("Put in Wiki Info");
+		loadWikiItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				content.setText(backend.getPanel()._mainFrame.getSuggestPanel().getWikiInfo());
+				notifyBackend(BoardActionType.ELT_MOD);
+			}
+		});
+		final JMenuItem loadDictItem = new JMenuItem("Put in Dictionary Info");
+		loadDictItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				content.setText(backend.getPanel()._mainFrame.getSuggestPanel().getDictInfo());
+				notifyBackend(BoardActionType.ELT_MOD);
+			}
+		});
+		final JMenuItem loadDuckItem = new JMenuItem("Put in DuckDuckGo Info");
+		loadDuckItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				content.setText(backend.getPanel()._mainFrame.getSuggestPanel().getDuckInfo());
+				notifyBackend(BoardActionType.ELT_MOD);
 			}
 		});
 
@@ -133,6 +158,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		_fontMenu.add(_colorMenu);
 		_fontMenu.addSeparator();
 		_fontMenu.add(bulletMenu);
+		_fontMenu.addSeparator();
+		_fontMenu.add(loadWikiItem);
+		_fontMenu.add(loadDictItem);
+		_fontMenu.add(loadDuckItem);
 
 		//copying
 		JMenuItem copyItem = new JMenuItem("Copy");
@@ -142,44 +171,44 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				backend.copy(StyledNode.this);
 			}
 		});
-		
-		 popup.addSeparator();
-			JMenuItem addPathItem = new JMenuItem("Add Path");
-			addPathItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.NORMAL);
-					newPath.autoSnapTo(StyledNode.this, lastClick);
-				}
-			});
-			popup.add(addPathItem);
 
-			JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
-			dottedPathItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
-					newPath.autoSnapTo(StyledNode.this, lastClick);
-				}
-			});
-			popup.add(dottedPathItem);
+		popup.addSeparator();
+		JMenuItem addPathItem = new JMenuItem("Add Path");
+		addPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.NORMAL);
+				newPath.autoSnapTo(StyledNode.this, lastClick);
+			}
+		});
+		popup.add(addPathItem);
 
-			JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
-			arrowPathItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.ARROW);
-					newPath.autoSnapTo(StyledNode.this, lastClick);
-				}
-			});
-			popup.add(arrowPathItem);
+		JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
+		dottedPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
+				newPath.autoSnapTo(StyledNode.this, lastClick);
+			}
+		});
+		popup.add(dottedPathItem);
 
-			JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
-			dottedArrowPathItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED_ARROW);
-					newPath.autoSnapTo(StyledNode.this, lastClick);
-				}
-			});
-			popup.add(dottedArrowPathItem);
-		
+		JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
+		arrowPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.ARROW);
+				newPath.autoSnapTo(StyledNode.this, lastClick);
+			}
+		});
+		popup.add(arrowPathItem);
+
+		JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
+		dottedArrowPathItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED_ARROW);
+				newPath.autoSnapTo(StyledNode.this, lastClick);
+			}
+		});
+		popup.add(dottedArrowPathItem);
+
 
 		type = BoardEltType.STYLED;
 		setLayout(null);
@@ -204,10 +233,14 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				content.requestFocusInWindow();
 			}
 		});
-		revalidate();
-		view.revalidate();
-		repaint();
-		view.repaint();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				revalidate();
+				view.revalidate();
+				repaint();
+				view.repaint();
+			}
+		});
 		//notifyBackend(BoardActionType.ELT_MOD); //once you've made text change, pressing undo will revert to initial text
 	}
 

@@ -80,7 +80,7 @@ class Client extends Thread{
 		//InetAddress addr = null;
 		Socket sock = null;
 		sock = new Socket(addrName, port);
-		sock.setSoTimeout(100);
+		//sock.setSoTimeout(100);
 		return sock;
 	}
 
@@ -299,7 +299,7 @@ class Client extends Thread{
 					if (shutdown)
 						System.err.println("client<" + clientId + ", " + username + ">: reading thread has quit on connection loss");
 					else {
-						//e.printStackTrace();
+						e.printStackTrace();
 						System.out.println("client<" + clientId + ", " + username + ">: connection with host has closed, shutting down");
 						_net._suggestPanel.connectionError();
 					}

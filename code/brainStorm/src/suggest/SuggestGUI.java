@@ -202,6 +202,7 @@ public class SuggestGUI extends JPanel {
 						_role = 1;
 						if (_net.becomeHost(_usernameField.getText())) {
 							mainFrame._load.setEnabled(false);
+							mainFrame._rename.setEnabled(false);
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
 							_userScrollPane.setEnabled(true);
@@ -290,6 +291,7 @@ public class SuggestGUI extends JPanel {
 						
 						if(_net.becomeClient(_ipField.getText(), _usernameField.getText(), Integer.valueOf(_portField.getText()))) {
 						    mainFrame._load.setEnabled(false);
+						    mainFrame._rename.setEnabled(false);
 							_chatMessage.setEnabled(true);
 							_chatPane.setEnabled(true);
 							_userScrollPane.setEnabled(true);
@@ -333,6 +335,7 @@ public class SuggestGUI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			    mainFrame._load.setEnabled(true);
+			    mainFrame._rename.setEnabled(true);
 				_chatMessage.setEnabled(false);
 				_chatPane.setEnabled(false);
 				_userScrollPane.setEnabled(false);
@@ -600,6 +603,7 @@ public class SuggestGUI extends JPanel {
 				e1.printStackTrace();
 			}
             mainFrame._load.setEnabled(true);
+            mainFrame._rename.setEnabled(true);
 			_chatPane.setEnabled(false);
 			_userScrollPane.setEnabled(false);
 			_ipLabel.setText("");

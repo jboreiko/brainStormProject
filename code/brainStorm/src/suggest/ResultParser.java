@@ -170,6 +170,10 @@ public class ResultParser {
 	    	return article;
 	    }
 	    
+	    indexOf = article.indexOf("==See also==");
+	    if (indexOf >= 0) {
+	    	article = article.substring(0, indexOf);
+	    }
 	    article = removeTriple(article);
 	    article  = removeImages(article);
 	    article = removeBraces(article);

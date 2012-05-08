@@ -224,6 +224,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		} else {
 			popup.show(this, e.getX(), e.getY());
 		}
+		repaint();
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {

@@ -49,6 +49,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	Color _drawColor;
 	int _drawSize;
 	private Point lastClick;
+	Color _backgroundColor;
 
 	JPanel _scribbleArea; //the scribble area must be contained in this jpanel so we can delete and drag
 	
@@ -57,6 +58,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		BORDER_WIDTH = 11;
         _drawColor = Color.BLACK;
         _drawSize = 3;
+        _backgroundColor = Color.WHITE;
         _drawMenu = new JPopupMenu();
         popup = new JPopupMenu();
         //Different Colors
@@ -77,6 +79,21 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
         }
         _drawMenu.add(colorMenu);
         
+        
+        JMenu backgroundMenu = new JMenu("Background Color");
+        for(int i=0;i<colorNames.length;i+=1){
+            final Color color = colors[i];
+            JMenuItem drawItem = new JMenuItem(colorNames[i]);
+            drawItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    _backgroundColor = color;
+                    notifyBackend(BoardActionType.ELT_MOD);
+                    repaint();
+                }
+            });
+            backgroundMenu.add(drawItem);
+        }
+        _drawMenu.add(backgroundMenu);
 
         //Different Sizes
         JMenu sizeMenu = new JMenu("Size");
@@ -336,7 +353,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 	public void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
 		Graphics2D g = (Graphics2D) graphics;
-		g.setColor(Color.WHITE);
+		g.setColor(_backgroundColor);
 		g.fillRect(BORDER_WIDTH, BORDER_WIDTH, getWidth()-2*BORDER_WIDTH, getHeight() - 2*BORDER_WIDTH);
 		g.setStroke(new BasicStroke(_drawSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		for (ScribbleNodeEdit edit : undos) {
@@ -397,6 +414,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		setBounds(sn.bounds);
 		undos = sn.undos;
 		redos = sn.redos;	
+		_backgroundColor = sn.background;
 	}
 	
 	@Override
@@ -406,6 +424,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		toReturn.bounds = (Rectangle) this.getBounds().clone();
 		toReturn.undos = (Stack<ScribbleNodeEdit>) undos.clone();
 		toReturn.redos = (Stack<ScribbleNodeEdit>) redos.clone();
+		toReturn.background = new Color(_backgroundColor.getRGB());
 		return toReturn;
 	}
 	public Color getDrawColor(){

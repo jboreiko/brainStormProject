@@ -1,5 +1,6 @@
 package boardnodes;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class SerializedScribbleNode extends SerializedBoardElt {
 	public Stack<ScribbleNodeEdit> undos;
 	public Stack<ScribbleNodeEdit> redos;
 	public Rectangle bounds;
+	public Color background;
 	
 	public SerializedScribbleNode() {
 		type = BoardEltType.SCRIBBLE;

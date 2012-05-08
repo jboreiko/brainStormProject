@@ -694,6 +694,9 @@ public class SuggestGUI extends JPanel {
 	}
 	
 	public void updateUsers(LinkedList<ClientInfo> users) {
+	    if (users.size() > activeUsers.size()) {
+	        _backend.clearUndoStack();
+	    }
 	    activeUsers = users;
 	    SimpleAttributeSet set = new SimpleAttributeSet();
 	    StyledDocument doc = _activeUserList.getStyledDocument();

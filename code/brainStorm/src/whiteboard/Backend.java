@@ -54,10 +54,14 @@ public class Backend {
 	}
 
 	public void clear() {
-		pastActions.clear();
-		futureActions.clear();
+		this.clearUndoStack();
 		boardElts.clear();
 		paths.clear();
+	}
+	
+	public void clearUndoStack() {
+	    pastActions.clear();
+	    futureActions.clear();
 	}
 
 	public void save(File f) {
@@ -87,6 +91,7 @@ public class Backend {
 			toWriteOut.add(be.toSerialized());
 		}
 		toWriteOut.add(new SerializedProjectSaveInfo(_projectName, WhiteboardPanel.UIDCounter));
+		clearUndoStack();
 		return toWriteOut;
 	}
 
@@ -105,8 +110,7 @@ public class Backend {
 			}
 		}
 		/* Clear stack upon loading */
-		pastActions.clear();
-		futureActions.clear();
+		clearUndoStack();
 	}
 
 	public void load(File f) {
@@ -128,8 +132,7 @@ public class Backend {
 				}
 			}
 			/* Clear stack upon loading */
-			pastActions.clear();
-			futureActions.clear();
+			clearUndoStack();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (ClassNotFoundException e) {

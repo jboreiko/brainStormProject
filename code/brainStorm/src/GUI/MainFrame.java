@@ -192,10 +192,10 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				System.err.println("NOT IMPLEMENTED");
 				try{
-					Runtime.getRuntime().exec("java brainStormProject");
+					Runtime.getRuntime().exec("java -jar BrainStorm.jar");
 				}
-				catch(IOException exception){
-
+				catch(IOException e1){
+				    System.err.println("mainFrame: unable to create new project, can't find jar");
 				}
 			}
 		});

@@ -68,7 +68,7 @@ public class SuggestGUI extends JPanel {
 	private BlockingQueue<String> _bqueue;
 	private SuggestThread _suggestThread;
 	private JButton _beHostButton, _joinButton, _sendMessageButton, _leaveButton, _backButton, _sourceButton;
-	private int _role, _defaultPort, _chatHeight;
+	private int _role, _defaultPort, _chatHeight, _suggestHeight;
 	private ArrayList<ClickText> _textList;
 	private Stack<String> _back;
 	private ResultsPanel resultsPanel;
@@ -82,7 +82,6 @@ public class SuggestGUI extends JPanel {
 	private JLabel _ipLabel, _portLabel;
 	
 	final int CHAT_WIDTH = 340;
-	final int SUGGEST_HEIGHT = 600;
 	
 	public SuggestGUI(Dimension interfaceSize, MainFrame main) {
 		super(new java.awt.BorderLayout());
@@ -90,7 +89,8 @@ public class SuggestGUI extends JPanel {
 		mainFrame = main;
 		_originalSize = mainFrame.getSize().getHeight();
 		
-		_chatHeight = (int) (_originalSize - 470);
+		_chatHeight = (int) (_originalSize - 440);
+		_suggestHeight = (int) (_originalSize - 300);
 		
 		buildSuggestTab();
 		buildNetworkTab();
@@ -644,12 +644,12 @@ public class SuggestGUI extends JPanel {
 		int delta = (int) (_originalSize-height);
 		System.out.println("height:  " + height);
 		System.out.println("delta:  " + delta);
-		_wikiScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
-		_wikiPane.setSize(CHAT_WIDTH, SUGGEST_HEIGHT-delta);
-		_duckScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
-		duckoutput.setSize(CHAT_WIDTH, SUGGEST_HEIGHT-delta);
-		_dictScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, SUGGEST_HEIGHT-delta));
-		dictoutput.setSize(CHAT_WIDTH, SUGGEST_HEIGHT-delta);
+		_wikiScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _suggestHeight-delta));
+		_wikiPane.setSize(CHAT_WIDTH, _suggestHeight-delta);
+		_duckScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _suggestHeight-delta));
+		duckoutput.setSize(CHAT_WIDTH, _suggestHeight-delta);
+		_dictScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _suggestHeight-delta));
+		dictoutput.setSize(CHAT_WIDTH, _suggestHeight-delta);
 		_chatScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _chatHeight-delta));
 		_chatPane.setSize(CHAT_WIDTH, _chatHeight-delta);
 		_suggestPanel.repaint();
@@ -802,7 +802,7 @@ public class SuggestGUI extends JPanel {
 		_wikiScrollPane = new JScrollPane(_wikiPane);
 		_wikiScrollPane.setVerticalScrollBarPolicy(
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_wikiScrollPane.setPreferredSize(new Dimension(340, 600));
+		_wikiScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _suggestHeight));
 		wikiPanel.add(_wikiScrollPane);
 		JPanel backPanel = new JPanel();
 		_backButton = new JButton("Back");
@@ -865,7 +865,7 @@ public class SuggestGUI extends JPanel {
 		_dictScrollPane = new JScrollPane(dictoutput);
 		_dictScrollPane.setVerticalScrollBarPolicy(
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_dictScrollPane.setPreferredSize(new Dimension(340, 600));
+		_dictScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _suggestHeight));
 		dictPanel.add(_dictScrollPane);
 		
 		JPanel duckPanel = new JPanel();
@@ -876,7 +876,7 @@ public class SuggestGUI extends JPanel {
 		_duckScrollPane = new JScrollPane(duckoutput);
 		_duckScrollPane.setVerticalScrollBarPolicy(
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_duckScrollPane.setPreferredSize(new Dimension(340, 600));
+		_duckScrollPane.setPreferredSize(new Dimension(CHAT_WIDTH, _suggestHeight));
 		duckPanel.add(_duckScrollPane);
 		
 		JTabbedPane tabbedPane = new JTabbedPane();

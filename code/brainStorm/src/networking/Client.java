@@ -212,6 +212,7 @@ class Client extends Thread{
 			try {
 				//Get Id
 				System.out.println("client: requesting id, current id: " + clientId);
+				if (writer == null) return;
 				writer.writeObject(new Handshake(clientId, -1, username));
 				writer.flush();
 			} catch (IOException e1) {
@@ -237,6 +238,7 @@ class Client extends Thread{
 					//writer.flush();
 					try {
 						//System.out.println("Writing out message");
+					    if (writer == null) break;
 						writer.writeObject(message);
 						writer.flush();
 					} catch (IOException e) {
@@ -292,6 +294,7 @@ class Client extends Thread{
 				try {
 					//System.out.println("Waiting for message...");
 					//message = reader.readLine();
+				    if (reader == null) break;
 					message = (NetworkMessage) reader.readObject();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

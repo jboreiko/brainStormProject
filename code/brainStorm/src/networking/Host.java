@@ -29,6 +29,7 @@ public class Host extends Thread{
     public Client localClient;
     private int hostId = 0;
     private final int portAttemptLimit = 1000;
+    private ArrayList<Color> _colorarr;
 
     private int openId;
 
@@ -40,6 +41,13 @@ public class Host extends Thread{
      **************************************************************************/
     public Host(int _localport, String username, Networking net) throws IOException {
         localport = _localport;
+        _colorarr = new ArrayList<Color>();
+        _colorarr.add(new Color(2, 65, 237));
+        _colorarr.add(new Color(2, 237, 65));
+        _colorarr.add(new Color(189, 21, 9));
+        _colorarr.add(new Color(100, 25, 191));
+        _colorarr.add(new Color(240, 185, 5));
+        _colorarr.add(new Color(247, 129, 232));
         int count = 0;
         while (true) {
             try {
@@ -170,31 +178,24 @@ public class Host extends Thread{
     }
 
     public Color pickColor() {
-        Color color;
-        switch(activeUsers.size()) {
-        case 0:
-            color = new Color(2, 65, 237);
-            break;
-        case 1:
-            color = new Color(2, 237, 65);
-            break;
-        case 2:
-            color = new Color(189, 21, 9);
-            break;
-        case 3:
-            color = new Color(100, 25, 191);
-            break;
-        case 4:
-            color = new Color(240, 185, 5);
-            break;
-        case 5:
-            color = new Color(247, 129, 232);
-            break;
-        default:
-            color = new Color(2, 237, 65);
-            break;
-        }
-        return color;
+//    	Color color0 = new Color(2, 65, 237);
+//    	Color color1 = new Color(2, 237, 65);
+//    	Color color2 = new Color(189, 21, 9);
+//    	Color color3 = new Color(100, 25, 191);
+//    	Color color4 = new Color(240, 185, 5);
+//    	Color color5 = new Color(247, 129, 232);
+    	for(Color col:_colorarr) {
+    		boolean use = true;
+    		for(ClientInfo cl:activeUsers) {
+    			if (col.equals(cl.color)) {
+    				use = false;
+    			}
+    		}
+    		if (use) {
+    			return col;
+    		}
+    	}
+        return Color.BLACK;
     }
 
     @SuppressWarnings("unchecked")

@@ -109,6 +109,11 @@ public class ResultsPanel extends javax.swing.JPanel {
 	}
 
 	public void setResults(ArrayList<SearchResult> set, String forQuery) {
+		if(results!=null && !results.isEmpty()) {
+			for(SearchResult s: results) {
+				s.elt.clearHighlight();
+			}
+		}
 		query = forQuery;
 		results = set;
 		index = 0;

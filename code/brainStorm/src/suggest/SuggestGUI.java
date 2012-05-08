@@ -472,15 +472,15 @@ public class SuggestGUI extends JPanel {
 	}
 	
 	public String getWikiInfo() {
-		return _wikiPane.getText();
+		return input.getText()+"\n-------\n"+_wikiPane.getText();
 	}
 	
 	public String getDictInfo() {
-		return dictoutput.getText();
+		return input.getText()+"\n-------\n"+dictoutput.getText();
 	}
 	
 	public String getDuckInfo() {
-		return duckoutput.getText();
+		return input.getText()+"\n-------\n"+duckoutput.getText();
 	}
 	
 	// Customized entering and exiting methods below

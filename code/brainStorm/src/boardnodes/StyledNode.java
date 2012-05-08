@@ -128,6 +128,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				content.setText(backend.getPanel()._mainFrame.getSuggestPanel().getWikiInfo());
+				content.setCaretPosition(0);
 				notifyBackend(BoardActionType.ELT_MOD);
 			}
 		});
@@ -136,6 +137,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				content.setText(backend.getPanel()._mainFrame.getSuggestPanel().getDictInfo());
+				content.setCaretPosition(0);
 				notifyBackend(BoardActionType.ELT_MOD);
 			}
 		});
@@ -144,6 +146,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				content.setText(backend.getPanel()._mainFrame.getSuggestPanel().getDuckInfo());
+				content.setCaretPosition(0);
 				notifyBackend(BoardActionType.ELT_MOD);
 			}
 		});

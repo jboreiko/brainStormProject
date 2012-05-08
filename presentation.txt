@@ -1,0 +1,33 @@
+CREATE A PROJECT: it's called.....BRAZIL RESEARCH
+create a text node banner: brazil. change size, change color, change font. resize pane
+create a scribble node: draw a flag. add path from BRAZIL to flag. purposefully mess up a few times so you can undo and redo.
+move flag up as if changing mind
+
+"actually i know very little about brazil"
+
+make a new text node. look up brazil on wikipedia. put it into the node. expand it so there's no scroll bar.
+"who else neighbors brazil?"
+click on south america. open up a text node, turn on bullets, title "neighbors", type in the neighbors, add a path to it.
+
+click through a few. open it in the source wiki. look at it for a sec.
+"now lets get back to brazil"
+hit back a bunch until you see "brazil" on the top
+
+"running out of space" - drag it off the screen
+
+i get a phone call. someone wants to brainstorm with me. they join. we're both REALLY happy about it. i say i'm hosting, and start hosting, "how do i join?" i explain. he joins, and we start chatting.
+
+someone uses a big word. it's pernicious. "what does that word mean? we should record this for posterity." do so.
+
+"what was that thing the article said about brazilwood?" "i dont know man, why don't you find it?!" "sounds good bro! i love you!" find it
+
+"these two things are related!" "then draw a path between them!" "these two things are somewhat related" "no worries man. theres a dotted path for that." this one leads to another! "arrow!" "this one loosely leads to another!" "dotted arrow!!!!!"
+"but what if i want to drag them around?!!!!" "DONT WORRY!!!!!!!!!!!!!!!!!!!!!!!"
+
+"i want to draw a lot of thigns, but i dont want to manually open all these scribble ndoes!" "just turn on continuous insertion man!!!" 
+
+"i like what you're writing and i want to take it in another direction!" "no worries man. just copy it and paste a copy!!!"
+
+
+"oh fuck bro, mty mom just finished making dinner - i gotta close this down!" "no worries man, just save it!!" "won't it fuck up?" "nope. just load it back in when you're done!"
+

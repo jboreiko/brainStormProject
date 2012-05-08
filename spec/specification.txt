@@ -1,71 +1,121 @@
 This will hold the main specification for BrainStorming.  All other files within this folder will be referenced by this document.
 
-Visual Items:
-------------
-chat box (connectivity box) + search box : bottom left
-classic menu bar (in macs on top, on Windows associated with window. handled by java)
-contextual suggest box (is in bottom left)
-topic bar - on top
-scroll bar (styled after google earth)
-mini view - overview of your entire brainstorm project with a square showing the area you're looking at (like SublimeText)
+the user can create nodes (square windows to be filled with content) or paths (lines between nodes that denote connections, for example)
+nodes and paths are called elements
+
+types of nodes:
+scribble node - a small painting area with different colors and stroke sizes
+text node - a small writing area with different fonts, colors, and font sizes, and an option to have bullet points
+
+types of paths:
+path (solid line, no arrow head)
+dotted path (dotted line, no arrow head)
+arrow (solid line, arrow head)
+dotted arrow (dotted line, arrow head)
+
+=============
 
 Features (these go in the 'classic menu bar'):
 --------
-File: save, open, export, new, preferences, print
-Edit: cut, copy, paste, undo, redo
-View: zoom in/out, fit to screen
-Format: compress, rearrange
+File: create, join, rename, load, save, exit
+create = create a new project (in a new window)
+join = join a project over a network
+rename = rename a project
+load = load a saved project from file
+save = save a current project to file
+exit = exit the program
+
+Edit: undo, redo
+undo = undo the latest action
+redo = redo the latest action
+
+(in the left side, a tabbed pane)
+Research Panel - a panel where the user can research
+Networking Panel - a panel where the user can connect to other users and collaborate over a network
+Find Panel - a panel where the user can search for text in the project
+
+=============
 
 On Start Up:
 -----------
-Blank brainstorming session. Click to insert node and therefore start a project
+Blank brainstorming session. User can immediately interact with the project to begin working on it.
 
-Click Events:
 ============
 
-Interacting with white space:
+Interacting with the project background (i.e. clicking not on a ndoe):
 ----------------------------
 rightClick -> sub action menu (insert node menu)
-	   option for multiple node insertion (which means left clicking several times keeps adding nodes)
+	   option for continuous insertion (which means left clicking several times keeps adding more instances of the last type of element you added)
+	   options of elements to add:
 	   types of nodes:
-		bubbles
 	   	text box
 	   	scribble box
-leftClick -> select
-	  (& hold) drag
+	   types of paths:
+		path
+		dotted path
+		arrow
+		dotted arrow
+	   paste (paste the last node that was cut or copied)
+leftClick -> drag the project space to pan around instead of using the scroll bars
 
+============
 
-On Click Path [connection between two nodes]:
--------------
-single -> manipulate
-double -> write in text field
+Interacting with nodes:
+-----------------------
+rightClick on border -> sub action menu
+	    option to copy
+	    options of paths to add: (these paths will automatically attach to the node they are spawned from)
+		path
+		dotted path
+		arrow
+		dotted arrow
+	   
+leftClick on border -> in top left (red square): delete
+	     in bottom right (grey square): resize
+	     anywhere else on the border (followed by dragging): move
 
-On Click Node:
--------------
-single -> focus
-double -> write in text field
+rightClick inside -> sub action menu
+	scribble nodes: color - choose a color to paint
+			size - choose a stroke size to use
+	text nodes: font - choose a font
+		    color - choose a color
+		    size - choose a font size
+		    turn on bullets - choose whether a new line begins with a bullet point
+		    insert wiki info - put text from the currently-searched wikipedia article into this node
+		    insert dictionary info - put text from the currently-searched dictionary definition into this node
+		    insert duckduckgo info - put text from the currently-searched duckduckgo page into this node
+===========
 
-On Click Scribble:
------------------
-single -> focus (drags)
-double -> open drawing field
+Interacting with Paths:
+------------------------
+When the mouse moves near a path, colored spots are highlighted to show where the mouse must click and drag to interact with it.
 
-Suggestion Box:
-==============
-Has text from node in box then allows you to highlight and run and get results
+leftClick ->
+	if on either end of the path, begins dragging the path. the path stops dragging upon release.
+	if in the center (red, delete area), deletes the path
 
-Networking:
-==========
-Actions stored as objects (sent across network as serializable);
-Collaboration:
-=============
-For use collab, we will have a chat box at the bottom left
-where user can chat with every other user editing brainstorm session.
-Any user action is global across all other users' brainstorm project
-i.e. there is no division of permission.
-Undo will (tentatively) control a *global* action stack, so that one user can hit udno to undo another user's activities.
+rightClick -> does nothing, treats as a right click on the project space
 
+When an end of a path is dragged into a side of a node, it "snaps" onto it, meaning that until that side of the path
+is dragged off the node, it will follow the node around as if that end is glued on. This "snap" is signified to the user
+by a big circle at the relevant end of the path.
 
-Backend Storage:
-===============
-XML with grid layout
+===========
+
+Research Panel:
+------------
+The user types in a query and can receive information about it from wikipedia, google dictionary, and duckduckgo.
+As has been mentioned, the user can then right click on any text node to copy that information into it.
+The user can also, with one click, go to the wikipedia page for the given query in their browser window.
+
+Networking Panel:
+------------
+The user can either host a brainstorm, where other users can connect to their project and collaborate remotely, or
+join a brainstorm that is being hosted by someone else. When in a group brainstorm, the user sees the usernames of
+others in the brainstorm, and can chat with them.
+
+Find Panel:
+-----------
+The user can search for a text query in all the text nodes.
+
+===========

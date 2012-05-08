@@ -89,7 +89,7 @@ public class WhiteboardPanel extends JPanel{
 	//initialize the right-click menu to allow for adding of nodes
 	private JPopupMenu initPopupMenu() {
 		JPopupMenu popup = new JPopupMenu("Context Menu");
-		JMenuItem styledNodeMenuItem = new JMenuItem("Add Styled Node");
+		JMenuItem styledNodeMenuItem = new JMenuItem("Add Text Node");
 		styledNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				newElt(BoardEltType.STYLED, BoardPathType.NORMAL);

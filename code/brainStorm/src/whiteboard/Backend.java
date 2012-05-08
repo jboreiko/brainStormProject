@@ -472,7 +472,7 @@ public class Backend {
 				toReturn.ofSerialized(((SerializedScribbleNode) e));
 				toReturn._mouseListener = _mouseListener;
 				boardElts.put(toReturn.getUID(), toReturn);
-				panel.add(toReturn);
+				panel.add(toReturn,0);
 				System.out.println("adding "+toReturn.getUID());
 			} else {
 				boardElts.get(e.getUID()).ofSerialized(((SerializedScribbleNode) e));
@@ -484,7 +484,7 @@ public class Backend {
 				toReturn.ofSerialized(((SerializedStyledNode) e));
 				toReturn._mouseListener = _mouseListener;
 				boardElts.put(toReturn.getUID(), toReturn);
-				panel.add(toReturn);
+				panel.add(toReturn,0);
 				System.out.println("adding "+toReturn.getUID());
 			} else {
 				boardElts.get(e.getUID()).ofSerialized(((SerializedStyledNode) e));

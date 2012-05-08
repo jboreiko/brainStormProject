@@ -86,6 +86,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
             JMenuItem drawItem = new JMenuItem(colorNames[i]);
             drawItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                	undos.push(new ScribbleNodeEdit(new Color(_backgroundColor.getRGB())));
                     _backgroundColor = color;
                     notifyBackend(BoardActionType.ELT_MOD);
                     repaint();
@@ -189,6 +190,8 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			
 		});
 		//setBorder(BorderFactory.createLineBorder(Color.GRAY,7));
+		
+		undos.push(new ScribbleNodeEdit(Color.WHITE));
 	}
 	@Override
 	public Dimension getPreferredSize() {
@@ -207,6 +210,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			Rectangle r = (Rectangle) f.content;
 			redos.push(new ScribbleNodeEdit(new Rectangle(getBounds())));
 			setBounds(r);
+		} else if (f.type == ScribbleNodeEditType.BACKGROUND) {
+			Color c = (Color) f.content;
+			redos.push(new ScribbleNodeEdit(new Color(_backgroundColor.getRGB())));
+			_backgroundColor = c;
 		}
 	}
 
@@ -223,6 +230,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 			Rectangle r = (Rectangle) f.content;
 			undos.push(new ScribbleNodeEdit(new Rectangle(getBounds())));
 			setBounds(r);
+		} else if (f.type == ScribbleNodeEditType.BACKGROUND) {
+			Color c = (Color) f.content;
+			undos.push(new ScribbleNodeEdit(new Color(_backgroundColor.getRGB())));
+			_backgroundColor = c;
 		}
 	}
 	

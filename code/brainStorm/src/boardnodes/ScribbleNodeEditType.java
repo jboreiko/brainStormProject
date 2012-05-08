@@ -1,3 +1,3 @@
 package boardnodes;
 
-public enum ScribbleNodeEditType { DRAW,DRAG}
+public enum ScribbleNodeEditType { DRAW,DRAG, BACKGROUND}

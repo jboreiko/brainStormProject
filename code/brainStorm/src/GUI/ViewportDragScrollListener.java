@@ -29,7 +29,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	public ViewportDragScrollListener(WhiteboardPanel comp) {
 		this.wb = comp;
 		this.dc = comp.getCursor();
-		_contInsertion = true;
+		_contInsertion = false;
 	}
 	@Override public void hierarchyChanged(HierarchyEvent e) {
 		JComponent c = (JComponent)e.getSource();
@@ -151,8 +151,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 		}
 		wb.repaint();
 	}
-	public void toggleContInsertion() {
-		_contInsertion = !_contInsertion;
-		System.out.println(_contInsertion);
+	public void setContInsertion(boolean b) {
+		_contInsertion = b;
 	}
 }

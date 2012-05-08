@@ -48,11 +48,13 @@ public class WhiteboardPanel extends JPanel{
 	private int _frontElt;
 	private Point _addLocation; //the location you should add the next BoardElt to
 	private BufferedImage tile;
+	private boolean _contInsertion;
 
 	private JPopupMenu _rightClickMenu; //the options when a user right-clicks
 
 	public WhiteboardPanel(String projectName, MainFrame mf){
 		super();
+		_contInsertion = false;
 		_mainFrame = mf;
 		_lastAdded = 0;
 		_backend = new Backend(projectName, this);
@@ -89,6 +91,8 @@ public class WhiteboardPanel extends JPanel{
 	//initialize the right-click menu to allow for adding of nodes
 	private JPopupMenu initPopupMenu() {
 		JPopupMenu popup = new JPopupMenu("Context Menu");
+		
+		
 		JMenuItem styledNodeMenuItem = new JMenuItem("Add Text Node");
 		styledNodeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -144,8 +148,17 @@ public class WhiteboardPanel extends JPanel{
 				_backend.paste(lastClick);
 			}
 		});
-
+		final JMenuItem continuousInsertionItem = new JMenuItem("Turn Continuous Insertion On");
+		continuousInsertionItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_contInsertion = !_contInsertion;
+				_mouseListener.setContInsertion(_contInsertion);
+				continuousInsertionItem.setText("Turn Continuous Insertion "+(_contInsertion?"Off":"On"));
+			}
+		});
+		
 		popup.add(pasteItem);
+		popup.add(continuousInsertionItem);
 		return popup;
 	}
 

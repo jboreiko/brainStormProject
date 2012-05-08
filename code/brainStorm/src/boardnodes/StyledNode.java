@@ -126,7 +126,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			}
 		});
 
-		final JMenuItem loadWikiItem = new JMenuItem("Put in Wiki Info");
+		final JMenuItem loadWikiItem = new JMenuItem("Insert Wiki Info");
 		loadWikiItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -134,7 +134,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				notifyBackend(BoardActionType.ELT_MOD);
 			}
 		});
-		final JMenuItem loadDictItem = new JMenuItem("Put in Dictionary Info");
+		final JMenuItem loadDictItem = new JMenuItem("Insert Dictionary Info");
 		loadDictItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -142,7 +142,7 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				notifyBackend(BoardActionType.ELT_MOD);
 			}
 		});
-		final JMenuItem loadDuckItem = new JMenuItem("Put in DuckDuckGo Info");
+		final JMenuItem loadDuckItem = new JMenuItem("Insert DuckDuckGo Info");
 		loadDuckItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -163,6 +163,17 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		_fontMenu.add(loadDictItem);
 		_fontMenu.add(loadDuckItem);
 
+		
+		//cut
+        JMenuItem cutItem = new JMenuItem("Cut");
+        popup.add(cutItem);
+        cutItem.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e) {
+        		backend.copy(StyledNode.this);
+    			backend.remove(StyledNode.this.getUID());
+    			removeAllSnappedPaths();
+        	}
+        });
 		//copying
 		JMenuItem copyItem = new JMenuItem("Copy");
 		popup.add(copyItem);

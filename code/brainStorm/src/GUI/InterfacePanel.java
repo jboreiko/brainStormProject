@@ -14,23 +14,9 @@ import javax.swing.*;
  */
 public class InterfacePanel extends JPanel {
 	private WhiteboardPanel _whiteboard;
-	private JCheckBox _contInsertionBox;
 	public InterfacePanel(WhiteboardPanel whiteboard){
 		super();
 		_whiteboard = whiteboard;
-		_contInsertionBox = new JCheckBox("Continuous Insertion",null,true);
-		_contInsertionBox.setVisible(true);
-		_contInsertionBox.addActionListener(new ContinuousInsertionListener());
-		add(_contInsertionBox);
 		
-	}
-	
-	private class ContinuousInsertionListener implements ActionListener{
-		
-		public ContinuousInsertionListener(){
-		}
-		public void actionPerformed(ActionEvent e) {
-			_whiteboard._mouseListener.toggleContInsertion();
-		}
 	}
 }

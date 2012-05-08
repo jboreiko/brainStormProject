@@ -110,7 +110,16 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
         _drawMenu.add(sizeMenu);
         add(_drawMenu);
         
-        
+        //cut
+        JMenuItem cutItem = new JMenuItem("Cut");
+        popup.add(cutItem);
+        cutItem.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e) {
+        		backend.copy(ScribbleNode.this);
+    			backend.remove(ScribbleNode.this.getUID());
+    			removeAllSnappedPaths();
+        	}
+        });
         //copy
         JMenuItem copyItem = new JMenuItem("Copy");
         popup.add(copyItem);
@@ -241,6 +250,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		} else {
 			popup.show(this, e.getX(), e.getY());
 		}
+		repaint();
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {

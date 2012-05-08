@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -100,7 +99,7 @@ public class SuggestGUI extends JPanel {
 		tabbedPane = new JTabbedPane();
 		
 		ImageIcon suggest = new ImageIcon("./lib/question.jpeg");
-		tabbedPane.addTab("Suggestions", suggest, _suggestPanel, "Get Suggestions");
+		tabbedPane.addTab("Research", suggest, _suggestPanel, "Research");
 		
 		ImageIcon network = new ImageIcon("./lib/web.jpeg");
 		tabbedPane.addTab("Networking", network, _networkPanel, "Set Up Networking");
@@ -763,7 +762,7 @@ public class SuggestGUI extends JPanel {
 		input.getActionMap().put(im.get(keyStroke), action);
 		
 		JPanel buttonPanel = new JPanel();
-		JButton suggestButton = new JButton("Suggestions?");
+		JButton suggestButton = new JButton("Get Info!");
 		suggestButton.addActionListener(new SuggestionListener());
 		buttonPanel.add(suggestButton);
 		

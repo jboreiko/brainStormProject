@@ -62,6 +62,7 @@ public class MainFrame extends JFrame {
 
 	public MainFrame(String projectName){
 		super(projectName);
+		this.setIconImage((new ImageIcon("./lib/brain.jpeg").getImage()));
 		this.setVisible(true);
 		setJMenuBar(initMenu());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

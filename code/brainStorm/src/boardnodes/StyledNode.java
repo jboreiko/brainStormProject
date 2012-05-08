@@ -163,17 +163,17 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		_fontMenu.add(loadDictItem);
 		_fontMenu.add(loadDuckItem);
 
-		
+
 		//cut
-        JMenuItem cutItem = new JMenuItem("Cut");
-        popup.add(cutItem);
-        cutItem.addActionListener(new ActionListener(){
-        	public void actionPerformed(ActionEvent e) {
-        		backend.copy(StyledNode.this);
-    			backend.remove(StyledNode.this.getUID());
-    			removeAllSnappedPaths();
-        	}
-        });
+		JMenuItem cutItem = new JMenuItem("Cut");
+		popup.add(cutItem);
+		cutItem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				backend.copy(StyledNode.this);
+				backend.remove(StyledNode.this.getUID());
+				removeAllSnappedPaths();
+			}
+		});
 		//copying
 		JMenuItem copyItem = new JMenuItem("Copy");
 		popup.add(copyItem);
@@ -411,13 +411,17 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		repaint();
 	}
 
+	public boolean withinDelete(Point p) {
+		return p.x < BORDER_WIDTH && p.y < BORDER_WIDTH;
+	}
+
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		lastClick = (Point) e.getPoint().clone();
 		if(e.getModifiers()!=4) {
 			if (isBeingEdited)
 				return;
-			if (e.getX() < BORDER_WIDTH && e.getY() < BORDER_WIDTH) {
+			if (withinDelete(e.getPoint())) {
 				backend.remove(this.getUID());
 				removeAllSnappedPaths();
 			}
@@ -447,19 +451,22 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		wbp.setListFront(this.UID);
 		content.grabFocus();
 		startPt = new Point(e.getX(),e.getY());
-		if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
-			_resizeLock = true;
-		}
-		else {
-			_dragLock = true;
+		if(!withinDelete(e.getPoint())) {
+			if(e.getX() > this.getWidth()-BORDER_WIDTH && e.getY() > this.getHeight()-BORDER_WIDTH){
+				_resizeLock = true;
+			}
+			else {
+				_dragLock = true;
+			}
 		}
 		boundsBeforeMove = getBounds();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (!isBeingEdited && (_resizeLock || _dragLock)) {
+		if (!isBeingEdited && (_resizeLock || _dragLock) && !boundsBeforeMove.equals(this.getBounds())) {
 			undos.push(new StyledNodeEdit(boundsBeforeMove));
+			System.out.println("styled node: notifying backend");
 			notifyBackend(BoardActionType.ELT_MOD);
 			System.out.println(undos.size());
 		}

@@ -2,9 +2,11 @@ package boardnodes;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -432,6 +434,7 @@ public class BoardPath extends BoardElt {
 		_oldSeminal = new Point(_seminal);
 		_oldTerminal = new Point(_terminal);
 		setPathType(future._stroke);
+		backend.getPanel().extendPanel(new Rectangle(getLocation(), new Dimension(getWidth(), getHeight())));
 	}
 
 	@Override

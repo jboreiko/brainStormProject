@@ -133,8 +133,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		JMenuItem addPathItem = new JMenuItem("Add Path");
 		addPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.NORMAL);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+				newPath.setPathType(BoardPathType.NORMAL);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(addPathItem);
@@ -142,8 +144,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
 		dottedPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+				newPath.setPathType(BoardPathType.DOTTED);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(dottedPathItem);
@@ -151,8 +155,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
 		arrowPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.ARROW);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+				newPath.setPathType(BoardPathType.ARROW);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(arrowPathItem);
@@ -160,8 +166,10 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
 		dottedArrowPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED_ARROW);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(ScribbleNode.this, lastClick);
+				newPath.setPathType(BoardPathType.DOTTED_ARROW);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(dottedArrowPathItem);

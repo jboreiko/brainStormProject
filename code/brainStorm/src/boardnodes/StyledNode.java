@@ -184,8 +184,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		JMenuItem addPathItem = new JMenuItem("Add Path");
 		addPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.NORMAL);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(StyledNode.this, lastClick);
+				newPath.setPathType(BoardPathType.NORMAL);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(addPathItem);
@@ -193,8 +195,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		JMenuItem dottedPathItem = new JMenuItem("Add Dotted Path");
 		dottedPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(StyledNode.this, lastClick);
+				newPath.setPathType(BoardPathType.DOTTED);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(dottedPathItem);
@@ -202,8 +206,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		JMenuItem arrowPathItem = new JMenuItem("Add Arrow");
 		arrowPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.ARROW);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(StyledNode.this, lastClick);
+				newPath.setPathType(BoardPathType.ARROW);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(arrowPathItem);
@@ -211,8 +217,10 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 		JMenuItem dottedArrowPathItem = new JMenuItem("Add Dotted Arrow");
 		dottedArrowPathItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				BoardPath newPath = (BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED_ARROW);
+				BoardPath newPath = new BoardPath(0, backend);//(BoardPath) backend.getPanel().newElt(BoardEltType.PATH, BoardPathType.DOTTED);
 				newPath.autoSnapTo(StyledNode.this, lastClick);
+				newPath.setPathType(BoardPathType.DOTTED_ARROW);
+				backend.getPanel().addElt(newPath);
 			}
 		});
 		popup.add(dottedArrowPathItem);

@@ -91,6 +91,7 @@ public class ViewportDragScrollListener implements MouseListener,MouseMotionList
 	}
 	@Override public void mouseReleased(MouseEvent e) {
 		if(draggedPath!=null) {
+			wb.extendPanel(new Rectangle(draggedPath.getLocation(), new Dimension(draggedPath.getWidth(), draggedPath.getHeight())));
 			draggedPath.stopDrag();
 			draggedPath = null;
 		}

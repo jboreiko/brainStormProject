@@ -78,7 +78,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			fontItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					content.setFont(new Font(fontName, content.getFont().getStyle(), content.getFont().getSize()));
-					//notifyBackend(BoardActionType.ELT_MOD);
 				}
 			});
 			_styleMenu.add(fontItem);
@@ -96,7 +95,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 			fontItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					content.setForeground(color);
-					//notifyBackend(BoardActionType.ELT_MOD);
 				}
 			});
 			_colorMenu.add(fontItem);
@@ -111,7 +109,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				public void actionPerformed(ActionEvent e) {
 					Font replaceWith = content.getFont().deriveFont((float)a);
 					content.setFont(replaceWith);
-					//notifyBackend(BoardActionType.ELT_MOD);
 				}
 			});
 			_fontSizeMenu.add(fontSize);
@@ -252,7 +249,6 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 				view.repaint();
 			}
 		});
-		//notifyBackend(BoardActionType.ELT_MOD); //once you've made text change, pressing undo will revert to initial text
 	}
 
 	@Override
@@ -309,7 +305,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 					lastText = content.getText();
 					lastFont = content.getFont();
 					backend.alertEditingStatus(StyledNode.this, false);
-					notifyBackend(BoardActionType.ELT_MOD);
+					if (backend.lookup(getUID()) != null)
+						notifyBackend(BoardActionType.ELT_MOD);
 				}
 				backend.alertEditingStatus(StyledNode.this, false);
 			}

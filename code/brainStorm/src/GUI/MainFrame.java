@@ -361,7 +361,7 @@ public class MainFrame extends JFrame {
 				if (ret == JFileChooser.APPROVE_OPTION) {
 					File f = fc.getSelectedFile();
 					if (!stormFilter.accept(f)) {
-						f.renameTo(new File (f.getAbsolutePath() + ".storm"));
+						f = new File (f.getAbsolutePath() + ".storm");
 					}
 					_whiteboard.getBackend().save(f);
 				}

@@ -298,10 +298,7 @@ public class ScribbleNode extends BoardElt implements MouseListener, MouseMotion
 		else {
 			LinkedList<ColoredPoint> ret = new LinkedList<ColoredPoint>();
 			ColoredPoint endPt = new ColoredPoint(startPt.x+1, startPt.y+1, _drawColor, _drawSize);
-	        if (e.getModifiers() == 4) {
-	            _drawMenu.show(ScribbleNode.this,e.getX(),e.getY());
-	        }
-	        else{
+	        if(e.getModifiers()!=4) {
 				ret.add(new ColoredPoint(startPt, _drawColor, _drawSize));
 	        }
 			ret.add(endPt);

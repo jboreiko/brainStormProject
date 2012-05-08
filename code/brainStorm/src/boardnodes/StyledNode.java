@@ -636,7 +636,8 @@ public class StyledNode extends BoardElt implements MouseListener, MouseMotionLi
 	@Override
 	public ArrayList<SearchResult> search(String query) {
 		ArrayList<SearchResult> toReturn = new ArrayList<SearchResult>();
-		String toSearch = this.getText();
+		String toSearch = this.getText().toLowerCase();
+		query = query.toLowerCase();
 		int lastIndex = 0;
 		while(lastIndex!=-1) {
 			lastIndex = toSearch.indexOf(query, lastIndex);
